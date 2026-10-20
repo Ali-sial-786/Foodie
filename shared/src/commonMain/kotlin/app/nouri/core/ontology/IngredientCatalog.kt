@@ -502,11 +502,11 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
         store(FRIDGE, 30); portion(QuantityUnit.TABLESPOON, 16.0, "1 tbsp")
     }
     ing("garlic", "Garlic", VEGETABLE, ndb = "11215", aliases = "garlic,lehsan,lehsun,lasan,ajo,ail,thoom,garlic cloves,garlic paste") {
-        spice(); piece(3.0, "1 clove"); portion(QuantityUnit.CLOVE, 3.0, "1 clove")
+        produce(60, PANTRY); piece(3.0, "1 clove"); portion(QuantityUnit.CLOVE, 3.0, "1 clove")
         portion(QuantityUnit.TEASPOON, 2.8, "1 tsp, minced"); portion(QuantityUnit.TABLESPOON, 8.5, "1 tbsp, minced/paste")
     }
     ing("ginger", "Ginger", VEGETABLE, ndb = "11216", aliases = "ginger,adrak,adrakh,ginger root,jengibre,gingembre,ginger paste") {
-        spice(); portion(QuantityUnit.TEASPOON, 2.0, "1 tsp, grated"); portion(QuantityUnit.TABLESPOON, 6.0, "1 tbsp, grated/paste")
+        produce(21); portion(QuantityUnit.TEASPOON, 2.0, "1 tsp, grated"); portion(QuantityUnit.TABLESPOON, 6.0, "1 tbsp, grated/paste")
         piece(11.0, "1 in (2.5 cm) piece")
     }
     ing("green_chili", "Green chili", VEGETABLE, ndb = "11670",
