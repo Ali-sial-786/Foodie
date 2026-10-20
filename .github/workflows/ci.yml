@@ -37,7 +37,10 @@ jobs:
         # Exported schemas are needed to write and test migrations. Until the first one is
         # committed this only prints it; afterwards any uncommitted change fails the build.
         run: |
-          if [ -z "$(git ls-files app/schemas)" ]; then
+          if [ ! -d app/schemas ]; then
+            # Code generation was restored from the build cache, so no schema was written this run.
+            echo "::notice::Room schema not regenerated in this run (build cache hit)"
+          elif [ -z "$(git ls-files app/schemas)" ]; then
             echo "::warning::No Room schema committed yet; copy the JSON below into app/schemas/"
             find app/schemas -name '*.json' -print -exec cat {} \;
           elif [ -n "$(git status --porcelain app/schemas)" ]; then
