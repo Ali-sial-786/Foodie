@@ -6,7 +6,7 @@
 |---|---|---|---|
 | Shared unit tests | `shared/src/commonTest` | 223 | Locally and in CI (`:shared:jvmTest`) |
 | Shared JVM-only tests (benchmark, dish table printer) | `shared/src/jvmTest` | 3 | Locally and in CI |
-| App Robolectric + Compose UI tests | `app/src/test` | 1 (first-launch screen) | CI only (`:app:testDebugUnitTest`) |
+| App unit, Robolectric and Compose UI tests | `app/src/test` | 30 | CI only (`:app:testDebugUnitTest`) |
 | Android lint | — | — | CI only (`:app:lintDebug`; reports uploaded, non-blocking) |
 
 That makes **226 shared tests**. They cover:
@@ -24,7 +24,16 @@ That makes **226 shared tests**. They cover:
 - the AI layer (consent gating, no silent fallback, SSE parsing, error mapping);
 - SIWC (PKCE, callback validation, ID token checks, refresh rotation, revocation).
 
-App screen tests beyond the first-launch check are still to be written (see PROGRESS.md).
+The app tests (all on the JVM with Robolectric — simulated, not on a device) cover:
+
+- the diary repository: idempotent retries, the double-tap duplicate guard, soft delete and undo, snapshot round-trip, copying a day;
+- user foods being searchable as soon as they are saved;
+- settings defaults (demo provider, no photo consent, no paid fallback, delete photos after analysis) and reset;
+- the API key never being stored in plain text;
+- export mapping and the recipe-editor line parser;
+- UI flows: first launch, skipping every onboarding step, quick add, and an end-to-end meal scan (demo provider → estimator → review screen → diary, checking that photo portions are saved as estimates with a range and demo provenance).
+
+`app/src/test/kotlin/app/nouri/testing/TestContainer.kt` builds a fully wired container with an in-memory database, a throwaway DataStore and a test-only cipher (Robolectric has no Android Keystore). In Compose tests, waits that read the database call `rule.waitForIdle()` first so the main looper can run view-model coroutines.
 
 ## Running
 
@@ -67,7 +76,7 @@ Read coverage together with range width: wide ranges make coverage easy. The har
 | Claim | Status |
 |---|---|
 | Shared logic correct for the tested cases | Verified (JVM tests) |
-| App compiles, first screen renders under Robolectric | Verified in CI |
+| App compiles; main flows pass under Robolectric (simulated) | Verified in CI |
 | UI on a real phone or emulator | **Not done** |
 | CameraX capture, ML Kit barcode and OCR on hardware | **Not done** |
 | Sign in with ChatGPT and Responses API against live OpenAI | **Not done**; mocked HTTP only |
