@@ -1,8 +1,9 @@
 package app.nouri
 
-import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
@@ -14,7 +15,9 @@ class MainActivityTest {
     val rule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun showsAppName() {
-        rule.onNodeWithText("Nouri").assertIsDisplayed()
+    fun firstLaunchShowsOnboarding() {
+        // Settings load asynchronously from DataStore before the first frame of UI.
+        rule.waitUntil(10_000) { rule.onAllNodesWithText("Nouri", substring = true).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Nouri", substring = true).assertIsDisplayed()
     }
 }

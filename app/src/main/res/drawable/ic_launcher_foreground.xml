@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Bowl -->
+    <path
+        android:fillColor="@color/launcher_foreground"
+        android:pathData="M30,56 L78,56 C78,70 67,80 54,80 C41,80 30,70 30,56 Z" />
+    <!-- Leaf -->
+    <path
+        android:fillColor="@color/launcher_foreground"
+        android:pathData="M54,52 C46,46 46,34 58,28 C64,36 62,48 54,52 Z" />
+</vector>
