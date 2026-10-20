@@ -42,3 +42,11 @@ kotlin {
 tasks.withType<JavaCompile>().configureEach {
     options.release.set(17)
 }
+
+tasks.withType<Test>().configureEach {
+    systemProperty("nouri.repoRoot", rootDir.absolutePath)
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
