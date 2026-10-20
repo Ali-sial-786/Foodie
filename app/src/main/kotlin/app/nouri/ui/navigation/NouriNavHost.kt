@@ -12,6 +12,7 @@ import app.nouri.ui.food.AddFoodScreen
 import app.nouri.ui.food.EntryDetailScreen
 import app.nouri.ui.food.FoodDetailScreen
 import app.nouri.ui.home.HomeScreen
+import app.nouri.ui.progress.ProgressScreen
 
 @Composable
 fun NouriNavHost(navController: NavHostController, startDestination: Route, contentPadding: PaddingValues) {
@@ -21,7 +22,7 @@ fun NouriNavHost(navController: NavHostController, startDestination: Route, cont
         composable<Route.Home> { HomeScreen(nav, contentPadding) }
         composable<Route.Discover> { PlaceholderScreen("Discover", contentPadding) }
         composable<Route.Diary> { DiaryScreen(nav, contentPadding) }
-        composable<Route.Progress> { PlaceholderScreen("Progress", contentPadding) }
+        composable<Route.Progress> { ProgressScreen(nav, contentPadding) }
         composable<Route.Camera> { PlaceholderScreen("Camera", contentPadding) }
         composable<Route.AddFood> { AddFoodScreen(nav, it.toRoute()) }
         composable<Route.FoodDetail> { FoodDetailScreen(nav, it.toRoute()) }

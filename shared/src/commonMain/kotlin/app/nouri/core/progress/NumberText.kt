@@ -12,7 +12,7 @@ import kotlin.math.floor
  * from zero with a tiny tolerance so values such as 0.15 (stored as
  * 0.1499999…) round the way people expect.
  */
-internal object NumberText {
+object NumberText {
 
     /** Unicode minus sign, used in prose so "−1.2 kg" doesn't look like a hyphen. */
     const val MINUS = "−"
