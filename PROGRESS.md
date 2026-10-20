@@ -51,7 +51,7 @@ _Last updated: 2026-10-20._
 - Instrumented tests on an emulator or device (none yet; all UI tests are Robolectric).
 - Accessibility audit, baseline profile, performance measurement.
 - ID-token signature verification against JWKS (the hook exists but isn't wired). The ID token arrives directly from the token endpoint over TLS, which OpenID Connect allows in place of a signature check; its claims are only used to label the account.
-- Committing the Room schema JSON.
+- Committing the Room schema JSON. CI prints it (step "Room schema is committed") until it is in git; commit it from a local build with the Android SDK, after which CI fails on any uncommitted schema change.
 - iOS.
 
 ## Known limitations
