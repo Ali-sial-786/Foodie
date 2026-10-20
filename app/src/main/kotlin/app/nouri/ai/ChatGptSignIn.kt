@@ -61,7 +61,8 @@ class AndroidLoopbackReceiver(private val returnLink: String = "nouri://auth-com
                     out.flush()
                     return@use
                 }
-                val page = successPage()
+                // The app validates state and exchanges the code afterwards; this page only says what happened in the browser.
+                val page = resultPage(denied = Regex("[?&]error=").containsMatchIn(target))
                 out.write(
                     ("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\n" +
                         "Content-Length: ${page.toByteArray().size}\r\nConnection: close\r\n\r\n$page").toByteArray(),
@@ -73,10 +74,14 @@ class AndroidLoopbackReceiver(private val returnLink: String = "nouri://auth-com
         return null
     }
 
-    private fun successPage(): String = """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nouri</title>
+    private fun resultPage(denied: Boolean): String {
+        val heading = if (denied) "Sign-in wasn't completed" else "Almost done"
+        val body = if (denied) "No access was granted. You can return to Nouri and try again." else "Return to Nouri to finish connecting."
+        return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nouri</title>
 <style>body{font-family:sans-serif;background:#FBF8F4;color:#1F1B16;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
 .c{text-align:center;padding:24px}a{display:inline-block;margin-top:16px;background:#2F6B4F;color:#fff;padding:14px 24px;border-radius:24px;text-decoration:none}</style></head>
-<body><div class="c"><h2>You're connected</h2><p>You can return to Nouri now.</p><a href="$returnLink">Return to Nouri</a></div></body></html>"""
+<body><div class="c"><h2>$heading</h2><p>$body</p><a href="$returnLink">Return to Nouri</a></div></body></html>"""
+    }
 
     override fun stop() {
         runCatching { server?.close() }

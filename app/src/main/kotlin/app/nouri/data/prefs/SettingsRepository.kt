@@ -5,7 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.preferencesDataStoreFile
 import app.nouri.core.ai.AiPreferences
 import app.nouri.core.ai.ProviderKind
 import app.nouri.core.diary.DailyTargets
@@ -76,11 +77,10 @@ data class AppSettings(
         get() = AiPreferences(ai.selected, ai.photoConsent, ai.allowApiKeyFallback)
 }
 
-private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "nouri_settings")
-
 /** All app settings as one JSON document, updated atomically. */
 class SettingsRepository(private val dataStore: DataStore<Preferences>) {
-    constructor(context: Context) : this(context.settingsDataStore)
+    /** One instance per process (the app container owns it); DataStore forbids two on the same file. */
+    constructor(context: Context) : this(PreferenceDataStoreFactory.create { context.applicationContext.preferencesDataStoreFile("nouri_settings") })
 
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
     private val key = stringPreferencesKey("settings_v1")

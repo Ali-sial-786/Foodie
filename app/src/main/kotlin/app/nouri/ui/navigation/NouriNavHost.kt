@@ -8,12 +8,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import app.nouri.ui.diary.DiaryScreen
+import app.nouri.ui.discover.DiscoverScreen
 import app.nouri.ui.food.AddFoodScreen
 import app.nouri.ui.food.EntryDetailScreen
 import app.nouri.ui.food.FoodDetailScreen
 import app.nouri.ui.home.HomeScreen
 import app.nouri.ui.onboarding.OnboardingScreen
+import app.nouri.ui.pantry.GroceryScreen
+import app.nouri.ui.pantry.PantryScreen
 import app.nouri.ui.progress.ProgressScreen
+import app.nouri.ui.recipes.CookModeScreen
+import app.nouri.ui.recipes.RecipeDetailScreen
+import app.nouri.ui.recipes.RecipeEditorScreen
 import app.nouri.ui.scan.CameraScreen
 import app.nouri.ui.scan.IngredientReviewScreen
 import app.nouri.ui.scan.LabelReviewScreen
@@ -32,7 +38,7 @@ fun NouriNavHost(navController: NavHostController, startDestination: Route, cont
         composable<Route.Onboarding> { OnboardingScreen(nav) }
 
         composable<Route.Home> { HomeScreen(nav, contentPadding) }
-        composable<Route.Discover> { PlaceholderScreen("Discover", contentPadding) }
+        composable<Route.Discover> { DiscoverScreen(nav, contentPadding) }
         composable<Route.Diary> { DiaryScreen(nav, contentPadding) }
         composable<Route.Progress> { ProgressScreen(nav, contentPadding) }
 
@@ -44,6 +50,12 @@ fun NouriNavHost(navController: NavHostController, startDestination: Route, cont
         composable<Route.AddFood> { AddFoodScreen(nav, it.toRoute()) }
         composable<Route.FoodDetail> { FoodDetailScreen(nav, it.toRoute()) }
         composable<Route.EntryDetail> { EntryDetailScreen(nav, it.toRoute()) }
+
+        composable<Route.RecipeDetail> { RecipeDetailScreen(nav, it.toRoute()) }
+        composable<Route.CookMode> { CookModeScreen(nav, it.toRoute()) }
+        composable<Route.RecipeEditor> { RecipeEditorScreen(nav, it.toRoute()) }
+        composable<Route.Pantry> { PantryScreen(nav) }
+        composable<Route.Grocery> { GroceryScreen(nav) }
 
         composable<Route.Settings> { SettingsScreen(nav) }
         composable<Route.AiSettings> { AiSettingsScreen(nav) }
