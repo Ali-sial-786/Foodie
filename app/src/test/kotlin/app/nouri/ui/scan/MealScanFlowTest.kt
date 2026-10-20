@@ -29,6 +29,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import java.io.File
 
 /**
@@ -37,6 +38,7 @@ import java.io.File
  * This is simulated — it does not exercise a real camera or a real AI provider.
  */
 @RunWith(AndroidJUnit4::class)
+@Config(qualifiers = "w411dp-h891dp")
 class MealScanFlowTest {
     @get:Rule
     val rule = createComposeRule()

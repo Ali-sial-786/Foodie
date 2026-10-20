@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -26,8 +27,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
+@Config(qualifiers = "w411dp-h891dp")
 class QuickAddFlowTest {
     @get:Rule
     val rule = createComposeRule()
@@ -49,7 +52,7 @@ class QuickAddFlowTest {
         rule.onNode(hasSetTextAction() and hasText("Name (optional)")).performTextInput("Samosa from the canteen")
         rule.onNode(hasSetTextAction() and hasText("Calories")).performTextInput("260")
         rule.onNode(hasSetTextAction() and hasText("Protein")).performTextInput("5")
-        rule.onNodeWithText("Log").performClick()
+        rule.onNodeWithText("Log").performScrollTo().performClick()
 
         // waitForIdle lets the main looper run the view model's coroutine between checks.
         rule.waitUntil(10_000) {

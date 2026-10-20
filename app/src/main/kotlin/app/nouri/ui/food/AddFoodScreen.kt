@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -252,7 +253,7 @@ private fun DescribedRow(item: ResolvedTextItem, included: Boolean, onToggle: ()
 @Composable
 private fun QuickPane(vm: AddFoodViewModel) {
     val q by vm.quick.collectAsStateWithLifecycle()
-    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedTextField(value = q.name, onValueChange = { v -> vm.updateQuick { it.copy(name = v) } }, label = { Text("Name (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
         NumberField(q.kcal, { v -> vm.updateQuick { it.copy(kcal = v) } }, "Calories", Modifier.fillMaxWidth(), suffix = "kcal")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
