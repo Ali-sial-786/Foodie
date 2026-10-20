@@ -10,7 +10,7 @@ import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PhotoCamera
-import androidx.compose.material.icons.outlined.ShowChart
+import androidx.compose.material.icons.automirrored.outlined.ShowChart
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -52,7 +52,7 @@ private val Tabs = listOf(
     Tab(Route.Home, Route.Home::class, "Home", Icons.Outlined.Home),
     Tab(Route.Discover, Route.Discover::class, "Discover", Icons.Outlined.Explore),
     Tab(Route.Diary, Route.Diary::class, "Diary", Icons.Outlined.Book),
-    Tab(Route.Progress, Route.Progress::class, "Progress", Icons.Outlined.ShowChart),
+    Tab(Route.Progress, Route.Progress::class, "Progress", Icons.AutoMirrored.Outlined.ShowChart),
 )
 
 /** Root of the UI: bottom navigation with a central Scan action, and the navigation graph. */

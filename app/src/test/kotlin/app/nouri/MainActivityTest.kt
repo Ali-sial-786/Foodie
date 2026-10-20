@@ -17,7 +17,7 @@ class MainActivityTest {
     @Test
     fun firstLaunchShowsOnboarding() {
         // Settings load asynchronously from DataStore before the first frame of UI.
-        rule.waitUntil(10_000) { rule.onAllNodesWithText("Nouri", substring = true).fetchSemanticsNodes().isNotEmpty() }
-        rule.onNodeWithText("Nouri", substring = true).assertIsDisplayed()
+        rule.waitUntil(10_000) { rule.onAllNodesWithText("Welcome to Nouri").fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Welcome to Nouri").assertIsDisplayed()
     }
 }

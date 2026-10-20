@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -90,7 +91,7 @@ fun MealReviewScreen(nav: AppNavigator, route: Route.MealReview) {
             }
             return@Scaffold
         }
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).testTag(MEAL_REVIEW_LIST), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     s.photos.forEachIndexed { i, f -> PhotoThumb(f, "Meal photo ${i + 1}", Modifier.size(96.dp).clip(MaterialTheme.shapes.small)) }
@@ -141,6 +142,8 @@ fun MealReviewScreen(nav: AppNavigator, route: Route.MealReview) {
         )
     }
 }
+
+const val MEAL_REVIEW_LIST = "meal_review_list"
 
 private data class SearchTarget(val itemId: String?, val alternatives: List<FoodMatch>)
 

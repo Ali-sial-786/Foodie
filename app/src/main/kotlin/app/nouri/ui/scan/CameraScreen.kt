@@ -14,6 +14,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
+import androidx.camera.view.TapToFocusInfo
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -29,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -82,15 +84,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -231,13 +236,15 @@ private fun Viewfinder(state: CameraUiState, vm: CameraViewModel, onGallery: () 
     var showExposure by remember { mutableStateOf(false) }
     var exposure by remember { mutableFloatStateOf(0f) }
     var focusText by remember { mutableStateOf<String?>(null) }
+    var focusPoint by remember { mutableStateOf<Offset?>(null) }
 
     DisposableEffect(lifecycleOwner) {
         controller.isTapToFocusEnabled = true
         controller.isPinchToZoomEnabled = true
         controller.bindToLifecycle(lifecycleOwner)
-        val focusObserver = androidx.lifecycle.Observer<Int> { s ->
-            focusText = when (s) {
+        val focusObserver = androidx.lifecycle.Observer<TapToFocusInfo> { info ->
+            focusPoint = info.tapPoint?.let { Offset(it.x, it.y) }
+            focusText = when (info.focusState) {
                 CameraController.TAP_TO_FOCUS_STARTED -> "Focusing…"
                 CameraController.TAP_TO_FOCUS_FOCUSED -> "Focused"
                 CameraController.TAP_TO_FOCUS_NOT_FOCUSED -> "Couldn't focus — try moving back a little"
@@ -245,9 +252,9 @@ private fun Viewfinder(state: CameraUiState, vm: CameraViewModel, onGallery: () 
                 else -> null
             }
         }
-        controller.tapToFocusState.observe(lifecycleOwner, focusObserver)
+        controller.tapToFocusInfoState.observe(lifecycleOwner, focusObserver)
         onDispose {
-            controller.tapToFocusState.removeObserver(focusObserver)
+            controller.tapToFocusInfoState.removeObserver(focusObserver)
             controller.clearImageAnalysisAnalyzer()
             controller.unbind()
             analysisExecutor.shutdown()
@@ -286,6 +293,17 @@ private fun Viewfinder(state: CameraUiState, vm: CameraViewModel, onGallery: () 
             modifier = Modifier.fillMaxSize().semantics { contentDescription = "Camera preview. Tap to focus." },
         )
         FrameGuide(state.mode)
+        focusPoint?.let { p ->
+            val density = LocalDensity.current
+            val ring = 64.dp
+            val half = with(density) { (ring / 2).toPx() }
+            Box(
+                Modifier
+                    .offset { IntOffset((p.x - half).toInt(), (p.y - half).toInt()) }
+                    .size(ring)
+                    .border(2.dp, if (focusText == "Focused") Color(0xFF8FD1AE) else Color.White, CircleShape),
+            )
+        }
 
         Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(bottom = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             focusText?.let { Text(it, color = Color.White, style = MaterialTheme.typography.labelMedium, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
