@@ -33,6 +33,19 @@ jobs:
       - name: Android unit + Robolectric + Compose UI tests
         run: ./gradlew :app:testDebugUnitTest --console=plain
 
+      - name: Room schema is committed
+        # Exported schemas are needed to write and test migrations. Until the first one is
+        # committed this only prints it; afterwards any uncommitted change fails the build.
+        run: |
+          if [ -z "$(git ls-files app/schemas)" ]; then
+            echo "::warning::No Room schema committed yet; copy the JSON below into app/schemas/"
+            find app/schemas -name '*.json' -print -exec cat {} \;
+          elif [ -n "$(git status --porcelain app/schemas)" ]; then
+            echo "::error::The Room schema changed. Bump the database version, add a migration and commit app/schemas/."
+            git status --porcelain app/schemas
+            exit 1
+          fi
+
       - name: Assemble debug APK
         run: ./gradlew :app:assembleDebug --console=plain
 

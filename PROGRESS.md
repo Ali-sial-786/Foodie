@@ -30,44 +30,27 @@ _Last updated: 2026-10-20._
 - Manifest: permissions, `nouri://auth-complete` deep link, backups disabled.
 - CI uploads a debug APK (`nouri-debug-apk`).
 
-## Written, awaiting a green CI run
+**Android screens.** All written; see the CI status line below for what has compiled and passed.
 
 - Home: today's ring and macros, quick actions, log again, recipe ideas, expiry banner, demo-mode banner.
 - Diary: day navigation and date picker, meal sections, delete with undo, copy meal or previous day.
 - Add food: unified search, recent foods, natural-language describe (offline, plus optional "Interpret with AI" with disclosure), quick add, duplicate warning.
-- Food detail: unit and portion picker, nutrition table, confidence, "how this was worked out", source.
-- Entry detail: rescale, change meal, delete, log again, provenance.
-- Progress: weight chart (scale readings plus trend), daily energy bars with target line, range presets, observations, adaptive target suggestion (accept only on tap), log-weight dialog.
+- Food detail and entry detail: unit/portion picker, nutrition table, confidence, "how this was worked out", provenance, rescale, delete, log again.
+- Progress: weight chart (scale readings plus trend), daily energy bars with target line, range presets, observations, adaptive target suggestion (applied only on tap).
+- Camera: CameraX preview with meal / ingredients / label-barcode modes, flash, tap-to-focus with focus ring, exposure, pinch zoom, capture, gallery import (multi-photo), photo review with rotate, centre crop and retake, optional portion details, consent dialog before the first real-provider upload, live on-device ML Kit barcode reading, on-device label OCR, camera-permission recovery (rationale, settings link, gallery fallback).
+- Scan review: meal review with honest analysis phases, editable items (change food, amount, smaller/larger, preparation, added fats, include/remove, add missed item), clarifying question, ranges and confidence, logging and on-device correction learning; ingredient review with confirm-before-pantry chips, recipe matches and optional AI recipe generation (labelled); barcode/label review with Open Food Facts lookup, on-device label reading, optional AI reading with consent, editable values, saved food → portion → log.
+- Discover and recipes: catalogue with search and filters, explainable ranking, recipe detail with non-naive scaling, pantry availability, variations, per-line nutrition, diet/allergen/halal notes, portion logging by servings, grams or share of the batch, cook mode with timers, recipe editor.
+- Pantry and grocery: storage locations, expiry, add/edit with undo, confirm-only deductions after cooking, grocery list with share and move-to-pantry.
+- Settings: AI provider status (account, billing mode, capabilities, restrictions, model), Sign in with ChatGPT connect/disconnect, API key entry, explicit fallback opt-in, privacy (retention, barcode lookup, personalisation, revoke consent, delete photos), profile, targets, preferences, units, day start, theme, CSV/JSON export, delete everything, data sources and attribution.
+- Onboarding: welcome, optional goal/profile/targets/preferences (every step skippable), AI and privacy explanation.
 
-## In progress (being written now; target design)
-
-- **Camera:**
-  - CameraX preview with the three modes, flash, tap-to-focus and exposure;
-  - capture plus gallery import (multi-photo);
-  - photo review with rotate, crop and retake;
-  - consent dialog before the first real-provider upload;
-  - live ML Kit barcode detection in label mode;
-  - on-device OCR for labels.
-- **Scan review:**
-  - meal review with editable items, clarifying question, range and confidence, logging and correction learning;
-  - ingredient review with chips → pantry (explicit) and recipe suggestions;
-  - label/barcode review → saved food → log.
-- **Discover and recipes:** catalogue browsing with filters, recipe detail with nutrition and scaling, variations, cook mode, saving AI-generated recipes (labelled).
-- **Pantry and grocery** screens.
-- **Settings:**
-  - AI provider status (account, billing mode, capabilities, restrictions, model);
-  - Sign in with ChatGPT connect and disconnect, API key entry, fallback opt-in;
-  - privacy (retention, barcode lookup, personalisation, revoke photo consent);
-  - profile and targets, preferences, units, day start, theme;
-  - export CSV, delete all data;
-  - data sources and attribution.
-- **Onboarding:** welcome, optional goals and profile, targets, food preferences, AI and privacy explanation.
+**App tests (Robolectric, simulated — no device):** diary repository (idempotency, duplicate guard, soft delete/undo, snapshot round-trip, copy day), user-food index, settings defaults and reset, encrypted API-key storage, export mapping, recipe line parser, first launch, full onboarding skip flow, quick add, and an end-to-end meal scan (demo provider → estimator → review UI → diary).
 
 ## Not started
 
-- Screen-level Robolectric/Compose tests beyond the first-launch test.
+- Instrumented tests on an emulator or device (none yet; all UI tests are Robolectric).
 - Accessibility audit, baseline profile, performance measurement.
-- ID-token signature verification against JWKS (the hook exists but isn't wired).
+- ID-token signature verification against JWKS (the hook exists but isn't wired). The ID token arrives directly from the token endpoint over TLS, which OpenID Connect allows in place of a signature check; its claims are only used to label the account.
 - Committing the Room schema JSON.
 - iOS.
 

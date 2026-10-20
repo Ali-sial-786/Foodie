@@ -30,9 +30,6 @@ sealed interface Route {
     @Serializable data object Pantry : Route
     @Serializable data object Grocery : Route
 
-    // Progress
-    @Serializable data object LogWeight : Route
-
     // Settings
     @Serializable data object Settings : Route
     @Serializable data object AiSettings : Route

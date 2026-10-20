@@ -2,7 +2,7 @@
 
 Nouri (working name) is a camera-first Android app for tracking food and nutrition. You photograph a meal, your ingredients or a nutrition label. An AI provider identifies what is there, and an on-device engine calculates calories and macros from reference data. Each estimate shows its range, its confidence and where its numbers came from. The same engine powers recipes, a pantry, a diary and weight trends.
 
-> **Status: early development, not released.** The shared domain engine is implemented and has 226 passing JVM tests. The Android app's data layer, navigation shell and core diary screens compile and pass their tests in GitHub Actions. Camera, scan review, recipes, pantry, settings and onboarding screens are still being written. Nothing has run on a real device or emulator yet. See [PROGRESS.md](PROGRESS.md).
+> **Status: early development, not released.** The shared domain engine is implemented and has 226 passing JVM tests. All Android screens (camera and scan review, diary, search and logging, progress, recipes, pantry, settings, onboarding) are written and built in GitHub Actions, with Robolectric tests for the main flows. Nothing has run on a real device or emulator yet, and Sign in with ChatGPT has not been tested against live OpenAI. See [PROGRESS.md](PROGRESS.md).
 
 ## Quick start
 
@@ -25,14 +25,14 @@ Every push to GitHub runs CI ([.github/workflows/ci.yml](.github/workflows/ci.ym
 | Area | What exists | Status |
 |---|---|---|
 | Nutrition engine | Unit conversion, USDA SR28 data, ~190 canonical ingredients, ~85 regional dish compositions, deterministic recipe calculation, rounding policy, provenance | Implemented, tested (shared) |
-| Meal estimation pipeline | Identification → portion → match → deterministic nutrition → ranges/confidence → corrections → on-device learning | Implemented, tested (shared); review UI in progress |
+| Meal estimation pipeline | Identification → portion → match → deterministic nutrition → ranges/confidence → corrections → on-device learning | Implemented, tested (shared); review UI built, end-to-end Robolectric test with the demo provider |
 | AI providers | Provider interface; Sign in with ChatGPT (plan usage) and API-key providers via the OpenAI Responses API; deterministic demo provider | Implemented and unit-tested against mocks; **never tested against live OpenAI** |
 | Diary | Room storage with frozen nutrition snapshots, soft delete and undo, duplicate guard, copy meal/day | Implemented; UI compiled in CI |
 | Food search and logging | Unified search (your foods, dishes, ingredients, full USDA table), portion picker, natural-language logging (offline parser; optional AI), quick add | Implemented; UI compiled in CI |
 | Progress | Weight trend (smoothed), intake charts, plain-language insights, optional target suggestions | Implemented; UI compiled in CI |
-| Camera / scanning | CameraX with three modes, gallery import, multi-photo, label OCR, barcode | **In progress** |
-| Recipes / pantry / grocery | 28 built-in recipes across ~38 cuisines, scaling, variations, pantry matching, explainable ranking | Engine implemented; UI **in progress** |
-| Settings / onboarding / privacy controls | Settings storage, encrypted secret storage, export logic | Data layer done; UI **in progress** |
+| Camera / scanning | CameraX with three modes, flash, tap-to-focus, exposure, gallery import, multi-photo, rotate/crop, on-device barcode and label OCR | Built in CI; **not yet run on a device** |
+| Recipes / pantry / grocery | 28 built-in recipes across ~38 cuisines, scaling, variations, pantry matching, explainable ranking, cook mode | Engine tested; UI built in CI |
+| Settings / onboarding / privacy controls | AI provider status, ChatGPT connect/disconnect, API key, privacy and retention, export, delete everything, onboarding | Built in CI; onboarding flow tested |
 | iOS | Shared module is pure Kotlin Multiplatform common code | Planned ([IOS_ROADMAP.md](IOS_ROADMAP.md)) |
 
 ## Principles

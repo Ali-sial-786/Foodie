@@ -2,7 +2,6 @@ package app.nouri.ui.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -116,13 +115,5 @@ private fun NouriBottomBar(destination: NavDestination?, navController: NavHostC
                 label = { Text(tab.label) },
             )
         }
-    }
-}
-
-/** Temporary body for destinations whose screens are not built yet. */
-@Composable
-internal fun PlaceholderScreen(title: String, padding: PaddingValues) {
-    Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-        Text(title, style = MaterialTheme.typography.headlineSmall)
     }
 }
