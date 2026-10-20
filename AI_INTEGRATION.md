@@ -19,7 +19,7 @@ Errors are typed (`AiError`: `NotConfigured`, `Unauthorized`, `UsageLimitReached
 
 ## Safeguards in `AiService`
 
-- **Photo consent.** Image requests to any non-demo provider fail with `NotConfigured("Photo analysis needs your permission first")` until the user consents (`AiSettings.photoConsent`). The camera flow (in progress) shows the disclosure before the first upload.
+- **Photo consent.** Image requests to any non-demo provider fail with `NotConfigured("Photo analysis needs your permission first")` until the user consents (`AiSettings.photoConsent`). The camera and label flows show a disclosure dialog before the first upload; agreeing stores the consent, which can be revoked in Settings › Privacy.
 - **No silent fallback.** A failed request can be retried with the API-key provider only if all of these hold:
   - the user explicitly enabled `allowApiKeyFallback`;
   - the primary provider is `CHATGPT_PLAN`;
