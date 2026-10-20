@@ -33,6 +33,7 @@ import app.nouri.data.secure.EncryptedBlobStore
 import app.nouri.data.secure.KeystoreCipher
 import app.nouri.data.secure.SecretCipher
 import app.nouri.image.ImageProcessor
+import app.nouri.ui.UserMessages
 import app.nouri.ui.scan.ScanSessions
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -73,6 +74,7 @@ open class AppContainer(
     val usdaFoods by lazy { UsdaAssetFoods(context) }
     val images by lazy { ImageProcessor(context) }
     val scanSessions = ScanSessions()
+    val messages = UserMessages()
 
     private val secrets by lazy { EncryptedBlobStore(File(context.noBackupFilesDir, "secrets"), secretCipher()) }
     val apiKeys by lazy { ApiKeyStore(secrets) }

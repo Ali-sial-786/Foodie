@@ -21,7 +21,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import app.nouri.ui.LocalAppContainer
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -56,8 +64,19 @@ fun NouriApp(onboardingComplete: Boolean, navController: NavHostController = rem
     // Fixed for the life of the graph; finishing onboarding navigates to Home itself.
     val start = remember { if (onboardingComplete) Route.Home else Route.Onboarding }
 
+    val container = LocalAppContainer.current
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(container) {
+        container.messages.messages.collect { m ->
+            val result = snackbar.showSnackbar(m.text, actionLabel = m.actionLabel, withDismissAction = m.actionLabel == null, duration = SnackbarDuration.Short)
+            if (result == SnackbarResult.ActionPerformed) m.onAction?.let { action -> scope.launch { action() } }
+        }
+    }
+
     Scaffold(
         bottomBar = { if (showBar) NouriBottomBar(destination, navController) },
+        snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         NouriNavHost(
             navController = navController,

@@ -19,8 +19,8 @@ sealed interface Route {
     @Serializable data class LabelReview(val captureId: String) : Route
 
     // Logging
-    @Serializable data class AddFood(val date: String, val meal: String, val initialText: String = "") : Route
-    @Serializable data class FoodDetail(val foodId: String, val date: String, val meal: String) : Route
+    @Serializable data class AddFood(val date: String, val meal: String, val mode: String = "SEARCH") : Route
+    @Serializable data class FoodDetail(val foodId: String, val date: String, val meal: String, val title: String? = null) : Route
     @Serializable data class EntryDetail(val entryId: String) : Route
 
     // Recipes and kitchen
