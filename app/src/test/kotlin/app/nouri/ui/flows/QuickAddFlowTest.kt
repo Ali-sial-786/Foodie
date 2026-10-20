@@ -51,7 +51,11 @@ class QuickAddFlowTest {
         rule.onNode(hasSetTextAction() and hasText("Protein")).performTextInput("5")
         rule.onNodeWithText("Log").performClick()
 
-        rule.waitUntil(10_000) { runBlocking { c.diary.observeDay(today).first() }.isNotEmpty() }
+        // waitForIdle lets the main looper run the view model's coroutine between checks.
+        rule.waitUntil(10_000) {
+            rule.waitForIdle()
+            runBlocking { c.diary.observeDay(today).first() }.isNotEmpty()
+        }
         val entry = runBlocking { c.diary.observeDay(today).first() }.single()
         assertEquals("Samosa from the canteen", entry.name)
         assertEquals(MealType.LUNCH, entry.mealType)

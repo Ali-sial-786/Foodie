@@ -162,10 +162,10 @@ object RecipeLineParser {
         if (tasted && preparation == null) preparation = "to taste"
         return ParsedIngredientLine(
             raw = input.trim(),
-            amount = if (quantified) amount!! else 0.0,
+            amount = if (quantified) amount else 0.0,
             unit = when {
                 !quantified -> QuantityUnit.PINCH
-                unit != null -> unit!!
+                unit != null -> unit
                 else -> QuantityUnit.PIECE
             },
             size = if (quantified) size else null,

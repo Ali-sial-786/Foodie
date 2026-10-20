@@ -487,7 +487,7 @@ private fun LogPortionDialog(recipe: Recipe, report: RecipeNutritionReport, onDi
             }
         },
         confirmButton = {
-            TextButton(onClick = { amount?.let { onLog(mode, it, meal) } }, enabled = nutrients != null && (mode != PortionMode.FRACTION || amount!! <= 1.0)) { Text("Log") }
+            TextButton(onClick = { amount?.let { onLog(mode, it, meal) } }, enabled = nutrients != null && (mode != PortionMode.FRACTION || amount <= 1.0)) { Text("Log") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )

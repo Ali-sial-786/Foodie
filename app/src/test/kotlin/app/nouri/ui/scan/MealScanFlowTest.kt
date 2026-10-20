@@ -69,7 +69,11 @@ class MealScanFlowTest {
         rule.onNode(logButton).performClick()
 
         val today = SystemTime.diaryToday()
-        rule.waitUntil(10_000) { runBlocking { c.diary.observeDay(today).first() }.isNotEmpty() }
+        // waitForIdle lets the main looper run the view model's coroutine between checks.
+        rule.waitUntil(10_000) {
+            rule.waitForIdle()
+            runBlocking { c.diary.observeDay(today).first() }.isNotEmpty()
+        }
         val logged = runBlocking { c.diary.observeDay(today).first() }
         assertTrue(logged.all { it.origin == EntryOrigin.PHOTO_SCAN && it.scanId == "scan-1" })
         assertTrue(logged.any { it.name.contains("biryani", ignoreCase = true) })
