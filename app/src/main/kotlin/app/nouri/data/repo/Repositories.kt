@@ -180,12 +180,18 @@ class PantryRepository(private val dao: PantryDao) {
  * in-memory index so the synchronous [FoodRepository] contract is fast.
  */
 class UserFoodRepository(private val dao: UserFoodDao, scope: CoroutineScope, private val clock: () -> Long = System::currentTimeMillis) : FoodRepository {
+    private val all = MutableStateFlow<List<FoodReference>>(emptyList())
     private val index = MutableStateFlow(InMemoryFoodRepository(emptyList()))
 
     val foods: Flow<List<FoodReference>> = dao.observeAll().map { list -> list.map { it.toFoodReference() } }
 
     init {
-        scope.launch { foods.collect { index.value = InMemoryFoodRepository(it) } }
+        scope.launch { foods.collect(::replaceIndex) }
+    }
+
+    private fun replaceIndex(foods: List<FoodReference>) {
+        all.value = foods
+        index.value = InMemoryFoodRepository(foods)
     }
 
     override fun get(id: String): FoodReference? = index.value.get(id)
@@ -193,6 +199,8 @@ class UserFoodRepository(private val dao: UserFoodDao, scope: CoroutineScope, pr
 
     suspend fun save(food: FoodReference, brand: String? = null, barcode: String? = null, allergens: Set<Allergen> = emptySet()) {
         dao.upsert(food.toUserFoodEntity(brand, barcode, allergens, clock()))
+        // Findable immediately (e.g. by the screen opened next); the Room flow refreshes the index shortly after.
+        replaceIndex(all.value.filterNot { it.id == food.id } + food)
     }
 
     suspend fun byBarcode(barcode: String): FoodReference? = dao.byBarcode(barcode)?.toFoodReference()

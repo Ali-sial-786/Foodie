@@ -1,5 +1,6 @@
 package app.nouri.ui.scan
 
+import app.nouri.core.ai.PortionHints
 import app.nouri.image.ProcessedImage
 import java.util.concurrent.ConcurrentHashMap
 
@@ -18,6 +19,10 @@ data class ScanCapture(
     val createdAtEpochMs: Long,
     /** A barcode read live by the camera, if any. */
     val barcode: String? = null,
+    /** Optional portion context the user added before analysis. */
+    val hints: PortionHints = PortionHints(),
+    /** Demo scenario chosen explicitly in demo mode; null lets the simulator pick. */
+    val demoScenario: String? = null,
 )
 
 /**

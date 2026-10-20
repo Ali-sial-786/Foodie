@@ -13,7 +13,7 @@ sealed interface Route {
     @Serializable data object Progress : Route
 
     // Scanning
-    @Serializable data class Camera(val mode: String) : Route
+    @Serializable data class Camera(val mode: String, val barcode: String? = null) : Route
     @Serializable data class MealReview(val captureId: String) : Route
     @Serializable data class IngredientReview(val captureId: String) : Route
     @Serializable data class LabelReview(val captureId: String) : Route
