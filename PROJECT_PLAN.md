@@ -23,11 +23,11 @@
 | 2 | Shared AI layer: contracts, mock, Responses client, SIWC protocol | Done (live verification pending) |
 | 3 | Shared pipeline: estimator, parsers, label, barcode, recipes, ranking, progress, insights, export, benchmark | Done |
 | A | Android data layer, DI, theme, navigation shell | Done (CI green) |
-| B | Home, Diary, Add food/search/NL/quick add, Food detail, Entry detail, Progress | Written; CI compile in progress |
-| C | Camera (CameraX + ML Kit) and scan review flows with the demo provider | In progress |
-| D | Discover/recipes, recipe detail, scaling, cook mode, pantry, grocery | In progress |
-| E | Settings (AI status, SIWC connect/disconnect, API key, privacy, data export/delete), onboarding | In progress |
-| F | Screen tests, accessibility pass, performance (baseline profile), docs, release prep | Not started |
+| B | Home, Diary, Add food/search/NL/quick add, Food detail, Entry detail, Progress | Built in CI |
+| C | Camera (CameraX + ML Kit) and scan review flows with the demo provider | Built in CI; end-to-end meal scan tested under Robolectric; not yet on a device |
+| D | Discover/recipes, recipe detail, scaling, cook mode, pantry, grocery | Built in CI |
+| E | Settings (AI status, SIWC connect/disconnect, API key, privacy, data export/delete), onboarding | Built in CI; onboarding flow tested; SIWC not verified live |
+| F | Screen tests, accessibility pass, performance (baseline profile), docs, release prep | Started: flow tests and docs done; accessibility audit, baseline profile and release prep remain |
 | G | iOS app (see IOS_ROADMAP.md) | Not started |
 
 ## Performance budget (targets, not yet measured)
