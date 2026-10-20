@@ -1,0 +1,24 @@
+name: Dependency versions
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - scripts/check-latest-versions.sh
+      - .github/workflows/versions.yml
+
+permissions:
+  contents: read
+
+jobs:
+  versions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Latest stable dependency versions
+        run: scripts/check-latest-versions.sh
+      - name: Preinstalled Android SDK packages
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools" || true
