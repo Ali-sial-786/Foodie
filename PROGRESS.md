@@ -46,6 +46,8 @@ _Last updated: 2026-10-20._
 
 **App tests (Robolectric, simulated — no device):** diary repository (idempotency, duplicate guard, soft delete/undo, snapshot round-trip, copy day), user-food index, settings defaults and reset, encrypted API-key storage, export mapping, recipe line parser, first launch, full onboarding skip flow, quick add, and an end-to-end meal scan (demo provider → estimator → review UI → diary).
 
+**Added after device feedback:** recipe import from pasted text, screenshots or the Android share sheet (AI clean-up or on-device), brand-aware meal descriptions with Open Food Facts product search, and counts that are never dropped.
+
 ## Not started
 
 - Instrumented tests on an emulator or device (none yet; all UI tests are Robolectric).
@@ -56,7 +58,7 @@ _Last updated: 2026-10-20._
 
 ## Known limitations
 
-- Android code has only been compiled and tested in CI. Nothing has run on a device or emulator.
-- Sign in with ChatGPT on a real device: authorization and the consent screen work (after fixing the host-id format). The code exchange was blocked by Android 15's background-network restriction; it now waits for the app to return to the foreground. Not yet confirmed end to end, and Responses API calls have still only been tested against mocked HTTP.
+- Android code is compiled and tested in CI. The debug APK has been installed on one real phone (model not recorded); most screens have not been tried there yet.
+- Sign in with ChatGPT works on a real device (after fixing the host-id format and Android 15's background-network block), and "Interpret with AI" has been used live. Meal-photo analysis and recipe import with a live provider are not yet confirmed.
 - Default OpenAI model names are placeholders, resolved at runtime from `GET /v1/models`.
 - The benchmark uses synthetic fixtures and the deterministic demo provider, so it does not measure photo recognition.

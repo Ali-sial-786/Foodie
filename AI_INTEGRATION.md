@@ -85,6 +85,14 @@ Sources (see the official documentation):
   - 5xx → `Server`.
 - **Model choice.** The provider lists `GET /v1/models` for the account and picks from `OpenAiProvider.DEFAULT_MODEL_PREFERENCE`, falling back to a general `gpt-*` model. Plan-usage tokens receive a catalogue of `models[]` entries (only `visibility == "list"` entries are offered, and `slug` is the model id); API keys receive the standard `data[].id` list. `ResponsesClient.parseModelList` accepts both, and for plan usage the first catalogue entry is used when no preferred name matches. **Those model names are placeholders**, resolved against what the account actually offers at runtime. The user can override the model in settings.
 
+## Recipe import
+
+`AiProvider.importRecipe(RecipeImportRequest(text, images))` (capability `RECIPE_IMPORT`) turns pasted text and/or screenshots of one recipe into the same `GeneratedRecipe` structure used elsewhere, wrapped in `ImportedRecipe(isRecipe, recipe, sourceName, notes)`. The prompt (`Prompts.recipeImport`) asks the model to **transcribe, not rewrite**: same ingredients, amounts and steps; only fix typos/OCR, split lines, separate units and preparation, keep ingredient groups, merge pages, ignore ads and life stories; estimated servings or times must be flagged in `notes`; `sourceName` only if written in the input. `AiValidator.importedRecipe` clamps servings and times and reuses the generated-recipe checks. Screenshots count as photos for consent (`AiService.importRecipe`). The demo provider doesn't import; the offline `RecipeTextImporter` (rules plus on-device OCR in the app) is always available. Imported recipes are saved with `RecipeOrigin.IMPORTED` and an attribution only when a source was stated.
+
+## Brands in typed meals
+
+`ParsedFoodMention.brand` carries a brand or restaurant ("2 Deep brand naans" → brand "deep", food "naans"), from the offline parser's "X brand Y" pattern or from the AI schema. Amounts are never dropped: an unrecognised unit such as "naans" is read as a count. Branded items use a product the user has picked before; otherwise the app offers an Open Food Facts name search, and `MealTextResolver.resolveWith` recalculates with the product's label values and per-piece serving.
+
 ## Personalisation
 
 If `PrivacySettings.personaliseAiPrompts` is on, prompts include up to six favourite cuisines and up to fifteen dish names the user has logged. These are only used to break ties between similar-looking dishes. Corrections are learned on the device (`CorrectionMemory`); no model is fine-tuned.

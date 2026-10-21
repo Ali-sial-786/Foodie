@@ -33,6 +33,9 @@ Credentials and tokens are never logged, and no secrets are hard-coded. `scripts
 | "Interpret with AI" for a typed meal | The selected provider | The typed text and saved recipe names |
 | Generate recipes with AI | The selected provider | Chosen ingredients, preferences, dietary requirements and allergies to avoid |
 | Barcode lookup | Open Food Facts | The barcode number only (can be turned off) |
+| "Search packaged products" / "Find … product" | Open Food Facts | The search words only (e.g. "deep naan"), and only when tapped; same off switch as barcode lookup |
+| "Clean up with AI" when importing a recipe | The selected provider | The pasted text and the chosen or shared screenshots (screenshots need photo consent) |
+| "Import on my phone" | Nothing is sent | Text recognition for screenshots runs on the device; screenshots are deleted after saving |
 | Sign in with ChatGPT | OpenAI's auth server, in the user's browser | Standard OAuth parameters; the app never sees the password |
 
 Rules:

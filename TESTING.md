@@ -79,7 +79,7 @@ Read coverage together with range width: wide ranges make coverage easy. The har
 | App compiles; main flows pass under Robolectric (simulated) | Verified in CI |
 | UI on a real phone or emulator | **Not done** |
 | CameraX capture, ML Kit barcode and OCR on hardware | **Not done** |
-| Sign in with ChatGPT and Responses API against live OpenAI | **In progress on a device**: authorization and consent work; the code exchange hit Android 15's background-network block (fixed, retest pending); AI requests not reached yet |
+| Sign in with ChatGPT and Responses API against live OpenAI | **Working on a device** after the background-network fix: the user connected and used "Interpret with AI". Meal-photo analysis and recipe import with a live provider not yet confirmed |
 | Open Food Facts live lookups | **Not done**; mapper tested with sample JSON |
 
 Do not describe a feature as working on devices until it has been tried on one. Record real-device results here, with device model and Android version.
@@ -90,3 +90,4 @@ Do not describe a feature as working on devices until it has been tried on one. 
 |---|---|---|---|
 | 2026-10-21 | Not recorded | Install debug APK; Settings › AI provider › Connect ChatGPT | App installed and opened the Custom Tab to `auth.openai.com`. The authorize request was rejected: `invalid_authorize_request`, `param: ext_agent_host_id`. Cause: the host id was `nouri-<hex>` instead of the required `urn:uuid:<UUIDv4>`. Fixed; needs a retest. |
 | 2026-10-21 | Not recorded | Retest with the host-id fix | Authorize request accepted; OpenAI's consent screen showed the agent and the "ChatGPT plan" usage grant. After approving, the code exchange failed in the app with `Unable to resolve host "auth.openai.com"`. Cause: Android 15+ blocks network requests from apps in the background, and Nouri was behind the browser when the callback arrived. Fixed by waiting until Nouri is in the foreground before exchanging the code, with one retry if the request never reached the server; needs a retest. |
+| 2026-10-21 | Not recorded | Describe "2 deep brand naans" (with ChatGPT connected, so sign-in worked) | Logged **1** generic naan (290 kcal, "Assumed 1 naan"): the amount was dropped because the unit came back as the food noun, and there was no way to use Deep's own product. Fixed: counts are kept, the brand is recognised, and "Find Deep naan product" searches Open Food Facts by name; needs a retest. |
