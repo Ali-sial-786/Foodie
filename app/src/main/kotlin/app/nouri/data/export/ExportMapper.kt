@@ -1,8 +1,8 @@
 package app.nouri.data.export
 
-import app.nouri.core.diary.DiaryDay
 import app.nouri.core.diary.DiaryEntry
 import app.nouri.core.export.DiaryExportRow
+import app.nouri.core.export.DiaryExportRows
 import app.nouri.core.pantry.GroceryItem
 import app.nouri.core.pantry.PantryItem
 import app.nouri.core.progress.BodyMeasurement
@@ -14,31 +14,9 @@ import kotlinx.serialization.json.Json
 
 object ExportMapper {
     /** Diary rows in date and time order, with the source and confidence of every value. */
-    fun diaryRows(entries: List<DiaryEntry>): List<DiaryExportRow> =
-        entries.sortedWith(compareBy<DiaryEntry>({ it.date }, { it.loggedAtEpochMs })).map(::row)
+    fun diaryRows(entries: List<DiaryEntry>): List<DiaryExportRow> = DiaryExportRows.from(entries)
 
-    fun row(e: DiaryEntry): DiaryExportRow {
-        val minute = DiaryDay.minuteOfDay(e.loggedAtEpochMs, e.timeZoneId)
-        val n = e.nutrients
-        return DiaryExportRow(
-            date = e.date,
-            time = "${(minute / 60).toString().padStart(2, '0')}:${(minute % 60).toString().padStart(2, '0')}",
-            meal = e.mealType.label,
-            food = e.name,
-            amount = e.quantity?.amount,
-            unit = e.quantity?.unit?.symbol,
-            grams = e.snapshot.grams,
-            energyKcal = n.energyKcal,
-            proteinG = n.proteinG,
-            carbsG = n.carbsG,
-            fatG = n.fatG,
-            fiberG = n.fiberG,
-            sugarG = n.sugarG,
-            sodiumMg = n.sodiumMg,
-            source = e.snapshot.provenance.source.label,
-            confidence = e.snapshot.confidence.label,
-        )
-    }
+    fun row(e: DiaryEntry): DiaryExportRow = DiaryExportRows.row(e)
 }
 
 /**

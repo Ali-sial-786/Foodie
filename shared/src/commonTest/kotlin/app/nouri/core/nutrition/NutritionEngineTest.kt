@@ -119,6 +119,17 @@ class NutritionEngineTest {
     }
 
     @Test
+    fun aPieceWithoutASizeIsTheStandardPiece() {
+        // USDA lists unsized measures ("1 pepper", 45 g) that must not win over the catalogue's medium piece.
+        for (id in listOf("green_chili", "red_chili", "potato", "mango", "chicken_whole")) {
+            val piece = app.nouri.core.ontology.IngredientCatalog[id]!!.portions
+                .first { it.unit == QuantityUnit.PIECE && it.size == app.nouri.core.units.PortionSize.MEDIUM }
+            val line = engine.calculateLine(line(id, 1.0, QuantityUnit.PIECE, id = id))
+            assertEquals(piece.grams, line.gramsAsWritten!!, 1e-9, id)
+        }
+    }
+
+    @Test
     fun aCanOfBeansCountsCookedBeansNotDry() {
         val canned = engine.calculateLine(line("black beans", 1.0, QuantityUnit.CAN, id = "black_beans"))
         val dry = engine.calculateLine(line("black beans", 240.0, QuantityUnit.GRAM, id = "black_beans"))

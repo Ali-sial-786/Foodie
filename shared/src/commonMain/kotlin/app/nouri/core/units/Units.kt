@@ -242,7 +242,8 @@ object UnitConverter {
             }
         }
         val candidates = context.portions.filter { it.unit == unit }
-        val portion = candidates.firstOrNull { it.size == quantity.size }
+        // No size given means a standard (medium) piece — not whichever unsized measure happens to be listed first.
+        val portion = quantity.size?.let { size -> candidates.firstOrNull { it.size == size } }
             ?: candidates.firstOrNull { it.size == PortionSize.MEDIUM }
             ?: candidates.firstOrNull { it.size == null }
             ?: candidates.firstOrNull()

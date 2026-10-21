@@ -1,5 +1,7 @@
 package app.nouri.core.export
 
+import app.nouri.core.diary.DiaryDay
+import app.nouri.core.diary.DiaryEntry
 import app.nouri.core.progress.BodyMeasurement
 import app.nouri.core.progress.NumberText
 import app.nouri.core.progress.WeightEntry
@@ -31,6 +33,35 @@ data class DiaryExportRow(
     val source: String,
     val confidence: String? = null,
 )
+
+/** Diary entries as export rows, in date and time order, with the source and confidence of every value. */
+object DiaryExportRows {
+    fun from(entries: List<DiaryEntry>): List<DiaryExportRow> =
+        entries.sortedWith(compareBy<DiaryEntry>({ it.date }, { it.loggedAtEpochMs })).map(::row)
+
+    fun row(e: DiaryEntry): DiaryExportRow {
+        val minute = DiaryDay.minuteOfDay(e.loggedAtEpochMs, e.timeZoneId)
+        val n = e.nutrients
+        return DiaryExportRow(
+            date = e.date,
+            time = "${(minute / 60).toString().padStart(2, '0')}:${(minute % 60).toString().padStart(2, '0')}",
+            meal = e.mealType.label,
+            food = e.name,
+            amount = e.quantity?.amount,
+            unit = e.quantity?.unit?.symbol,
+            grams = e.snapshot.grams,
+            energyKcal = n.energyKcal,
+            proteinG = n.proteinG,
+            carbsG = n.carbsG,
+            fatG = n.fatG,
+            fiberG = n.fiberG,
+            sugarG = n.sugarG,
+            sodiumMg = n.sodiumMg,
+            source = e.snapshot.provenance.source.label,
+            confidence = e.snapshot.confidence.label,
+        )
+    }
+}
 
 /**
  * Food diary as CSV with a header row; rows are written in the order given.
