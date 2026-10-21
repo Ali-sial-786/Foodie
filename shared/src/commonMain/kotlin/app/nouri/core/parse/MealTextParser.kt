@@ -163,8 +163,16 @@ object MealTextParser {
         if (food.isBlank()) return null
         if (unit?.kind == app.nouri.core.units.UnitKind.MASS && amount != null) grams = amount!! * unit!!.massGrams!!
         if (amount != null && unit == null) unit = QuantityUnit.PIECE
-        return ParsedFoodMention(food = food, amount = amount, unit = unit?.symbol, grams = grams)
+        // "deep brand naans" → brand "deep", food "naans"
+        val branded = brandPattern.matchEntire(food)
+        return ParsedFoodMention(
+            food = branded?.groupValues?.get(2) ?: food,
+            amount = amount, unit = unit?.symbol, grams = grams,
+            brand = branded?.groupValues?.get(1),
+        )
     }
+
+    private val brandPattern = Regex("""^(.+?)\s+brand(?:ed)?\s+(.+)$""")
 
     private const val PLACEHOLDER = "_" // a word character, so word-boundary separators cannot split protected names
     private val fillerWords = setOf("some", "of", "the", "my", "about", "around", "approx", "approximately", "roughly")

@@ -46,7 +46,7 @@ data class AiSettings(
 @Serializable
 data class PrivacySettings(
     val imageRetention: ImageRetention = ImageRetention.DELETE_AFTER_ANALYSIS,
-    /** Barcode numbers are sent to Open Food Facts to look up products. */
+    /** Barcode numbers and product search words (only those) are sent to Open Food Facts. */
     val barcodeOnlineLookup: Boolean = true,
     /** Favourite cuisines and confirmed dish names are included in AI prompts to improve accuracy. */
     val personaliseAiPrompts: Boolean = true,

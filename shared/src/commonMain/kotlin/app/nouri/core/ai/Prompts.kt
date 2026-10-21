@@ -116,6 +116,8 @@ object Prompts {
         appendLine("- Keep the food name as specific as the user said it (\"chicken curry\", \"roti\", \"coffee with a splash of milk\" → coffee + milk).")
         appendLine("- amount/unit exactly as stated (\"2\" + \"piece\", \"0.5\" + \"cup\"); grams only if the user gave a weight.")
         appendLine("- For phrases like \"half of the biryani I made yesterday\", set recipeFraction (0.5) and recipeReference (\"biryani\").")
+        appendLine("- If the user names a brand, shop or restaurant (\"2 Deep brand naans\", \"McDonald's fries\"), put it in brand and keep food generic (\"naan\", \"fries\"). Never guess a brand that wasn't mentioned.")
+        appendLine("- Use a measurement unit only if one was stated (g, cup, tbsp, slice, bowl…). For plain counts (\"2 naans\"), set amount and leave unit null.")
         appendLine("- Do not add foods the user did not mention. Do not estimate calories.")
         if (request.recentRecipeNames.isNotEmpty()) appendLine("The user's saved recipes: ${request.recentRecipeNames.take(20).joinToString()}.")
         append(JSON_ONLY)

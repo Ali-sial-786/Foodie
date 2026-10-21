@@ -87,6 +87,20 @@ object OpenFoodFactsMapper {
         return BarcodeLookupResult.Found(mapProduct(gtin, product))
     }
 
+    /**
+     * Products from the text search endpoint (`/cgi/search.pl?json=1`), whose response holds a
+     * `products` array of the same product objects. Products without a barcode are skipped.
+     */
+    fun mapSearch(json: String): List<BrandedProduct> {
+        val root = runCatching { Json.parseToJsonElement(json) }.getOrNull() as? JsonObject ?: return emptyList()
+        val products = root["products"] as? JsonArray ?: return emptyList()
+        return products.mapNotNull { element ->
+            val product = element as? JsonObject ?: return@mapNotNull null
+            val code = product.text("code") ?: product.text("_id") ?: return@mapNotNull null
+            mapProduct(Gtin.normalize(code) ?: code, product)
+        }.distinctBy { it.gtin }
+    }
+
     private fun mapProduct(gtin: String, product: JsonObject): BrandedProduct {
         val brand = product.text("brands")?.split(',')?.map { it.trim() }?.firstOrNull { it.isNotEmpty() }
         val name = product.text("product_name_en") ?: product.text("product_name")
@@ -125,7 +139,8 @@ object OpenFoodFactsMapper {
         val food = if (energy != null && protein != null && carbs != null && fat != null) {
             FoodReference(
                 id = "off:$gtin",
-                name = name,
+                // The brand is part of what people search for ("Deep naan").
+                name = if (brand != null && !name.contains(brand, ignoreCase = true)) "$name ($brand)" else name,
                 per100g = Nutrients(
                     energyKcal = energy,
                     proteinG = protein,
@@ -138,7 +153,10 @@ object OpenFoodFactsMapper {
                 ),
                 source = NutritionSource.BRANDED_DATABASE,
                 quality = DataQuality.MEDIUM,
-                portions = listOfNotNull(servingGrams?.let { FoodPortion(QuantityUnit.SERVING, it, label = servingText ?: "1 serving") }),
+                portions = listOfNotNull(
+                    servingGrams?.let { FoodPortion(QuantityUnit.SERVING, it, label = servingText ?: "1 serving") },
+                    servingGrams?.let { countPortion(servingText, it) },
+                ),
                 servingGrams = servingGrams,
                 sourceDetail = ATTRIBUTION,
             )
@@ -158,6 +176,22 @@ object OpenFoodFactsMapper {
             missingNutrients = missing,
             attribution = ATTRIBUTION,
         )
+    }
+
+    private val countServing = Regex("""^\s*(\d+(?:[.,]\d+)?)\s+([a-z][a-z-]*)""", RegexOption.IGNORE_CASE)
+
+    /**
+     * A serving printed as a count ("1 naan (85 g)", "2 slices (56 g)", "3 cookies") becomes a
+     * per-piece portion, so "2 naans" can be converted. Units of mass or volume are not counts.
+     */
+    internal fun countPortion(servingText: String?, servingGrams: Double): FoodPortion? {
+        val m = countServing.find(servingText ?: return null) ?: return null
+        val count = m.groupValues[1].replace(',', '.').toDoubleOrNull()?.takeIf { it > 0 } ?: return null
+        val word = m.groupValues[2].lowercase()
+        val unit = QuantityUnit.parse(word)
+        if (unit == QuantityUnit.SERVING || (unit != null && unit.kind != app.nouri.core.units.UnitKind.COUNT)) return null
+        val countUnit = unit ?: QuantityUnit.PIECE
+        return FoodPortion(countUnit, servingGrams / count, label = "1 ${word.removeSuffix("s")} (${app.nouri.core.units.formatAmount(servingGrams / count)} g)")
     }
 
     /**

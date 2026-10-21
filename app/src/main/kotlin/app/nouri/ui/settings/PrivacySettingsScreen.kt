@@ -88,10 +88,10 @@ fun PrivacySettingsScreen(nav: AppNavigator) {
                 enabled = s.ai.photoConsent,
             ) { on -> if (!on) vm.update { it.copy(ai = it.ai.copy(photoConsent = false)) } }
 
-            SettingsHeader("Barcodes")
+            SettingsHeader("Product lookups")
             SwitchRow(
-                "Look up barcodes online",
-                "Only the barcode number is sent to Open Food Facts. Products you've scanned before are found offline.",
+                "Look up products online",
+                "Barcode scans send only the barcode number, and product searches send only the words you search for, to Open Food Facts. Products you've used before are found offline.",
                 checked = s.privacy.barcodeOnlineLookup,
             ) { on -> vm.update { it.copy(privacy = it.privacy.copy(barcodeOnlineLookup = on)) } }
         }

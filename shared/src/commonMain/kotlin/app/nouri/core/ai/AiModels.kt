@@ -156,6 +156,8 @@ data class ParsedFoodMention(
     /** e.g. 0.5 when the user says "half of the biryani I made yesterday". */
     val recipeFraction: Double? = null,
     val recipeReference: String? = null,
+    /** Brand, shop or restaurant the user named ("Deep" in "2 Deep naans"); [food] stays generic. */
+    val brand: String? = null,
 )
 
 @Serializable

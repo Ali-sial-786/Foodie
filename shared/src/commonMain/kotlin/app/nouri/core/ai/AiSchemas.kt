@@ -97,6 +97,7 @@ object AiSchemas {
             obj(
                 "food" to str(), "amount" to num(true), "unit" to str(true), "grams" to num(true),
                 "preparation" to str(true), "recipeFraction" to num(true), "recipeReference" to str(true),
+                "brand" to str(true),
             ),
         ),
         "mealHint" to str(true),

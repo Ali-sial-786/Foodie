@@ -105,4 +105,42 @@ class MealTextParserTest {
         val r = resolver.resolve(MealTextParser.parse("2 chicken karahi")).single()
         assertTrue(r.notes.any { "typical serving" in it }, r.notes.toString())
     }
+
+    @Test
+    fun brandIsSeparatedFromTheFood() {
+        val m = MealTextParser.parse("2 deep brand naans").items.single()
+        assertEquals("deep", m.brand)
+        assertEquals("naans", m.food)
+        assertEquals(2.0, m.amount)
+        val r = resolver.resolve(MealTextParser.parse("2 deep brand naans")).single()
+        assertEquals(2.0, r.quantity!!.amount)
+        assertTrue(r.notes.any { "not deep's own" in it }, r.notes.toString())
+    }
+
+    @Test
+    fun countWithAnUnrecognisedUnitIsNotDropped() {
+        // The AI path can return the food noun as the unit ("2" + "naans").
+        val r = resolver.resolveMention(app.nouri.core.ai.ParsedFoodMention(food = "naan", amount = 2.0, unit = "naans", brand = "Deep"))
+        assertNotNull(r.match)
+        assertEquals(2.0, r.quantity!!.amount)
+        assertEquals(app.nouri.core.units.QuantityUnit.PIECE, r.quantity!!.unit)
+        val single = resolver.resolve(MealTextParser.parse("1 naan")).single()
+        assertEquals(2 * single.grams!!, r.grams!!, 1e-9)
+        assertTrue(r.notes.any { "as a count" in it }, r.notes.toString())
+    }
+
+    @Test
+    fun resolveWithUsesTheChosenProduct() {
+        val product = app.nouri.core.fooddb.FoodReference(
+            id = "off:0001", name = "Garlic Naan (Deep)", per100g = Nutrients(300.0, 9.0, 50.0, 7.0),
+            source = app.nouri.core.model.NutritionSource.BRANDED_DATABASE, quality = app.nouri.core.model.DataQuality.MEDIUM,
+            portions = listOf(app.nouri.core.units.FoodPortion(app.nouri.core.units.QuantityUnit.PIECE, 85.0, label = "1 naan (85 g)")),
+            servingGrams = 85.0,
+        )
+        val mention = MealTextParser.parse("2 deep brand naans").items.single()
+        val r = resolver.resolveWith(mention, FoodMatcher(foods).fromReference(product))
+        assertEquals(170.0, r.grams!!, 1e-9)
+        assertEquals(510.0, r.nutrients.energyKcal, 1e-9)
+        assertTrue(r.notes.none { "Generic values" in it }, r.notes.toString())
+    }
 }

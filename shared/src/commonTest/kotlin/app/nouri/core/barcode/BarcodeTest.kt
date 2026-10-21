@@ -317,4 +317,33 @@ class BarcodeTest {
         val custom = FakeBarcodeLookupService(mapOf("036000291452" to oats.product))
         assertIs<BarcodeLookupResult.Found>(custom.lookup("0036000291452"))
     }
+
+    @Test
+    fun textSearchResultsMapToProductsWithCountPortions() {
+        val json = """{"count":2,"page":1,"products":[
+            {"code":"0071202003005","product_name":"Garlic Naan","brands":"Deep, Deep Foods","serving_size":"1 naan (85 g)","serving_quantity":85,
+             "nutriments":{"energy-kcal_100g":294,"proteins_100g":8.2,"carbohydrates_100g":49.4,"fat_100g":7.1,"fiber_100g":2.4}},
+            {"code":"0071202003012","product_name":"Plain Naan","brands":"Deep","nutriments":{}},
+            {"product_name":"No barcode"}
+        ]}"""
+        val products = OpenFoodFactsMapper.mapSearch(json)
+        assertEquals(listOf("0071202003005", "0071202003012"), products.map { it.gtin })
+        val garlic = products.first()
+        assertEquals("Deep", garlic.brand)
+        val food = assertNotNull(garlic.food)
+        assertEquals("Garlic Naan (Deep)", food.name)
+        val piece = food.portions.single { it.unit == QuantityUnit.PIECE }
+        assertEquals(85.0, piece.grams, 1e-9)
+        assertNull(products[1].food, "incomplete nutrition must not become a food")
+        assertEquals(emptyList(), OpenFoodFactsMapper.mapSearch("oops"))
+    }
+
+    @Test
+    fun countPortionsOnlyForCounts() {
+        assertEquals(28.0, OpenFoodFactsMapper.countPortion("2 slices (56 g)", 56.0)!!.grams, 1e-9)
+        assertEquals(QuantityUnit.SLICE, OpenFoodFactsMapper.countPortion("2 slices (56 g)", 56.0)!!.unit)
+        assertNull(OpenFoodFactsMapper.countPortion("30 g", 30.0))
+        assertNull(OpenFoodFactsMapper.countPortion("1 cup (240 ml)", 240.0))
+        assertNull(OpenFoodFactsMapper.countPortion("1 serving", 50.0))
+    }
 }

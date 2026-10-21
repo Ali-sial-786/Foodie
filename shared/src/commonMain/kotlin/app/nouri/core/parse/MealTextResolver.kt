@@ -75,13 +75,27 @@ class MealTextResolver(
             }
         }
 
-        val (size, name) = extractSize(m.food)
+        val (_, name) = extractSize(m.food)
         val match = matcher.match(name)
             ?: return ResolvedTextItem(m, null, null, null, null, Nutrients.ZERO, PortionSource.TYPICAL_SERVING, ConfidenceLevel.LOW, listOf("Couldn't find \"${m.food}\"; search or enter it manually"))
+        return resolveWith(m, match)
+    }
+
+    /** Resolves a mention against a food the user (or the app) chose, e.g. a branded product. */
+    fun resolveWith(m: ParsedFoodMention, match: FoodMatch): ResolvedTextItem {
+        val (size, _) = extractSize(m.food)
         val notes = mutableListOf<String>()
         if (m.recipeFraction != null) notes += "No saved recipe called \"${m.recipeReference ?: m.food}\"; used a typical ${match.label.lowercase()}"
+        if (m.brand != null && match.food.source != app.nouri.core.model.NutritionSource.BRANDED_DATABASE &&
+            match.food.source != app.nouri.core.model.NutritionSource.MANUFACTURER_LABEL
+        ) {
+            notes += "Generic values, not ${m.brand}'s own — look up the product for its label values"
+        }
 
-        val unit = m.unit?.let(QuantityUnit::parse)
+        // A count with an unrecognised unit ("2" + "naans") is still a count, never dropped.
+        val parsedUnit = m.unit?.let(QuantityUnit::parse)
+        if (m.amount != null && m.unit != null && parsedUnit == null) notes += "Read \"${formatAmount(m.amount)} ${m.unit}\" as a count"
+        val unit = parsedUnit ?: if (m.amount != null) QuantityUnit.PIECE else null
         val quantity: Quantity
         val grams: Double
         val source: PortionSource

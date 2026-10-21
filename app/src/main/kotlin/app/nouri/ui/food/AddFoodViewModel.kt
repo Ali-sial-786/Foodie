@@ -21,7 +21,10 @@ import app.nouri.core.parse.MealTextParser
 import app.nouri.core.parse.ResolvedTextItem
 import app.nouri.core.parse.SavedRecipeNutrition
 import app.nouri.core.parse.TextLogging
+import app.nouri.core.barcode.BrandedProduct
 import app.nouri.core.recipes.Recipe
+import app.nouri.core.scan.MatchMethod
+import app.nouri.data.repo.ProductSearchOutcome
 import app.nouri.core.util.SystemTime
 import app.nouri.data.db.NameCount
 import app.nouri.data.repo.LogResult
@@ -60,6 +63,17 @@ data class DescribeState(
     val total: Nutrients get() = Nutrients.sum(included.map { it.nutrients })
 }
 
+/** Open Food Facts name search, used from Search and from a described item with a brand. */
+data class OnlineSearch(
+    val terms: String = "",
+    val loading: Boolean = false,
+    val products: List<BrandedProduct> = emptyList(),
+    val error: String? = null,
+    val searched: Boolean = false,
+    /** Index of the described item the user is finding a product for; null in Search. */
+    val forDescribedIndex: Int? = null,
+)
+
 data class QuickAddState(
     val name: String = "",
     val kcal: String = "",
@@ -97,6 +111,9 @@ class AddFoodViewModel(
     private val _describe = MutableStateFlow(DescribeState())
     val describe: StateFlow<DescribeState> = _describe.asStateFlow()
 
+    private val _online = MutableStateFlow(OnlineSearch())
+    val online: StateFlow<OnlineSearch> = _online.asStateFlow()
+
     private val _quick = MutableStateFlow(QuickAddState())
     val quick: StateFlow<QuickAddState> = _quick.asStateFlow()
 
@@ -129,7 +146,7 @@ class AddFoodViewModel(
         val text = _describe.value.text
         if (text.isBlank()) return@launch
         _describe.update { it.copy(working = true, error = null) }
-        val items = withContext(Dispatchers.Default) { resolver().resolve(MealTextParser.parse(text)) }
+        val items = withSavedBrands(withContext(Dispatchers.Default) { resolver().resolve(MealTextParser.parse(text)) })
         _describe.update { it.copy(items = items, excluded = emptySet(), parsedWithAi = false, working = false, error = if (items.isEmpty()) "Couldn't find any foods in that description" else null) }
     }
 
@@ -141,7 +158,7 @@ class AddFoodViewModel(
         val recentNames = c.recipes.savedRecipes().map { it.name }.take(20)
         when (val r = c.ai.parseMealText(MealTextRequest(text, recentNames))) {
             is AiResult.Success -> {
-                val items = withContext(Dispatchers.Default) { resolver().resolve(r.value) }
+                val items = withSavedBrands(withContext(Dispatchers.Default) { resolver().resolve(r.value) })
                 _describe.update { it.copy(items = items, excluded = emptySet(), parsedWithAi = true, working = false) }
             }
             is AiResult.Failure -> _describe.update { it.copy(working = false, error = r.error.message + " — you can still use the offline interpreter.") }
@@ -159,6 +176,48 @@ class AddFoodViewModel(
             requestKey = "${d.text.hashCode()}:${date}:${_meal.value}:${SystemTime.nowEpochMs() / 60_000}", newId = c::newId,
         )
         log(entries, force)
+    }
+
+    /** A branded item ("2 Deep naans") uses that brand's product if the user has used it before. */
+    private suspend fun withSavedBrands(items: List<ResolvedTextItem>): List<ResolvedTextItem> {
+        if (items.none { it.mention.brand != null }) return items
+        val resolver = resolver()
+        val core = c.core(c.settings.current().preferences.measurementSystem)
+        return items.map { item ->
+            val brand = item.mention.brand ?: return@map item
+            val noun = item.mention.food.let { if (it.length > 3) it.removeSuffix("s") else it }
+            val saved = c.userFoods.search("$brand $noun", 5).firstOrNull { it.name.contains(brand, ignoreCase = true) }
+                ?: return@map item
+            resolver.resolveWith(item.mention, core.matcher.fromReference(saved, MatchMethod.SAVED_FOOD))
+        }
+    }
+
+    // ---- Online product search (Open Food Facts)
+
+    fun searchOnline(terms: String, forDescribedIndex: Int? = null) = viewModelScope.launch {
+        _online.value = OnlineSearch(terms = terms.trim(), loading = true, forDescribedIndex = forDescribedIndex)
+        val outcome = c.barcodes.searchProducts(terms)
+        _online.update {
+            when (outcome) {
+                is ProductSearchOutcome.Results -> it.copy(loading = false, searched = true, products = outcome.products)
+                is ProductSearchOutcome.Unavailable -> it.copy(loading = false, searched = true, error = outcome.reason)
+            }
+        }
+    }
+
+    fun clearOnline() { _online.value = OnlineSearch() }
+
+    /** Keeps the product as one of the user's foods and returns its id for the detail screen. */
+    suspend fun keepProduct(product: BrandedProduct): String? = c.barcodes.keep(product)?.id
+
+    /** Replaces a described item with the chosen product, keeping the amount the user said. */
+    fun useProductForDescribed(index: Int, product: BrandedProduct) = viewModelScope.launch {
+        val food = c.barcodes.keep(product) ?: return@launch
+        val item = _describe.value.items.getOrNull(index) ?: return@launch
+        val core = c.core(c.settings.current().preferences.measurementSystem)
+        val resolved = resolver().resolveWith(item.mention, core.matcher.fromReference(food, MatchMethod.USER_SELECTED))
+        _describe.update { d -> d.copy(items = d.items.toMutableList().also { it[index] = resolved }) }
+        clearOnline()
     }
 
     private suspend fun resolver() = c.settings.current().let { s ->

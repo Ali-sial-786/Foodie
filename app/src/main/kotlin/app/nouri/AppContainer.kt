@@ -88,7 +88,8 @@ open class AppContainer(
     }
 
     val barcodes by lazy {
-        BarcodeRepository(userFoods, OpenFoodFactsService(http)) { settings.current().privacy.barcodeOnlineLookup }
+        val off = OpenFoodFactsService(http)
+        BarcodeRepository(userFoods, off, onlineAllowed = { settings.current().privacy.barcodeOnlineLookup }, search = off::search)
     }
 
     // ---- AI
