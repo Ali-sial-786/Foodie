@@ -43,9 +43,9 @@ Flow (the open-source/local app variant):
    - `scope = openid profile email offline_access resource.invoke chatgpt.tokens.use.direct` and `resource=https://api.openai.com/v1`.
    - **First registration** uses `client_id=dynamic_agent_client` with `agent_name_hint=Nouri`. The server issues the real `client_id` in the callback. **Re-authorisation** uses the stored client id with `id_token_hint` and `login_hint`.
 3. **Browser.**
-   - The URL opens in the user's browser (a Custom Tab via `androidx.browser`; the settings UI is in progress).
+   - The URL opens in the user's browser (a Custom Tab via `androidx.browser`, started from Settings › AI provider).
    - The redirect is a **loopback** address `http://127.0.0.1:<OS-assigned port>/auth/callback`. Only the port varies.
-   - `AndroidLoopbackReceiver` accepts loopback connections, returns 404 for other paths, and serves a success page linking to `nouri://auth-complete`. That link is needed because Android 15+ doesn't bring the app back to the front automatically.
+   - `AndroidLoopbackReceiver` accepts loopback connections, returns 404 for other paths, and serves a short page (worded differently when the user denied access) linking to `nouri://auth-complete`. That link is needed because Android 15+ doesn't bring the app back to the front automatically.
 4. **Callback validation.** The path must match and `state` is compared in constant time. The issued `client_id` must be present, must not be the placeholder, and must match on re-auth.
 5. **Code exchange** (PKCE verifier, `resource`). The ID token is decoded and validated: issuer, audience, nonce, expiry. `IdTokenSignatureVerifier` is a hook for JWKS signature checks; **it is not wired in the Android container yet**, so sessions record `idTokenSignatureVerified=false`.
 6. **Refresh.**
