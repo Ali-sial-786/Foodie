@@ -4,8 +4,10 @@ import app.nouri.core.auth.LoopbackRedirectReceiver
 import app.nouri.core.auth.SignInResult
 import app.nouri.core.auth.SiwcAuthManager
 import app.nouri.core.auth.SiwcConfig
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -21,7 +23,10 @@ import kotlin.coroutines.resume
  * connections. The response page links back to the app because Android 15+ does
  * not bring the app to the foreground automatically.
  */
-class AndroidLoopbackReceiver(private val returnLink: String = "nouri://auth-complete") : LoopbackRedirectReceiver {
+class AndroidLoopbackReceiver(
+    private val returnLink: String = "nouri://auth-complete",
+    private val clientReadTimeoutMs: Int = 5_000,
+) : LoopbackRedirectReceiver {
     @Volatile private var server: ServerSocket? = null
 
     override suspend fun start(): Int {
@@ -54,8 +59,15 @@ class AndroidLoopbackReceiver(private val returnLink: String = "nouri://auth-com
                 return null
             }
             client.use { c ->
+                // Browsers may open a spare connection and never send on it; don't let it block the real request.
+                c.soTimeout = clientReadTimeoutMs
                 val reader = BufferedReader(InputStreamReader(c.getInputStream()))
-                val requestLine = reader.readLine() ?: return@use
+                val requestLine = try {
+                    reader.readLine()
+                } catch (e: SocketTimeoutException) {
+                    null
+                }
+                if (requestLine == null) return@use
                 val target = requestLine.split(' ').getOrNull(1) ?: return@use
                 val out = c.getOutputStream()
                 if (!target.startsWith(SiwcConfig.REDIRECT_PATH)) {
@@ -91,27 +103,48 @@ class AndroidLoopbackReceiver(private val returnLink: String = "nouri://auth-com
     }
 }
 
+/** Keeps the app running (and allowed to use the network) while the user signs in in the browser. */
+interface SignInKeepAlive {
+    /** False if the app can't be kept running, e.g. because it is already in the background. */
+    fun start(): Boolean
+
+    suspend fun stop()
+
+    object None : SignInKeepAlive {
+        override fun start() = false
+        override suspend fun stop() {}
+    }
+}
+
 /**
  * Runs the browser-based Sign in with ChatGPT flow end to end.
  *
- * The browser is in front when the callback arrives, and Android 15+ blocks network
- * requests from apps in the background (they fail with UnknownHostException). So the
- * callback is received in the background (loopback only), and the code exchange waits
- * until [awaitForeground] reports that the user is back in the app.
+ * The browser is in front when the callback arrives. [keepAlive] (a foreground service)
+ * stops Android freezing the app meanwhile, so the loopback listener answers, and lets
+ * the code be exchanged straight away. Without it, Android 15+ blocks network requests
+ * from apps in the background (they fail with UnknownHostException), so the exchange
+ * waits until [awaitForeground] reports that the user is back in the app.
  */
 class ChatGptSignIn(
     private val manager: SiwcAuthManager,
     private val receiverFactory: () -> LoopbackRedirectReceiver = { AndroidLoopbackReceiver() },
+    private val keepAlive: SignInKeepAlive = SignInKeepAlive.None,
     private val awaitForeground: suspend () -> Unit = {},
 ) {
-    suspend fun signIn(openBrowser: (String) -> Unit, timeoutMs: Long = 5 * 60_000L): SignInResult {
+    suspend fun signIn(openBrowser: (String) -> Unit, timeoutMs: Long = 10 * 60_000L): SignInResult {
         val receiver = receiverFactory()
+        val keptAlive = keepAlive.start()
         return try {
             val port = receiver.start()
             val pending = manager.begin(SiwcConfig.redirectUri(port))
             openBrowser(pending.authorizationUrl)
             val callback = receiver.awaitCallback(timeoutMs) ?: return SignInResult.Cancelled("Sign-in was closed or timed out")
             receiver.stop()
+            if (keptAlive) {
+                val now = manager.complete(pending, callback)
+                // Unreachable means the code was never sent, so it can still be used once the app is in front.
+                if (!(now is SignInResult.Failed && now.unreachable)) return now
+            }
             withTimeoutOrNull(RETURN_TIMEOUT_MS) { awaitForeground() }
                 ?: return SignInResult.Failed("Sign-in wasn't finished because Nouri wasn't reopened. Please try again.", retryable = true)
             val first = manager.complete(pending, callback)
@@ -127,6 +160,7 @@ class ChatGptSignIn(
             SignInResult.Failed("Couldn't start sign-in: ${e.message}", retryable = true)
         } finally {
             receiver.stop()
+            withContext(NonCancellable) { keepAlive.stop() }
         }
     }
 

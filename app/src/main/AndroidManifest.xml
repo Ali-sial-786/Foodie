@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Only used if the user turns on pantry expiry reminders. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Keeps Nouri running only while the user signs in with ChatGPT in the browser (SignInService). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!-- Lets the sign-in flow open a Custom Tab in the user's browser. -->
     <queries>
@@ -59,5 +62,13 @@
                 <data android:scheme="nouri" android:host="auth-complete" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".ai.SignInService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Receives the Sign in with ChatGPT redirect on 127.0.0.1 while the user signs in in the browser, for at most ten minutes." />
+        </service>
     </application>
 </manifest>

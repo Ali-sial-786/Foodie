@@ -13,10 +13,19 @@ android {
         applicationId = "app.nouri"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        // CI passes its run number so every build installs as an update of the last one.
+        val buildNumber = providers.environmentVariable("NOURI_BUILD_NUMBER").orNull?.toIntOrNull()
+        versionCode = buildNumber ?: 1
+        versionName = "0.1.0" + (buildNumber?.let { ".$it" } ?: "")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+    }
+
+    signingConfigs {
+        getByName("debug") {
+            // CI keeps one key across builds (see ci.yml) so a new APK installs over the old one.
+            providers.environmentVariable("NOURI_DEBUG_KEYSTORE_FILE").orNull?.let { storeFile = file(it) }
+        }
     }
 
     buildTypes {
@@ -119,6 +128,7 @@ dependencies {
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.ktor.client.mock)
     testImplementation(libs.turbine)
     testImplementation(libs.androidx.room.testing)
     testImplementation(libs.androidx.work.testing)

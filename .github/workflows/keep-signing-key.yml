@@ -1,0 +1,26 @@
+name: Keep the debug signing key
+
+# The CI workflow keeps one debug signing key in the Actions cache so each APK installs
+# over the previous one. GitHub drops cache entries nobody has used for 7 days; reading
+# it every few days keeps the same key even when nothing is being built.
+on:
+  schedule:
+    - cron: '41 4 */3 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  touch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read the cached key
+        id: key
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: nouri-debug-keystore-v1
+      - name: Report
+        run: echo "Debug signing key cached: ${{ steps.key.outputs.cache-hit == 'true' }}"

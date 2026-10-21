@@ -55,6 +55,7 @@ data/
   repo/          ─ repositories (Flow-based), Open Food Facts lookup, bundled USDA asset search,
                    RecipeLibraryAssets (assets/recipes/library.json, decoded on first use)
 ai/ChatGptSignIn ─ loopback redirect receiver + sign-in orchestration
+ai/SignInService ─ foreground service that keeps the app unfrozen while the browser is in front
 image/           ─ photo processing (orientation, crop, downscale, re-encode, hash)
 work/            ─ daily maintenance worker (image retention, purge soft-deleted rows, optional expiry reminder)
 ```

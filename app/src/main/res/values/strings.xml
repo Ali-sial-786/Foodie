@@ -3,4 +3,7 @@
     <string name="app_name">Nouri</string>
     <string name="channel_expiry">Pantry expiry reminders</string>
     <string name="expiry_title">Use soon</string>
+    <string name="channel_sign_in">Signing in</string>
+    <string name="sign_in_title">Connecting to ChatGPT</string>
+    <string name="sign_in_text">Finish signing in in your browser. Nouri is waiting for the reply.</string>
 </resources>

@@ -6,7 +6,7 @@
 |---|---|---|---|
 | Shared unit tests | `shared/src/commonTest` | 270 | Locally and in CI on the JVM (`:shared:jvmTest`), and on the iOS simulator in the iOS workflow (`:shared:iosSimulatorArm64Test`) |
 | Shared JVM-only tests (benchmark, recipe-library and catalogue standards, ingredient table export, dish and recipe table printers) | `shared/src/jvmTest` | 11 | Locally and in CI |
-| App unit, Robolectric and Compose UI tests | `app/src/test` | 34 | CI only (`:app:testDebugUnitTest`) |
+| App unit, Robolectric and Compose UI tests | `app/src/test` | 39 | CI only (`:app:testDebugUnitTest`) |
 | iOS app tests (XCTest, simulator) | `iosApp/NouriTests` | 6 | CI only (`.github/workflows/ios.yml`); all passing on an iPhone simulator, along with the shared tests under Kotlin/Native |
 | Android lint | — | — | CI only (`:app:lintDebug`; reports uploaded, non-blocking) |
 
@@ -37,6 +37,7 @@ The app tests (all on the JVM with Robolectric — simulated, not on a device) c
 - settings defaults (demo provider, no photo consent, no paid fallback, delete photos after analysis) and reset;
 - the API key never being stored in plain text;
 - export mapping and the recipe-editor line parser;
+- Sign in with ChatGPT on Android: with the keep-alive service the code is exchanged without reopening the app, without it the exchange waits until the app is back, a network still blocked falls back to waiting and reuses the same code, the service always stops, and the loopback listener (real sockets) still answers after an idle spare connection;
 - the database migration from v1 to v2 (a real v1 database built from the committed schema keeps its data), ratings next to favourites and cooking history, and the bundled recipe library loading in the app;
 - UI flows: first launch, skipping every onboarding step, quick add, importing a pasted recipe on the device and saving it, and an end-to-end meal scan (demo provider → estimator → review screen → diary, checking that photo portions are saved as estimates with a range and demo provenance).
 
