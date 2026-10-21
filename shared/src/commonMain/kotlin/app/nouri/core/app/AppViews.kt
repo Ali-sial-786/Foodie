@@ -131,7 +131,8 @@ class RecipeDetailView(
     val id: String,
     val name: String,
     val subtitle: String,
-    val description: String,
+    /** The recipe's description (named so it doesn't clash with Objective-C's `description`). */
+    val about: String,
     val originLabel: String,
     val attribution: String?,
     val variantSummary: String?,

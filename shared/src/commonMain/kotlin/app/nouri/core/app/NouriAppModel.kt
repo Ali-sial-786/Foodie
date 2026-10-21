@@ -472,15 +472,16 @@ class NouriAppModel(
         return RecipeSearch.dishes(ranked, prepared()).take(limit).map(::cardView)
     }
 
+    /** [servings] ≤ 0 means the recipe's own number of servings. */
     fun recipe(id: String, servings: Int): RecipeDetailView? {
         val base = allRecipes().firstOrNull { it.id == id } ?: return null
-        val scaled = RecipeScaler.scale(base, servings.coerceIn(1, 100))
+        val scaled = RecipeScaler.scale(base, if (servings <= 0) base.servings else servings.coerceIn(1, 100))
         val report = core.engine.calculateRecipe(scaled.recipe)
         val analysis = RecipeAnalyzer.analyze(base)
         val usage = data.usage[id]
         val versions = RecipeSearch.versionsOf(id, prepared())
         return RecipeDetailView(
-            id = base.id, name = base.name, subtitle = recipeSubtitle(base), description = base.description,
+            id = base.id, name = base.name, subtitle = recipeSubtitle(base), about = base.description,
             originLabel = base.origin.label, attribution = base.attribution, variantSummary = base.variantSummary,
             servings = scaled.recipe.servings, baseServings = base.servings,
             minutesText = minutes(base.totalMinutes), difficulty = base.difficulty.label, difficultyLevel = base.difficulty.ordinal + 1,

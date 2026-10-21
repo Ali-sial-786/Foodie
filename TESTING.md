@@ -4,12 +4,13 @@
 
 | Suite | Location | Count | Runs where |
 |---|---|---|---|
-| Shared unit tests | `shared/src/commonTest` | 246 | Locally and in CI (`:shared:jvmTest`) |
-| Shared JVM-only tests (benchmark, recipe-library and catalogue standards, dish and recipe table printers) | `shared/src/jvmTest` | 10 | Locally and in CI |
-| App unit, Robolectric and Compose UI tests | `app/src/test` | 31 | CI only (`:app:testDebugUnitTest`) |
+| Shared unit tests | `shared/src/commonTest` | 270 | Locally and in CI on the JVM (`:shared:jvmTest`), and on the iOS simulator in the iOS workflow (`:shared:iosSimulatorArm64Test`) |
+| Shared JVM-only tests (benchmark, recipe-library and catalogue standards, ingredient table export, dish and recipe table printers) | `shared/src/jvmTest` | 11 | Locally and in CI |
+| App unit, Robolectric and Compose UI tests | `app/src/test` | 34 | CI only (`:app:testDebugUnitTest`) |
+| iOS app tests (XCTest, simulator) | `iosApp/NouriTests` | 6 | CI only (`.github/workflows/ios.yml`) |
 | Android lint | — | — | CI only (`:app:lintDebug`; reports uploaded, non-blocking) |
 
-That makes **256 shared tests**. They cover:
+That makes **281 shared tests**. They cover:
 
 - unit conversions and regional cups;
 - the ontology, aliases (including ~70 regional names from cuisines worldwide, and specific names such as "white wine vinegar" beating their generic parts) and allergen/halal flags;
@@ -17,6 +18,8 @@ That makes **256 shared tests**. They cover:
 - every built-in recipe calculating fully from USDA data, with sensible calories per serving and halal-incompatible items only as optional lines (`RecipeCatalogCoverageTest`);
 - every built-in and bundled-library recipe meeting the authoring rules in `data/recipes/README.md`: exactly one course, no declared diet tags, a method long and detailed enough for its course, equipment, storage advice, a food-safety note for raw meat, poultry or seafood, and calories per serving plausible for the course (`RecipeLibraryTest`);
 - recipe import from messy pasted text (`RecipeImportTest`);
+- the 485-recipe library: every file decodes, ids and dish names are unique across the library and the catalogue, versions point at a main recipe, and every recipe calculates fully with plausible calories (`RecipeLibraryTest`, `RecipeLibraryFamiliesTest`); Discover's search, filters, sorting and grouping (`RecipeSearchTest`); piece weights default to the standard piece; canned pulses count as cooked;
+- the shared app model behind the iPhone app: logging, persistence across restarts, duplicate warning, typed meals, undo, recipes with versions and ratings, weights and targets, a demo photo scan, delete everything (`NouriAppModelTest`);
 - the meal estimation pipeline and corrections;
 - the natural-language parser;
 - the label OCR parser (US, Canada and EU samples);
@@ -34,6 +37,7 @@ The app tests (all on the JVM with Robolectric — simulated, not on a device) c
 - settings defaults (demo provider, no photo consent, no paid fallback, delete photos after analysis) and reset;
 - the API key never being stored in plain text;
 - export mapping and the recipe-editor line parser;
+- the database migration from v1 to v2 (a real v1 database built from the committed schema keeps its data), ratings next to favourites and cooking history, and the bundled recipe library loading in the app;
 - UI flows: first launch, skipping every onboarding step, quick add, importing a pasted recipe on the device and saving it, and an end-to-end meal scan (demo provider → estimator → review screen → diary, checking that photo portions are saved as estimates with a range and demo provenance).
 
 `app/src/test/kotlin/app/nouri/testing/TestContainer.kt` builds a fully wired container with an in-memory database, a throwaway DataStore and a test-only cipher (Robolectric has no Android Keystore). In Compose tests, waits that read the database call `rule.waitForIdle()` first so the main looper can run view-model coroutines.

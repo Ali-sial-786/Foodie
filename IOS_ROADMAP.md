@@ -1,5 +1,7 @@
 # iOS roadmap
 
+**Status:** a first iPhone app exists in `iosApp/` (SwiftUI on the shared `NouriAppModel`), built and tested on the simulator in CI. See PROGRESS.md for what it covers and BLOCKERS.md for installing it. The steps below record the plan and what remains.
+
 ## Already portable
 
 All of `:shared/commonMain` is pure Kotlin Multiplatform common code, with no Android or `java.*` APIs:

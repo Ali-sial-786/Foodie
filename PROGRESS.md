@@ -9,7 +9,8 @@ _Last updated: 2026-10-21._
 - Units, regional cups, household portions.
 - USDA SR28 data pipeline: 460 compiled core foods plus the full table as a search asset.
 - Ingredient ontology (~385 ingredients, regional aliases, allergens, halal status, substitutions), covering seafood, cuts, cheeses, grains, pulses, vegetables, fruit, nuts, herbs, spices, sauces and drinks used by cuisines worldwide.
-- ~85 regional dish compositions; 80 recipes across ~38 cuisines (including butter chicken, nihari, haleem, pad thai, pho, shawarma, falafel, bolognese, lasagne, tacos and jerk chicken), including variations kept separate from the traditional versions. Every built-in recipe meets the recipe-library standard (`data/recipes/README.md`): one course, diet labels calculated rather than declared, and a step-by-step method with heat levels, times and doneness cues. Nutrition was unchanged by the rewrite.
+- Recipe library: 485 reference recipes from 82 cuisines in `data/recipes/` (bundled and loaded on first use), each validated against the real engine — detailed methods, every ingredient calculable, plausible calories per course, safety notes — with 63 regional versions grouped under their dish. Discover search, filters (cuisine by world region, course, diet, time, calories, difficulty, protein, favourites), sorting, personal ratings and version pickers on Android and iOS.
+- ~85 regional dish compositions; 80 built-in recipes across ~38 cuisines (including butter chicken, nihari, haleem, pad thai, pho, shawarma, falafel, bolognese, lasagne, tacos and jerk chicken), including variations kept separate from the traditional versions. Every built-in recipe meets the recipe-library standard (`data/recipes/README.md`): one course, diet labels calculated rather than declared, and a step-by-step method with heat levels, times and doneness cues. Nutrition was unchanged by the rewrite.
 - Nutrition engine with yields, edible and consumed fractions, rounding policy and provenance.
 - Meal estimation pipeline with ranges, confidence, corrections and correction memory.
 - Offline natural-language meal parser and resolver.
@@ -23,7 +24,7 @@ _Last updated: 2026-10-21._
 
 **Android app (`:app`).** Compiled, unit-tested and assembled in GitHub Actions.
 
-- Room database (v1, schema export on), DataStore settings, Keystore-encrypted secret store.
+- Room database (v2 with an explicit migration from v1; schemas committed and the migration tested), DataStore settings, Keystore-encrypted secret store.
 - Repositories; Open Food Facts lookup with cache; bundled USDA search asset.
 - Image processing; loopback sign-in receiver; daily maintenance worker; manual DI container.
 - Compose theme (light and dark), bottom navigation with a central Scan button, app-wide snackbar with undo.
@@ -48,13 +49,19 @@ _Last updated: 2026-10-21._
 
 **Added after device feedback:** recipe import from pasted text, screenshots or the Android share sheet (AI clean-up or on-device), brand-aware meal descriptions with Open Food Facts product search, counts that are never dropped, 52 more built-in recipes (each checked to calculate fully from USDA data), and a better pot-weight estimate for recipes that start with dry rice, pasta or pulses.
 
+**iPhone app (`iosApp/`).** SwiftUI on the shared engine, built and tested on the iOS simulator in GitHub Actions (`.github/workflows/ios.yml`), which also produces an unsigned `.ipa`. All logic is in the shared `NouriAppModel` (unit-tested on the JVM and, in CI, on the iOS simulator); Swift renders it and provides storage (Application Support, excluded from backup), the Keychain, the camera and the loopback sign-in listener.
+
+- Today (ring, meals, log again, recipe ideas), Diary (day navigation, swipe to delete, undo), Add food (search with units and live nutrition, describe on the phone or with AI, photo scan with demo or real provider and consent, barcode scanning with VisionKit and Open Food Facts, quick add, duplicate warning).
+- Discover with the same search, filters, sorting, version picker and ratings as Android; recipe detail with servings, nutrition, diets and allergens, versions, rating, favourites, ingredients, method with timers, safety notes, log a portion, mark cooked.
+- Progress (weight trend and weekly calories with Swift Charts), Settings (profile, suggested or manual targets, units, diets and allergies, AI provider with demo, Sign in with ChatGPT through an in-app browser and a 127.0.0.1 listener, API key in the Keychain with explicit fallback opt-in, photo consent, online lookups, CSV export, delete everything), onboarding.
+- Not run on a real iPhone yet: installing needs an Apple account to sign it (see BLOCKERS.md).
+
 ## Not started
 
 - Instrumented tests on an emulator or device (none yet; all UI tests are Robolectric).
 - Accessibility audit, baseline profile, performance measurement.
 - ID-token signature verification against JWKS (the hook exists but isn't wired). The ID token arrives directly from the token endpoint over TLS, which OpenID Connect allows in place of a signature check; its claims are only used to label the account.
-- Committing the Room schema JSON. CI prints it (step "Room schema is committed") until it is in git; commit it from a local build with the Android SDK, after which CI fails on any uncommitted schema change. The check only runs when Room code generation actually executes; when Gradle restores it from the build cache, no schema is written and the step just leaves a notice.
-- iOS.
+- iOS: HealthKit, label OCR with Vision, recipe import and editing, pantry and grocery, cook mode, and the Android app's per-item scan corrections (changing the matched food) are not in the first iPhone version yet.
 
 ## Known limitations
 

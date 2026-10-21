@@ -2,7 +2,7 @@
 
 Nouri (working name) is a camera-first Android app for tracking food and nutrition. You photograph a meal, your ingredients or a nutrition label. An AI provider identifies what is there, and an on-device engine calculates calories and macros from reference data. Each estimate shows its range, its confidence and where its numbers came from. The same engine powers recipes, a pantry, a diary and weight trends.
 
-> **Status: early development, not released.** The shared domain engine is implemented and has 250 passing JVM tests. All Android screens (camera and scan review, diary, search and logging, progress, recipes, pantry, settings, onboarding) are written and built in GitHub Actions, with Robolectric tests for the main flows. The debug APK has been installed on one phone, where Sign in with ChatGPT and "Interpret with AI" for typed meals work. Nothing else has been verified on a device yet. See [PROGRESS.md](PROGRESS.md).
+> **Status: early development, not released.** The shared domain engine is implemented and has 281 passing tests (on the JVM, and on the iOS simulator in CI). All Android screens (camera and scan review, diary, search and logging, progress, recipes, pantry, settings, onboarding) are written and built in GitHub Actions, with Robolectric tests for the main flows. The debug APK has been installed on one phone, where Sign in with ChatGPT and "Interpret with AI" for typed meals work. Nothing else has been verified on a device yet. See [PROGRESS.md](PROGRESS.md).
 
 ## Quick start
 
@@ -31,9 +31,9 @@ Every push to GitHub runs CI ([.github/workflows/ci.yml](.github/workflows/ci.ym
 | Food search and logging | Unified search (your foods, dishes, ingredients, full USDA table), portion picker, natural-language logging (offline parser; optional AI), quick add | Implemented; UI compiled in CI |
 | Progress | Weight trend (smoothed), intake charts, plain-language insights, optional target suggestions | Implemented; UI compiled in CI |
 | Camera / scanning | CameraX with three modes, flash, tap-to-focus, exposure, gallery import, multi-photo, rotate/crop, on-device barcode and label OCR | Built in CI; **not yet run on a device** |
-| Recipes / pantry / grocery | 80 built-in recipes across ~38 cuisines, scaling, variations, pantry matching, explainable ranking, cook mode | Engine tested; UI built in CI |
+| Recipes / pantry / grocery | 565 recipes from 82 cuisines (80 built-in plus a 485-recipe bundled library) with versions grouped by dish, personal ratings, difficulty, scaling, variations, pantry matching, explainable ranking, cook mode | Engine tested; UI built in CI |
 | Settings / onboarding / privacy controls | AI provider status, ChatGPT connect/disconnect, API key, privacy and retention, export, delete everything, onboarding | Built in CI; onboarding flow tested |
-| iOS | Shared module is pure Kotlin Multiplatform common code | Planned ([IOS_ROADMAP.md](IOS_ROADMAP.md)) |
+| iOS | SwiftUI app on the shared engine (`iosApp/`): diary, search, describe, photo and barcode scans, Discover with filters and versions, recipes, progress, settings, Sign in with ChatGPT | Built and tested on the iOS simulator in CI; **not yet run on an iPhone** (needs signing, see [iosApp/README.md](iosApp/README.md)) |
 
 ## Principles
 
