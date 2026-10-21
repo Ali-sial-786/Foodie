@@ -139,5 +139,5 @@ extension Optional where Wrapped == KotlinDouble {
 }
 
 extension Optional where Wrapped == KotlinInt {
-    var int: Int? { self.map { $0.intValue } }
+    var int: Int? { self.map { Int($0.int32Value) } }
 }
