@@ -4,16 +4,18 @@
 
 | Suite | Location | Count | Runs where |
 |---|---|---|---|
-| Shared unit tests | `shared/src/commonTest` | 229 | Locally and in CI (`:shared:jvmTest`) |
-| Shared JVM-only tests (benchmark, dish table printer) | `shared/src/jvmTest` | 3 | Locally and in CI |
-| App unit, Robolectric and Compose UI tests | `app/src/test` | 30 | CI only (`:app:testDebugUnitTest`) |
+| Shared unit tests | `shared/src/commonTest` | 246 | Locally and in CI (`:shared:jvmTest`) |
+| Shared JVM-only tests (benchmark, dish and recipe table printers) | `shared/src/jvmTest` | 4 | Locally and in CI |
+| App unit, Robolectric and Compose UI tests | `app/src/test` | 31 | CI only (`:app:testDebugUnitTest`) |
 | Android lint | — | — | CI only (`:app:lintDebug`; reports uploaded, non-blocking) |
 
-That makes **232 shared tests**. They cover:
+That makes **250 shared tests**. They cover:
 
 - unit conversions and regional cups;
 - the ontology, aliases and allergen/halal flags;
-- recipe and dish calculation;
+- recipe and dish calculation, including the estimated pot weight when dry rice, pasta or pulses absorb water;
+- every built-in recipe calculating fully from USDA data, with sensible calories per serving and halal-incompatible items only as optional lines (`RecipeCatalogCoverageTest`);
+- recipe import from messy pasted text (`RecipeImportTest`);
 - the meal estimation pipeline and corrections;
 - the natural-language parser;
 - the label OCR parser (US, Canada and EU samples);
@@ -31,7 +33,7 @@ The app tests (all on the JVM with Robolectric — simulated, not on a device) c
 - settings defaults (demo provider, no photo consent, no paid fallback, delete photos after analysis) and reset;
 - the API key never being stored in plain text;
 - export mapping and the recipe-editor line parser;
-- UI flows: first launch, skipping every onboarding step, quick add, and an end-to-end meal scan (demo provider → estimator → review screen → diary, checking that photo portions are saved as estimates with a range and demo provenance).
+- UI flows: first launch, skipping every onboarding step, quick add, importing a pasted recipe on the device and saving it, and an end-to-end meal scan (demo provider → estimator → review screen → diary, checking that photo portions are saved as estimates with a range and demo provenance).
 
 `app/src/test/kotlin/app/nouri/testing/TestContainer.kt` builds a fully wired container with an in-memory database, a throwaway DataStore and a test-only cipher (Robolectric has no Android Keystore). In Compose tests, waits that read the database call `rule.waitForIdle()` first so the main looper can run view-model coroutines.
 

@@ -33,7 +33,7 @@ Each line ends `RESOLVED`, `ESTIMATED` (it involved an assumption), `UNQUANTIFIE
 
 Recipe totals:
 
-- **Cooked weight** is the measured yield if the user weighed the pot. Otherwise it is estimated as input mass × **0.85** (default retention), with a warning suggesting the pot be weighed.
+- **Cooked weight** is the measured yield if the user weighed the pot. Otherwise it is estimated, with a warning suggesting the pot be weighed: most ingredients keep **0.85** of their mass (default retention), meat uses its cooked yield (0.75), and dry rice, pasta and pulses count their dry mass plus the water they absorb (`cookedYield`). That absorbed water is often not listed (pasta boiled and drained, soaked chickpeas), so the pot gets whichever is larger: the absorbed water, or the listed water and stock × 0.85. Per-serving values never depend on this estimate; only per-gram portions do.
 - Per serving = total ÷ servings. Per 100 g cooked = total × 100 ÷ cooked weight. Portions by weight use the cooked weight; portions by fraction use "half the pot".
 - **Recipe confidence:**
   - LOW if an energy-dense line is unresolved or completeness is below 75%;

@@ -1,15 +1,15 @@
 # Progress
 
-_Last updated: 2026-10-20._
+_Last updated: 2026-10-21._
 
 ## Done
 
-**Shared engine (`:shared`).** 232 tests pass locally and in CI.
+**Shared engine (`:shared`).** 250 tests pass locally and in CI.
 
 - Units, regional cups, household portions.
-- USDA SR28 data pipeline: 235 compiled core foods plus the full table as a search asset.
-- Ingredient ontology (~190 ingredients, regional aliases, allergens, halal status, substitutions).
-- ~85 regional dish compositions; 28 recipes across ~38 cuisines, including variations kept separate from the traditional versions.
+- USDA SR28 data pipeline: 249 compiled core foods plus the full table as a search asset.
+- Ingredient ontology (~205 ingredients, regional aliases, allergens, halal status, substitutions).
+- ~85 regional dish compositions; 80 recipes across ~38 cuisines (including butter chicken, nihari, haleem, pad thai, pho, shawarma, falafel, bolognese, lasagne, tacos and jerk chicken), including variations kept separate from the traditional versions.
 - Nutrition engine with yields, edible and consumed fractions, rounding policy and provenance.
 - Meal estimation pipeline with ranges, confidence, corrections and correction memory.
 - Offline natural-language meal parser and resolver.
@@ -46,7 +46,7 @@ _Last updated: 2026-10-20._
 
 **App tests (Robolectric, simulated — no device):** diary repository (idempotency, duplicate guard, soft delete/undo, snapshot round-trip, copy day), user-food index, settings defaults and reset, encrypted API-key storage, export mapping, recipe line parser, first launch, full onboarding skip flow, quick add, and an end-to-end meal scan (demo provider → estimator → review UI → diary).
 
-**Added after device feedback:** recipe import from pasted text, screenshots or the Android share sheet (AI clean-up or on-device), brand-aware meal descriptions with Open Food Facts product search, and counts that are never dropped.
+**Added after device feedback:** recipe import from pasted text, screenshots or the Android share sheet (AI clean-up or on-device), brand-aware meal descriptions with Open Food Facts product search, counts that are never dropped, 52 more built-in recipes (each checked to calculate fully from USDA data), and a better pot-weight estimate for recipes that start with dry rice, pasta or pulses.
 
 ## Not started
 

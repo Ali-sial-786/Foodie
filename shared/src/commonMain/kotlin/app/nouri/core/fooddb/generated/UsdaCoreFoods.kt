@@ -7,9 +7,9 @@ import app.nouri.core.fooddb.FoodReference
 import app.nouri.core.fooddb.UsdaSr28
 
 internal object UsdaCoreFoods {
-    const val COUNT = 235
+    const val COUNT = 249
 
-    val all: List<FoodReference> by lazy { part0() + part1() + part2() }
+    val all: List<FoodReference> by lazy { part0() + part1() + part2() + part3() }
 
     private fun part0(): List<FoodReference> = listOf(
         UsdaSr28.food("01003", "Butter oil, anhydrous", "0100", 876.0, 0.28, 99.48, 0.0, 0.0, 0.0, 2.0, 61.924, 12.8, "1 tbsp", 205.0, "1 cup", 0.0),
@@ -20,6 +20,7 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("01026", "Cheese, mozzarella, whole milk", "0100", 300.0, 22.17, 22.35, 2.19, 0.0, 1.03, 627.0, 13.152, 112.0, "1 cup, shredded", 28.35, "1 oz", 0.0),
         UsdaSr28.food("01032", "Cheese, parmesan, grated", "0100", 420.0, 28.42, 27.84, 13.91, 0.0, 0.07, 1804.0, 15.371, 100.0, "1 cup", 5.0, "1 tbsp", 0.0),
         UsdaSr28.food("01053", "Cream, fluid, heavy whipping", "0100", 340.0, 2.84, 36.08, 2.74, 0.0, 2.92, 27.0, 23.032, 120.0, "1 cup,  whipped", 238.0, "1 cup, fluid (yields 2 cups whipped)", 0.0),
+        UsdaSr28.food("01056", "Cream, sour, cultured", "0100", 198.0, 2.44, 19.35, 4.63, 0.0, 3.41, 31.0, 10.14, 12.0, "1 tbsp", 230.0, "1 cup", 0.0),
         UsdaSr28.food("01077", "Milk, whole, 3.25% milkfat, with added vitamin D", "0100", 61.0, 3.15, 3.25, 4.8, 0.0, 5.05, 43.0, 1.865, 244.0, "1 cup", 30.5, "1 fl oz", 0.0),
         UsdaSr28.food("01079", "Milk, reduced fat, fluid, 2% milkfat, with added vitamin A and vitamin D", "0100", 50.0, 3.3, 1.98, 4.8, 0.0, 5.06, 47.0, 1.257, 244.0, "1 cup", 30.5, "1 fl oz", 0.0),
         UsdaSr28.food("01116", "Yogurt, plain, whole milk, 8 grams protein per 8 ounce", "0100", 61.0, 3.47, 3.25, 4.66, 0.0, 4.66, 46.0, 2.096, 170.0, "1 container,  (6 oz)", 227.0, "1 container,  (8 oz)", 0.0),
@@ -30,6 +31,8 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("01151", "Milk, nonfat, fluid, without added vitamin A and vitamin D (fat free or skim)", "0100", 34.0, 3.37, 0.08, 4.96, 0.0, 5.09, 42.0, 0.051, 245.0, "1 cup", 980.0, "1 quart", 0.0),
         UsdaSr28.food("01256", "Yogurt, Greek, plain, nonfat", "0100", 59.0, 10.19, 0.39, 3.6, 0.0, 3.24, 36.0, 0.117, 170.0, "1 container", null, null, 0.0),
         UsdaSr28.food("01293", "Yogurt, Greek, plain, whole milk", "0100", 97.0, 9.0, 5.0, 3.98, 0.0, 4.0, 35.0, 2.395, null, null, null, null, 0.0),
+        UsdaSr28.food("02001", "Spices, allspice, ground", "0200", 263.0, 6.09, 8.69, 72.12, 21.6, null, 77.0, 2.55, 1.9, "1 tsp", 6.0, "1 tbsp", 0.0),
+        UsdaSr28.food("02002", "Spices, anise seed", "0200", 337.0, 17.6, 15.9, 50.02, 14.6, null, 16.0, 0.586, 2.1, "1 tsp, whole", 6.7, "1 tbsp, whole", 0.0),
         UsdaSr28.food("02004", "Spices, bay leaf", "0200", 313.0, 7.61, 8.36, 74.97, 26.3, null, 23.0, 2.28, 0.6, "1 tsp, crumbled", 1.8, "1 tbsp, crumbled", 0.0),
         UsdaSr28.food("02006", "Spices, cardamom", "0200", 311.0, 10.76, 6.7, 68.47, 28.0, null, 18.0, 0.68, 2.0, "1 tsp, ground", 5.8, "1 tbsp, ground", 0.0),
         UsdaSr28.food("02009", "Spices, chili powder", "0200", 282.0, 13.46, 14.28, 49.7, 34.8, 7.19, 2867.0, 2.462, 2.7, "1 tsp", 8.0, "1 tbsp", 0.0),
@@ -69,8 +72,13 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("05305", "Ground turkey, raw", "0500", 148.0, 19.66, 7.66, 0.0, 0.0, 0.0, 58.0, 2.024, 453.6, "1 lb", 114.0, "1 patty,  4 oz", 0.0),
         UsdaSr28.food("05332", "Chicken, ground, raw", "0500", 143.0, 17.44, 8.1, 0.04, 0.0, 0.0, 60.0, 2.301, 112.0, "4 oz, crumbled", null, null, 0.0),
         UsdaSr28.food("05333", "Chicken, ground, crumbles, cooked, pan-browned", "0500", 189.0, 23.28, 10.92, 0.0, 0.0, 0.0, 75.0, 3.11, 85.0, "3 oz, crumbled", null, null, 0.0),
+        UsdaSr28.food("06008", "Soup, beef broth or bouillon canned, ready-to-serve", "0600", 7.0, 1.14, 0.22, 0.04, 0.0, 0.0, 372.0, 0.11, 240.0, "1 cup", 435.0, "1 can, 14.5 oz", 0.0),
+        UsdaSr28.food("06081", "Soup, chicken broth cubes, dry", "0600", 198.0, 14.6, 4.7, 23.5, 0.0, 0.0, 24000.0, 1.2, 4.8, "1 cube", null, null, 0.0),
+        UsdaSr28.food("06174", "Soup, stock, fish, home-prepared", "0600", 16.0, 2.26, 0.81, 0.0, 0.0, 0.0, 156.0, 0.203, 233.0, "1 cup", null, null, 0.0),
         UsdaSr28.food("06179", "Sauce, fish, ready-to-serve", "0600", 35.0, 5.06, 0.01, 3.64, 0.0, 3.64, 7851.0, 0.003, 18.0, "1 tbsp", null, null, 0.0),
+        UsdaSr28.food("06194", "Soup, chicken broth, ready-to-serve", "0600", 6.0, 0.64, 0.21, 0.44, 0.0, 0.43, 371.0, 0.013, 249.0, "1 cup", null, null, 0.0),
         UsdaSr28.food("06583", "Soup, ramen noodle, any flavor, dry", "0600", 440.0, 10.17, 17.59, 60.26, 2.9, 1.98, 1855.0, 8.117, 81.0, "1 package,  without flavor packet", 5.8, "1 packet", 0.0),
+        UsdaSr28.food("06700", "Soup, vegetable broth, ready to serve", "0600", 5.0, 0.24, 0.07, 0.93, 0.0, 0.55, 296.0, 0.028, 221.0, "1 cup", 390.0, "1 can", 0.0),
         UsdaSr28.food("08120", "Cereals, oats, regular and quick, not fortified, dry", "0800", 379.0, 13.15, 6.52, 67.7, 10.1, 0.99, 6.0, 1.11, 81.0, "1 cup", 27.0, ".333 cup", 0.0),
         UsdaSr28.food("09003", "Apples, raw, with skin", "0900", 52.0, 0.26, 0.17, 13.81, 2.4, 10.39, 1.0, 0.028, 125.0, "1 cup, quartered or chopped", 109.0, "1 cup, slices", 10.0),
         UsdaSr28.food("09037", "Avocados, raw, all commercial varieties", "0900", 160.0, 2.0, 14.66, 8.53, 6.7, 0.66, 7.0, 2.126, 150.0, "1 cup, cubes", 230.0, "1 cup, pureed", 26.0),
@@ -84,6 +92,9 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("09193", "Olives, ripe, canned (small-extra large)", "0900", 115.0, 0.84, 10.68, 6.26, 3.2, 0.0, 735.0, 1.415, 8.4, "1 tbsp", 4.4, "1 large", 0.0),
         UsdaSr28.food("09200", "Oranges, raw, all commercial varieties", "0900", 47.0, 0.94, 0.12, 11.75, 2.4, 9.35, 0.0, 0.015, 180.0, "1 cup, sections", 184.0, "1 large,  (3-1/16\" dia)", 27.0),
         UsdaSr28.food("09206", "Orange juice, raw", "0900", 45.0, 0.7, 0.2, 10.4, 0.2, 8.4, 1.0, 0.024, 248.0, "1 cup", 31.0, "1 fl oz", 0.0),
+    )
+
+    private fun part1(): List<FoodReference> = listOf(
         UsdaSr28.food("09226", "Papayas, raw", "0900", 43.0, 0.47, 0.26, 10.82, 1.7, 7.82, 8.0, 0.081, 145.0, "1 cup, 1\" pieces", 230.0, "1 cup, mashed", 38.0),
         UsdaSr28.food("09266", "Pineapple, raw, all varieties", "0900", 50.0, 0.54, 0.12, 13.12, 1.4, 9.85, 1.0, 0.009, 165.0, "1 cup, chunks", 905.0, "1 fruit", 49.0),
         UsdaSr28.food("09277", "Plantains, raw", "0900", 122.0, 1.3, 0.37, 31.89, 2.3, 15.0, 4.0, 0.143, 148.0, "1 cup, sliced", 179.0, "1 medium", 35.0),
@@ -92,9 +103,6 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("09298", "Raisins, seedless", "0900", 299.0, 3.07, 0.46, 79.18, 3.7, 59.19, 11.0, 0.058, 165.0, "1 cup,  packed", 145.0, "1 cup,  (not packed)", 0.0),
         UsdaSr28.food("09316", "Strawberries, raw", "0900", 32.0, 0.67, 0.3, 7.68, 2.0, 4.89, 1.0, 0.015, 152.0, "1 cup,  halves", 232.0, "1 cup, pureed", 6.0),
         UsdaSr28.food("09322", "Tamarinds, raw", "0900", 239.0, 2.8, 0.6, 62.5, 5.1, 38.8, 28.0, 0.272, 120.0, "1 cup,  pulp", 2.0, "1 fruit,  (3\" x 1\")", 66.0),
-    )
-
-    private fun part1(): List<FoodReference> = listOf(
         UsdaSr28.food("09326", "Watermelon, raw", "0900", 30.0, 0.61, 0.15, 7.55, 0.4, 6.2, 1.0, 0.016, 154.0, "1 cup, balls", 152.0, "1 cup, diced", 48.0),
         UsdaSr28.food("09421", "Dates, medjool", "0900", 277.0, 1.81, 0.15, 74.97, 6.7, 66.47, 1.0, null, 24.0, "1 date, pitted", null, null, 8.0),
         UsdaSr28.food("10070", "Pork, fresh, shoulder, whole, separable lean and fat, raw", "1000", 236.0, 17.18, 17.99, 0.0, 0.0, 0.0, 65.0, 6.24, 28.35, "1 oz", 453.6, "1 lb", 25.0),
@@ -144,6 +152,7 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("11546", "Tomato products, canned, paste, without salt added", "1100", 82.0, 4.32, 0.47, 18.91, 4.1, 12.18, 59.0, 0.1, 66.0, ".25 cup", 262.0, "1 cup", 0.0),
         UsdaSr28.food("11601", "Yam, raw", "1100", 118.0, 1.53, 0.17, 27.88, 4.1, 0.5, 9.0, 0.037, 150.0, "1 cup, cubes", null, null, 14.0),
         UsdaSr28.food("11602", "Yam, cooked, boiled, drained, or baked, without salt", "1100", 116.0, 1.49, 0.14, 27.48, 3.9, 0.49, 8.0, 0.029, 136.0, "1 cup, cubes", 68.0, ".5 cup, cubes", 0.0),
+        UsdaSr28.food("11669", "Seaweed, wakame, raw", "1100", 45.0, 3.03, 0.64, 9.14, 0.5, 0.65, 872.0, 0.13, 10.0, "2 tbsp,  (1/8 cup)", null, null, 0.0),
         UsdaSr28.food("11670", "Peppers, hot chili, green, raw", "1100", 40.0, 2.0, 0.2, 9.46, 1.5, 5.1, 7.0, 0.021, 45.0, "1 pepper", 75.0, ".5 cup, chopped or diced", 27.0),
         UsdaSr28.food("11821", "Peppers, sweet, red, raw", "1100", 31.0, 0.99, 0.3, 6.03, 2.1, 4.2, 4.0, 0.027, 149.0, "1 cup, chopped", 92.0, "1 cup, sliced", 18.0),
         UsdaSr28.food("11935", "Catsup", "1100", 101.0, 1.04, 0.1, 27.4, 0.3, 21.27, 907.0, 0.014, 17.0, "1 tbsp", 9.0, "1 packet", 0.0),
@@ -158,12 +167,17 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("12151", "Nuts, pistachio nuts, raw", "1200", 560.0, 20.16, 45.32, 27.17, 10.6, 7.66, 1.0, 5.907, 123.0, "1 cup", 28.35, "1 oz,  (49 kernels)", 47.0),
         UsdaSr28.food("12155", "Nuts, walnuts, english", "1200", 654.0, 15.23, 65.21, 13.71, 6.7, 2.61, 2.0, 6.126, 117.0, "1 cup, chopped", 80.0, "1 cup, ground", 55.0),
         UsdaSr28.food("12698", "Seeds, sesame butter, tahini, type of kernels unspecified", "1200", 592.0, 17.4, 53.01, 21.5, 4.7, null, 35.0, 7.423, 15.0, "1 tbsp", null, null, 0.0),
+        UsdaSr28.food("13929", "Beef, top sirloin, steak, separable lean and fat, trimmed to 1/8\" fat, all grades, raw", "1300", 201.0, 20.3, 12.71, 0.0, 0.0, 0.0, 52.0, 5.127, 85.0, "3 oz", 608.0, "1 steak", 3.0),
+        UsdaSr28.food("13930", "Beef, top sirloin, steak, separable lean and fat, trimmed to 1/8\" fat, all grades, cooked, broiled", "1300", 243.0, 26.96, 14.23, 0.0, 0.0, 0.0, 56.0, 5.603, 85.0, "3 oz", 306.0, "1 piece, cooked, excluding refuse (yield from 1 lb raw meat with refuse)", 4.0),
         UsdaSr28.food("14106", "Alcoholic beverage, wine, table, white", "1400", 82.0, 0.07, 0.0, 2.6, 0.0, 0.96, 5.0, 0.0, 29.4, "1 fl oz", 147.0, "1 serving,  (5 fl oz)", 0.0),
         UsdaSr28.food("14209", "Beverages, coffee, brewed, prepared with tap water", "1400", 1.0, 0.12, 0.02, 0.0, 0.0, 0.0, 2.0, 0.002, 29.6, "1 fl oz", 178.0, "6 fl oz", 0.0),
         UsdaSr28.food("14355", "Beverages, tea, black, brewed, prepared with tap water", "1400", 1.0, 0.0, 0.0, 0.3, 0.0, 0.0, 3.0, 0.002, 29.6, "1 fl oz", 178.0, "6 fl oz", 0.0),
         UsdaSr28.food("14400", "Beverages, carbonated, cola, fast-food cola", "1400", 37.0, 0.07, 0.02, 9.56, 0.0, 8.97, 4.0, 0.0, 258.0, "1 serving, child 12 fl oz, without ice", 347.0, "1 serving, small 16 fl oz, without ice", 0.0),
         UsdaSr28.food("14411", "Beverages, water, tap, drinking", "1400", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 29.6, "1 fl oz", 237.0, "1 serving,  8 fl oz", 0.0),
         UsdaSr28.food("15015", "Fish, cod, Atlantic, raw", "1500", 82.0, 17.81, 0.67, 0.0, 0.0, 0.0, 54.0, 0.131, 85.0, "3 oz", 231.0, "1 fillet", 0.0),
+    )
+
+    private fun part2(): List<FoodReference> = listOf(
         UsdaSr28.food("15016", "Fish, cod, Atlantic, cooked, dry heat", "1500", 105.0, 22.83, 0.86, 0.0, 0.0, 0.0, 78.0, 0.168, 85.0, "3 oz", 180.0, "1 fillet", 0.0),
         UsdaSr28.food("15121", "Fish, tuna, light, canned in water, drained solids", "1500", 86.0, 19.44, 0.96, 0.0, 0.0, 0.0, 247.0, 0.211, 28.35, "1 oz", 85.0, "3 oz", 0.0),
         UsdaSr28.food("15149", "Crustaceans, shrimp, mixed species, raw (may have been previously frozen)", "1500", 71.0, 13.61, 1.01, 0.91, 0.0, 0.0, 566.0, 0.261, 6.0, "1 medium", 5.0, "1 small", 0.0),
@@ -175,10 +189,8 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("16014", "Beans, black, mature seeds, raw", "1600", 341.0, 21.6, 1.42, 62.36, 15.5, 2.12, 5.0, 0.366, 194.0, "1 cup", 12.1, "1 tbsp", 0.0),
         UsdaSr28.food("16015", "Beans, black, mature seeds, cooked, boiled, without salt", "1600", 132.0, 8.86, 0.54, 23.71, 8.7, 0.32, 1.0, 0.139, 172.0, "1 cup", null, null, 0.0),
         UsdaSr28.food("16027", "Beans, kidney, all types, mature seeds, raw", "1600", 333.0, 23.58, 0.83, 60.01, 24.9, 2.23, 24.0, 0.12, 184.0, "1 cup", null, null, 0.0),
-    )
-
-    private fun part2(): List<FoodReference> = listOf(
         UsdaSr28.food("16033", "Beans, kidney, red, mature seeds, cooked, boiled, without salt", "1600", 127.0, 8.67, 0.5, 22.8, 7.4, 0.32, 2.0, 0.072, 177.0, "1 cup", 11.0, "1 tbsp", 0.0),
+        UsdaSr28.food("16051", "Beans, white, mature seeds, canned", "1600", 114.0, 7.26, 0.29, 21.2, 4.8, 0.29, 340.0, 0.074, 262.0, "1 cup", null, null, 0.0),
         UsdaSr28.food("16056", "Chickpeas (garbanzo beans, bengal gram), mature seeds, raw", "1600", 378.0, 20.47, 6.04, 62.95, 12.2, 10.7, 24.0, 0.603, 200.0, "1 cup", 12.5, "1 tbsp", 0.0),
         UsdaSr28.food("16057", "Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt", "1600", 164.0, 8.86, 2.59, 27.42, 7.6, 4.8, 7.0, 0.269, 164.0, "1 cup", null, null, 0.0),
         UsdaSr28.food("16062", "Cowpeas, common (blackeyes, crowder, southern), mature seeds, raw", "1600", 336.0, 23.52, 1.26, 60.03, 10.6, 6.9, 16.0, 0.331, 167.0, "1 cup", 10.5, "1 tbsp", 0.0),
@@ -187,6 +199,7 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("16070", "Lentils, mature seeds, cooked, boiled, without salt", "1600", 116.0, 9.02, 0.38, 20.13, 7.9, 1.8, 2.0, 0.053, 198.0, "1 cup", 12.3, "1 tbsp", 0.0),
         UsdaSr28.food("16080", "Mung beans, mature seeds, raw", "1600", 347.0, 23.86, 1.15, 62.62, 16.3, 6.6, 15.0, 0.348, 207.0, "1 cup", 13.0, "1 tbsp", 0.0),
         UsdaSr28.food("16081", "Mung beans, mature seeds, cooked, boiled, without salt", "1600", 105.0, 7.02, 0.38, 19.15, 7.6, 2.0, 2.0, 0.116, 202.0, "1 cup", null, null, 0.0),
+        UsdaSr28.food("16082", "Noodles, chinese, cellophane or long rice (mung beans), dehydrated", "1600", 351.0, 0.16, 0.06, 86.09, 0.5, 0.0, 10.0, 0.017, 140.0, "1 cup", null, null, 0.0),
         UsdaSr28.food("16083", "Mungo beans, mature seeds, raw", "1600", 341.0, 25.21, 1.64, 58.99, 18.3, null, 38.0, 0.114, 207.0, "1 cup", null, null, 0.0),
         UsdaSr28.food("16084", "Mungo beans, mature seeds, cooked, boiled, without salt", "1600", 105.0, 7.54, 0.55, 18.34, 6.4, 2.01, 7.0, 0.038, 180.0, "1 cup", 69.0, "1 oz,  dry, yield after cooking", 0.0),
         UsdaSr28.food("16085", "Peas, green, split, mature seeds, raw", "1600", 352.0, 23.82, 1.16, 63.74, 25.5, 8.0, 15.0, 0.161, 197.0, "1 cup", 453.6, "1 lb", 0.0),
@@ -208,6 +221,7 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("18041", "Bread, pita, white, enriched", "1800", 275.0, 9.1, 1.2, 55.7, 2.2, 1.3, 536.0, 0.166, 60.0, "1 pita,  large (6-1/2\" dia)", 28.0, "1 pita,  small  (4\" dia)", 0.0),
         UsdaSr28.food("18069", "Bread, white, commercially prepared (includes soft bread crumbs)", "1800", 266.0, 8.85, 3.33, 49.42, 2.7, 5.67, 490.0, 0.698, 29.0, "1 slice", 28.35, "1 oz", 0.0),
         UsdaSr28.food("18075", "Bread, whole-wheat, commercially prepared", "1800", 252.0, 12.45, 3.5, 42.71, 6.0, 4.34, 455.0, 0.722, 32.0, "1 slice", 28.35, "1 oz", 0.0),
+        UsdaSr28.food("18338", "Phyllo dough", "1800", 299.0, 7.1, 6.0, 52.6, 1.9, 0.18, 483.0, 1.47, 28.35, "1 oz", 19.0, "1 sheet,  dough", 0.0),
         UsdaSr28.food("18363", "Tortillas, ready-to-bake or -fry, corn", "1800", 218.0, 5.7, 2.85, 44.64, 6.3, 0.88, 45.0, 0.453, 28.35, "1 oz", 19.0, "1 enchilada", 0.0),
         UsdaSr28.food("18364", "Tortillas, ready-to-bake or -fry, flour, refrigerated", "1800", 306.0, 8.2, 7.99, 49.38, 3.5, 3.71, 736.0, 2.924, 48.0, "1 tortilla", 28.35, "1 oz", 0.0),
         UsdaSr28.food("18369", "Leavening agents, baking powder, double-acting, sodium aluminum sulfate", "1800", 53.0, 0.0, 0.0, 27.7, 0.2, 0.0, 10600.0, 0.0, 4.6, "1 tsp", 2.3, ".5 tsp", 0.0),
@@ -244,6 +258,9 @@ internal object UsdaCoreFoods {
         UsdaSr28.food("20133", "Rice noodles, dry", "2000", 364.0, 5.95, 0.56, 80.18, 1.6, 0.12, 182.0, 0.153, 57.0, "2 oz", null, null, 0.0),
         UsdaSr28.food("20134", "Rice noodles, cooked", "2000", 108.0, 1.79, 0.2, 24.01, 1.0, 0.03, 19.0, 0.023, 176.0, "1 cup", null, null, 0.0),
         UsdaSr28.food("20137", "Quinoa, cooked", "2000", 120.0, 4.4, 1.92, 21.3, 2.8, 0.87, 7.0, 0.231, 185.0, "1 cup", null, null, 0.0),
+    )
+
+    private fun part3(): List<FoodReference> = listOf(
         UsdaSr28.food("20142", "Teff, uncooked", "2000", 367.0, 13.3, 2.38, 73.13, 8.0, 1.84, 12.0, 0.449, 193.0, "1 cup", null, null, 0.0),
         UsdaSr28.food("20143", "Teff, cooked", "2000", 101.0, 3.87, 0.65, 19.86, 2.8, null, 8.0, null, 252.0, "1 cup", null, null, 0.0),
         UsdaSr28.food("20466", "Semolina, unenriched", "2000", 360.0, 12.68, 1.05, 72.83, 3.9, null, 1.0, 0.15, 167.0, "1 cup", null, null, 0.0),

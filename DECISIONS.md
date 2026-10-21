@@ -51,7 +51,7 @@ Each entry gives the context, the decision and its consequences. Newest decision
 - **Consequences.** The app avoids implying calibrated probabilities. The benchmark reports range coverage together with mean range width, so wide ranges can't game coverage.
 
 ## ADR-012 Bundled USDA SR28 data, generated code for core foods
-- **Decision.** Commit the SR28 ASCII source. Generate Kotlin for the 235 referenced foods (so it works offline on all platforms) and a TSV asset for full search on Android.
+- **Decision.** Commit the SR28 ASCII source. Generate Kotlin for the referenced foods (249 at present) (so it works offline on all platforms) and a TSV asset for full search on Android.
 - **Consequences.** No runtime download and fully reproducible data (`scripts/fixtures.sh`). SR Legacy/FDC migration is planned.
 
 ## ADR-013 Android builds verified in CI, not locally

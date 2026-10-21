@@ -25,7 +25,7 @@ Build: Gradle 9.7.1 (wrapper is checksum-pinned), AGP 9.4.1 with built-in Kotlin
 | `parse` | Offline natural-language meal parser and resolver |
 | `label` | Nutrition-label OCR text parser (US, Canada, EU/UK) |
 | `barcode` | GTIN validation, Open Food Facts mapping |
-| `recipes` | Recipe model, cuisine catalogue, 28 built-in recipes, scaling, variations, pantry matching, shopping lists |
+| `recipes` | Recipe model, cuisine catalogue, 80 built-in recipes, scaling, variations, pantry matching, shopping lists |
 | `recommend` | Explainable `RecipeRanker` (hard filters plus scored reasons) |
 | `pantry` | Pantry and grocery models; deduction proposals (never applied silently) |
 | `diary` | `DiaryEntry` with a frozen `NutritionSnapshot`, daily summaries, diary-day boundary, duplicate guard |

@@ -54,6 +54,18 @@ class OntologyTest {
     }
 
     @Test
+    fun stocksKeepTheirAnimalOrigin() {
+        // Diet and halal flags depend on this: fish or beef stock must not read as chicken.
+        assertEquals("fish_stock", resolveId("fish stock"))
+        assertEquals("beef_broth", resolveId("beef stock"))
+        assertEquals("beef_broth", resolveId("lamb stock"))
+        assertEquals("vegetable_broth", resolveId("vegetable stock"))
+        assertEquals("stock_cube", resolveId("1 chicken stock cube"))
+        assertEquals("stock_cube", resolveId("bouillon cube"))
+        assertEquals(AnimalOrigin.FISH, IngredientCatalog["fish_stock"]?.animalOrigin)
+    }
+
+    @Test
     fun descriptorsAndPluralsAreIgnored() {
         assertEquals("onion", resolveId("2 large onions, finely chopped"))
         assertEquals("tomato", resolveId("ripe tomatoes"))

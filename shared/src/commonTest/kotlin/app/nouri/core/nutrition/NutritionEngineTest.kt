@@ -119,6 +119,28 @@ class NutritionEngineTest {
     }
 
     @Test
+    fun estimatedPotWeightCountsWaterAbsorbedByDryPulses() {
+        // Dried chickpeas boiled in unlisted water, then blended: the pot weighs far more than went in.
+        val hummus = engine.calculateRecipe(
+            recipe(line("dried chickpeas", 250.0, QuantityUnit.GRAM, id = "chickpeas_dry"), line("olive oil", 30.0, QuantityUnit.GRAM, id = "olive_oil")),
+        )
+        assertEquals(250.0 * 2.2 + 30.0 * 0.85, hummus.cookedWeightGrams, 1e-9)
+        assertTrue(!hummus.cookedWeightMeasured)
+
+        // Listed cooking water is what the rice absorbs, so it isn't counted twice.
+        val rice = engine.calculateRecipe(
+            recipe(line("rice", 200.0, QuantityUnit.GRAM, id = "rice_white"), line("water", 400.0, QuantityUnit.MILLILITRE, id = "water")),
+        )
+        assertEquals(200.0 + 400.0, rice.cookedWeightGrams, 1e-9)
+
+        // Plenty of stock: the leftover liquid, after evaporation, sets the weight instead.
+        val soup = engine.calculateRecipe(
+            recipe(line("red lentils", 100.0, QuantityUnit.GRAM, id = "lentils_red"), line("water", 1000.0, QuantityUnit.MILLILITRE, id = "water")),
+        )
+        assertEquals(100.0 + 1000.0 * 0.85, soup.cookedWeightGrams, 1e-9)
+    }
+
+    @Test
     fun evaporationDoesNotRemoveCalories() {
         val base = recipe(line("lentils", 200.0, QuantityUnit.GRAM), line("water", 1000.0, QuantityUnit.MILLILITRE))
         val a = engine.calculateRecipe(base.copy(cookedYieldGrams = 1100.0))

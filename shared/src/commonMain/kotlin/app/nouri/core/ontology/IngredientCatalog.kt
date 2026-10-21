@@ -215,6 +215,12 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
         aliases = "lean ground beef,lean mince,extra lean ground beef") {
         meat(AnimalOrigin.RED_MEAT, 2)
     }
+    ing("beef_steak", "Beef steak (sirloin)", RED_MEAT, ndb = "13929", cookedNdb = "13930",
+        aliases = "steak,sirloin,beef sirloin,sirloin steak,flank steak,skirt steak,ribeye,rib eye,beef strips,bulgogi beef,thinly sliced beef,arrachera") {
+        meat(AnimalOrigin.RED_MEAT, 3)
+        sub("chicken_breast", LOWER_CALORIE)
+        sub("tofu_firm", VEGETARIAN, VEGAN)
+    }
     ing("lamb", "Lamb (leg/shoulder)", RED_MEAT, ndb = "17011", cookedNdb = "17012",
         aliases = "lamb leg,lamb shoulder,lamb cubes,lamb chops,mutton,maaz,cordero,agneau") {
         meat(AnimalOrigin.RED_MEAT, 3)
@@ -317,6 +323,10 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
         sub("milk_whole", LOWER_CALORIE, note = "Thinner sauce")
         sub("coconut_milk", DAIRY_FREE, VEGAN)
     }
+    ing("sour_cream", "Sour cream", DAIRY, ndb = "01056", aliases = "soured cream,crema,crema agria,smetana") {
+        dairy(14); density = 1.0; portion(QuantityUnit.TABLESPOON, 12.0, "1 tbsp")
+        sub("greek_yogurt_nonfat", LOWER_CALORIE, HIGHER_PROTEIN)
+    }
     ing("cheddar", "Cheddar cheese", DAIRY, ndb = "01009", aliases = "cheese,cheddar,yellow cheese,queso") {
         dairy(30); portion(QuantityUnit.SLICE, 28.0, "1 slice"); portion(QuantityUnit.CUP, 113.0, "1 cup, shredded")
         halal = HalalStatus.VERIFY
@@ -379,6 +389,10 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
     }
     ing("black_beans", "Black beans", LEGUME, ndb = "16014", cookedNdb = "16015",
         aliases = "black beans,frijoles negros,turtle beans") {
+        store(PANTRY, 730); portion(QuantityUnit.CAN, 240.0, "1 can, drained (~240 g)")
+    }
+    ing("white_beans", "White beans (cannellini), canned", LEGUME, cookedNdb = "16051",
+        aliases = "cannellini,cannellini beans,white kidney beans,haricot beans,navy beans,great northern beans,fasolia,alubias blancas") {
         store(PANTRY, 730); portion(QuantityUnit.CAN, 240.0, "1 can, drained (~240 g)")
     }
     ing("black_eyed_peas", "Black-eyed peas", LEGUME, ndb = "16062", cookedNdb = "16063",
@@ -459,6 +473,9 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
     ing("pita", "Pita bread", BREAD, ndb = "18041", aliases = "pita,pitta,arabic bread,khubz,lebanese bread") {
         allergen(WHEAT, GLUTEN); store(PANTRY, 5); piece(60.0, "1 pita (6.5 in)")
     }
+    ing("phyllo", "Phyllo (filo) pastry", BREAD, ndb = "18338", aliases = "filo,filo pastry,phyllo dough,fillo,yufka,warqa") {
+        allergen(WHEAT, GLUTEN); store(FRIDGE, 14); portion(QuantityUnit.SLICE, 19.0, "1 sheet (~19 g)")
+    }
     ing("tortilla_flour", "Flour tortilla", BREAD, ndb = "18364", aliases = "flour tortilla,tortilla,wrap,burrito wrap") {
         allergen(WHEAT, GLUTEN); store(PANTRY, 14); piece(45.0, "1 tortilla (8 in)")
     }
@@ -477,6 +494,11 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
     ing("rice_noodles", "Rice noodles", PASTA_NOODLE, ndb = "20133", cookedNdb = "20134",
         aliases = "rice noodles,rice vermicelli,banh pho,pho noodles,pad thai noodles,sen lek,bihon") {
         store(PANTRY, 730); cookedYield = 2.3
+    }
+    // SR28 has mung-bean cellophane noodles only; Korean dangmyeon (sweet-potato starch) is nutritionally very close (almost pure starch).
+    ing("glass_noodles", "Glass noodles (cellophane)", PASTA_NOODLE, ndb = "16082",
+        aliases = "cellophane noodles,mung bean noodles,bean thread noodles,dangmyeon,sweet potato noodles,japchae noodles,fensi,woon sen") {
+        store(PANTRY, 730); cookedYield = 3.0
     }
     ing("ramen_noodles", "Instant ramen noodles", PASTA_NOODLE, ndb = "06583", aliases = "instant noodles,ramen,maggi,indomie,instant ramen") {
         allergen(WHEAT, GLUTEN); store(PANTRY, 365); portion(QuantityUnit.PACKAGE, 85.0, "1 package (85 g)")
@@ -620,6 +642,9 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
     }
     ing("kimchi", "Kimchi", CONDIMENT, ndb = "11118", aliases = "kimchee,baechu kimchi") {
         store(FRIDGE, 60); portion(QuantityUnit.CUP, 150.0, "1 cup")
+    }
+    ing("wakame", "Wakame seaweed (rehydrated)", VEGETABLE, ndb = "11669", aliases = "seaweed,wakame seaweed,miyeok,dried wakame") {
+        store(PANTRY, 365); portion(QuantityUnit.TABLESPOON, 5.0, "1 tbsp, rehydrated")
     }
     ing("celery", "Celery", VEGETABLE, ndb = "11143", aliases = "celery sticks,apio") {
         produce(14); piece(40.0, "1 medium stalk")
@@ -771,6 +796,13 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
     ing("cloves", "Cloves", SPICE, ndb = "02011", aliases = "laung,long,clavos,qaranful") {
         spice(); portion(QuantityUnit.TEASPOON, 2.1, "1 tsp, ground"); piece(0.1, "1 clove (spice)", null)
     }
+    ing("allspice", "Allspice", SPICE, ndb = "02001", aliases = "pimento,jamaican pepper,allspice berries,ground allspice,bahar") {
+        spice(); portion(QuantityUnit.TEASPOON, 1.9, "1 tsp, ground"); piece(0.2, "1 berry", null)
+    }
+    // SR28 has no star anise record; anise seed (02002) is the closest spice profile. Recipes use a few grams, so the effect on totals is negligible.
+    ing("star_anise", "Star anise", SPICE, ndb = "02002", aliases = "star aniseed,badian,chakra phool,bunga lawang,hoi") {
+        spice(); piece(0.7, "1 whole star", null); portion(QuantityUnit.TEASPOON, 2.1, "1 tsp, ground")
+    }
     ing("bay_leaf", "Bay leaf", SPICE, ndb = "02004", aliases = "tej patta,tez patta,bay leaves,laurel") {
         spice(); piece(0.2, "1 leaf", null)
     }
@@ -820,6 +852,33 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
     ing("tamarind", "Tamarind", CONDIMENT, ndb = "09322", aliases = "imli,tamarind paste,tamarindo,tamarind pulp,assam jawa") {
         store(PANTRY, 365); portion(QuantityUnit.TABLESPOON, 18.0, "1 tbsp, pulp")
     }
+    ing("chicken_broth", "Chicken stock / broth", CONDIMENT, ndb = "06194",
+        aliases = "chicken stock,chicken broth,stock,broth,yakhni,caldo de pollo,chicken bone broth") {
+        origin = AnimalOrigin.POULTRY; halal = HalalStatus.REQUIRES_HALAL_SOURCE
+        store(PANTRY, 730); density = 1.0; portion(QuantityUnit.CUP, 240.0, "1 cup")
+        sub("vegetable_broth", VEGETARIAN, VEGAN)
+    }
+    ing("beef_broth", "Beef or lamb stock / broth", CONDIMENT, ndb = "06008",
+        aliases = "beef stock,beef broth,lamb stock,lamb broth,mutton stock,bone broth,consomme,caldo de res") {
+        origin = AnimalOrigin.RED_MEAT; halal = HalalStatus.REQUIRES_HALAL_SOURCE
+        store(PANTRY, 730); density = 1.0; portion(QuantityUnit.CUP, 240.0, "1 cup")
+        sub("vegetable_broth", VEGETARIAN, VEGAN)
+    }
+    ing("fish_stock", "Fish stock", CONDIMENT, ndb = "06174", aliases = "fish stock,fish broth,fumet,dashi") {
+        origin = AnimalOrigin.FISH; allergen(FISH)
+        store(FRIDGE, 3); density = 1.0; portion(QuantityUnit.CUP, 233.0, "1 cup")
+        sub("vegetable_broth", VEGETARIAN, VEGAN)
+    }
+    // Dry cubes and powder are concentrated: one 4.8 g cube makes about a cup of stock.
+    ing("stock_cube", "Stock cube / bouillon", CONDIMENT, ndb = "06081",
+        aliases = "stock cube,bouillon cube,bouillon,chicken cube,chicken stock cube,stock powder,bouillon powder,knorr cube,maggi cube") {
+        origin = AnimalOrigin.POULTRY; halal = HalalStatus.REQUIRES_HALAL_SOURCE
+        store(PANTRY, 730); piece(4.8, "1 cube"); portion(QuantityUnit.TEASPOON, 2.0, "1 tsp, powder")
+    }
+    ing("vegetable_broth", "Vegetable stock / broth", CONDIMENT, ndb = "06700",
+        aliases = "vegetable stock,veg stock,vegetable broth,veggie stock,vegetable bouillon") {
+        store(PANTRY, 730); density = 1.0; portion(QuantityUnit.CUP, 240.0, "1 cup")
+    }
     ing("sugar", "Sugar", SWEETENER, ndb = "19335", aliases = "cheeni,chini,white sugar,granulated sugar,caster sugar,azucar,sucre") {
         spice(); density = 0.85; portion(QuantityUnit.TEASPOON, 4.2, "1 tsp"); portion(QuantityUnit.TABLESPOON, 12.5, "1 tbsp")
         portion(QuantityUnit.CUP, 200.0, "1 cup")
@@ -846,6 +905,9 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
     }
     ing("baking_soda", "Baking soda", BAKING, ndb = "18372", aliases = "bicarbonate of soda,meetha soda,bicarbonato") {
         spice(); portion(QuantityUnit.TEASPOON, 4.6, "1 tsp")
+    }
+    ing("cornstarch", "Cornstarch", BAKING, ndb = "20027", aliases = "corn starch,cornflour,maize starch,maizena,katakuriko,potato starch") {
+        spice(); density = 0.54; portion(QuantityUnit.TABLESPOON, 8.0, "1 tbsp"); portion(QuantityUnit.TEASPOON, 2.7, "1 tsp")
     }
     ing("yeast", "Yeast, dry", BAKING, ndb = "18375", aliases = "dry yeast,instant yeast,khameer,levadura") {
         store(PANTRY, 365); portion(QuantityUnit.TEASPOON, 4.0, "1 tsp")

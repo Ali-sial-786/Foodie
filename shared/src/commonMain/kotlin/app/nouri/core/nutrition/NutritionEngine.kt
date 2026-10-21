@@ -158,7 +158,7 @@ class NutritionEngine(
         val total = Nutrients.sum(lines.map { it.nutrients })
         val inputMass = lines.sumOf { it.gramsAsWritten ?: 0.0 }
         val measured = recipe.cookedYieldGrams?.takeIf { it > 0 }
-        val cookedWeight = measured ?: (inputMass * defaultCookingRetention)
+        val cookedWeight = measured ?: estimateCookedWeight(lines)
         val per100 = if (cookedWeight > 0) total * (100.0 / cookedWeight) else Nutrients.ZERO
 
         val quantified = lines.filter { it.status != LineStatus.UNQUANTIFIED }
@@ -207,6 +207,30 @@ class NutritionEngine(
             ),
         )
 
+    /**
+     * Pot weight when the cook didn't weigh it. Most lines keep [defaultCookingRetention] of
+     * their mass; meat uses its own [CanonicalIngredient.cookedYield]. Dry rice, pasta and
+     * pulses swell by absorbing water, which is often not written down (pasta boiled and
+     * drained, soaked chickpeas), so the pot gets whichever is larger: the water those
+     * ingredients absorb, or the listed water and stock after evaporation.
+     */
+    private fun estimateCookedWeight(lines: List<IngredientLineResult>): Double {
+        var solids = 0.0
+        var absorbed = 0.0
+        var liquid = 0.0
+        for (r in lines) {
+            val grams = r.gramsAsWritten ?: continue
+            val yieldFactor = r.canonical?.cookedYield?.takeIf { !r.line.measuredCooked }
+            when {
+                r.canonical?.id in COOKING_LIQUIDS -> liquid += grams
+                yieldFactor == null -> solids += grams * defaultCookingRetention
+                yieldFactor > 1.0 -> { solids += grams; absorbed += grams * (yieldFactor - 1.0) }
+                else -> solids += grams * yieldFactor
+            }
+        }
+        return solids + maxOf(absorbed, liquid * defaultCookingRetention)
+    }
+
     private fun resolveFood(line: RecipeIngredient, canonical: CanonicalIngredient?, notes: MutableList<String>): FoodReference? {
         line.foodRefId?.let { id -> foods.get(id)?.let { return it } }
         if (canonical == null) return null
@@ -239,6 +263,9 @@ class NutritionEngine(
 
     companion object {
         val defaultNormalizer: IngredientNormalizer by lazy { IngredientNormalizer() }
+
+        /** Listed liquids that dry grains and pulses can soak up while cooking. */
+        private val COOKING_LIQUIDS = setOf("water", "chicken_broth", "beef_broth", "fish_stock", "vegetable_broth")
 
         /** True for quantities expressed by mass, which never need a density assumption. */
         fun isMass(quantity: Quantity): Boolean = quantity.unit.kind == UnitKind.MASS
