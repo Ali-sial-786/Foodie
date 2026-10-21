@@ -36,10 +36,10 @@ class SettingsRepositoryTest {
 
     @Test
     fun apiKeysAreStoredEncryptedAndCanBeRemoved() = runBlocking {
-        c.apiKeys.set("sk-test-not-a-real-key-1234")
-        assertEquals("sk-test-not-a-real-key-1234", c.apiKeys.get())
+        c.apiKeys.set("test-key-not-real-1234")
+        assertEquals("test-key-not-real-1234", c.apiKeys.get())
         val raw = java.io.File(c.context.noBackupFilesDir, "secrets").walk().filter { it.isFile }.map { it.readBytes().decodeToString() }.joinToString()
-        assertFalse("key must not be stored in plain text", raw.contains("sk-test-not-a-real-key"))
+        assertFalse("key must not be stored in plain text", raw.contains("test-key-not-real"))
         c.apiKeys.clear()
         assertEquals(null, c.apiKeys.get())
     }

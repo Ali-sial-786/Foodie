@@ -20,6 +20,7 @@ import app.nouri.core.units.GramConversion
 import app.nouri.core.units.MeasurementSystem
 import app.nouri.core.units.PortionContext
 import app.nouri.core.units.Quantity
+import app.nouri.core.units.QuantityUnit
 import app.nouri.core.units.UnitConverter
 import app.nouri.core.units.UnitKind
 import app.nouri.core.units.formatAmount
@@ -220,7 +221,7 @@ class NutritionEngine(
         var liquid = 0.0
         for (r in lines) {
             val grams = r.gramsAsWritten ?: continue
-            val yieldFactor = r.canonical?.cookedYield?.takeIf { !r.line.measuredCooked }
+            val yieldFactor = r.canonical?.cookedYield?.takeIf { !r.line.measuredCooked && r.line.quantity.unit != QuantityUnit.CAN }
             when {
                 r.canonical?.id in COOKING_LIQUIDS -> liquid += grams
                 yieldFactor == null -> solids += grams * defaultCookingRetention
@@ -238,6 +239,8 @@ class NutritionEngine(
             canonical.cookedRef?.let { ref -> foods.get(ref)?.let { return it } }
             notes += "No cooked-weight data for ${canonical.name}; used raw values"
         }
+        // Canned pulses and vegetables are already cooked: "1 can of black beans" is ~240 g of cooked beans, not dry.
+        if (line.quantity.unit == QuantityUnit.CAN) canonical.cookedRef?.let { ref -> foods.get(ref)?.let { return it } }
         return canonical.primaryRef?.let(foods::get) ?: canonical.cookedRef?.let(foods::get)
     }
 

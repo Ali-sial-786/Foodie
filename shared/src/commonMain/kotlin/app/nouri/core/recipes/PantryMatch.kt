@@ -34,15 +34,15 @@ data class PantryMatch(val recipeId: String, val items: List<IngredientAvailabil
 object PantryMatcher {
     /** Ingredients that can stand in for each other for "what can I make" purposes. */
     private val equivalenceGroups: List<Set<String>> = listOf(
-        setOf("chicken_breast", "chicken_thigh", "chicken_curry_cut", "chicken_drumstick"),
-        setOf("rice_white", "rice_glutinous", "rice_brown"),
+        setOf("chicken_breast", "chicken_thigh", "chicken_curry_cut", "chicken_drumstick", "chicken_whole"),
+        setOf("rice_white", "rice_glutinous", "rice_brown", "rice_short_grain"),
         setOf("yogurt", "greek_yogurt_whole", "greek_yogurt_nonfat"),
         setOf("lentils_red", "lentils_brown", "moong_dal"),
         setOf("milk_whole", "milk_low_fat", "milk_skim"),
         setOf("cheddar", "mozzarella", "feta", "parmesan"),
         setOf("tomato", "tomato_canned"),
         setOf("beef_ground", "beef_ground_lean", "lamb_ground"),
-        setOf("beef_stew", "lamb", "goat"),
+        setOf("beef_stew", "beef_brisket", "beef_short_ribs", "lamb", "lamb_chops", "goat"),
         setOf("lemon", "lemon_juice", "lime"),
         setOf("pasta", "egg_noodles"),
     )

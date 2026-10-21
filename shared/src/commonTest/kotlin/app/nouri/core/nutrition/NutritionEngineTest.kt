@@ -119,6 +119,15 @@ class NutritionEngineTest {
     }
 
     @Test
+    fun aCanOfBeansCountsCookedBeansNotDry() {
+        val canned = engine.calculateLine(line("black beans", 1.0, QuantityUnit.CAN, id = "black_beans"))
+        val dry = engine.calculateLine(line("black beans", 240.0, QuantityUnit.GRAM, id = "black_beans"))
+        assertEquals(240.0, canned.gramsEaten!!, 1e-9)
+        // Cooked black beans are about 132 kcal/100 g; dry about 341.
+        assertTrue(canned.nutrients.energyKcal < dry.nutrients.energyKcal / 2, "${canned.nutrients.energyKcal} vs ${dry.nutrients.energyKcal}")
+    }
+
+    @Test
     fun estimatedPotWeightCountsWaterAbsorbedByDryPulses() {
         // Dried chickpeas boiled in unlisted water, then blended: the pot weighs far more than went in.
         val hummus = engine.calculateRecipe(
