@@ -24,7 +24,7 @@ enum class RecipeCourse(val tag: String, val label: String) {
     companion object {
         fun fromTag(tag: String): RecipeCourse? = entries.firstOrNull { it.tag == tag }
 
-        /** Built-in recipes predate the course tag; anything without one is a main. */
+        /** Recipes without a course tag (saved, imported or AI-generated ones) count as a main. */
         fun of(recipe: Recipe): RecipeCourse = entries.firstOrNull { it.tag in recipe.tags } ?: MAIN
     }
 }

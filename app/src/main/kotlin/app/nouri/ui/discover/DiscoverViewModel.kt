@@ -3,6 +3,7 @@ package app.nouri.ui.discover
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.nouri.AppContainer
+import app.nouri.core.model.Nutrients
 import app.nouri.core.ontology.DietGoal
 import app.nouri.core.pantry.PantryLogic
 import app.nouri.core.recipes.CuisineCatalog
@@ -134,10 +135,12 @@ class DiscoverViewModel(private val c: AppContainer) : ViewModel() {
     fun update(transform: (DiscoverFilters) -> DiscoverFilters) = _filters.update(transform)
 
     companion object {
+        fun isHighProtein(r: RankedRecipe): Boolean = isHighProtein(r.perServing)
+
         /** Same rule the ranker uses for its "High protein" reason: ≥ 20 g and ≥ 25% of energy. */
-        fun isHighProtein(r: RankedRecipe): Boolean {
-            val kcal = r.perServing.energyKcal
-            return kcal > 0 && r.perServing.proteinG >= 20 && r.perServing.proteinG * 4 / kcal >= 0.25
+        fun isHighProtein(perServing: Nutrients): Boolean {
+            val kcal = perServing.energyKcal
+            return kcal > 0 && perServing.proteinG >= 20 && perServing.proteinG * 4 / kcal >= 0.25
         }
 
         /** Diets that can be filtered on; all are calculated from the ingredients. */
@@ -155,12 +158,17 @@ class DiscoverViewModel(private val c: AppContainer) : ViewModel() {
                 (!f.favouritesOnly || r.id in favourites)
         }
 
-        /** One search word against the name, cuisine, region, course, calculated diets, tags and ingredients. */
+        /**
+         * One search word against the name, cuisine, region, course, calculated diets, tags and ingredients.
+         * "High protein" is calculated from the nutrition, like the diets, because recipes no longer declare it as a tag.
+         */
         fun matchesTerm(p: PreparedRecipe, term: String): Boolean {
             val r = p.recipe
             val cuisine = CuisineCatalog[r.cuisineId]
+            val words = term.replace('-', ' ')
             return r.name.lowercase().contains(term) ||
                 p.analysis.diets.any { it.label.lowercase().startsWith(term) } ||
+                (("high protein".startsWith(words) || "protein".startsWith(words)) && isHighProtein(p.perServing)) ||
                 cuisine?.name?.lowercase()?.contains(term) == true ||
                 cuisine?.country?.lowercase()?.contains(term) == true ||
                 cuisine?.worldRegion?.label?.lowercase()?.contains(term) == true ||

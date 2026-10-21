@@ -15,6 +15,7 @@ import kotlin.test.fail
  * Guards every recipe in the JSON files in `data/recipes/` (the bundled library): it must decode, use
  * known cuisines and ingredients, calculate fully, and have a method detailed enough to
  * cook from. `scripts/build_recipe_library.py` applies the same rules before bundling.
+ * The built-in recipes in `RecipeCatalog.kt` are held to the same rules.
  */
 class RecipeLibraryTest {
     private val engine = NutritionEngine()
@@ -58,6 +59,18 @@ class RecipeLibraryTest {
                 val range = kcalRange(RecipeCourse.of(r))
                 if (kcal !in range) add("${kcal.toInt()} kcal per serving is outside $range for ${RecipeCourse.of(r).label}")
             }.map { "$file ${r.id}: $it" }
+        }
+        assertTrue(problems.isEmpty(), problems.joinToString("\n"))
+    }
+
+    /** Built-in recipes meet the library standard too: one course, calculated diets, a detailed method, plausible energy. */
+    @Test
+    fun builtInRecipesMeetTheLibraryStandard() {
+        val problems = RecipeCatalog.all.flatMap { r ->
+            val course = RecipeCourse.of(r)
+            val kcal = engine.calculateRecipe(r).perServing.energyKcal
+            val energy = if (kcal in kcalRange(course)) emptyList() else listOf("${kcal.toInt()} kcal per serving is outside ${kcalRange(course)} for ${course.label}")
+            (structuralProblems(r) + energy).map { "RecipeCatalog ${r.id}: $it" }
         }
         assertTrue(problems.isEmpty(), problems.joinToString("\n"))
     }

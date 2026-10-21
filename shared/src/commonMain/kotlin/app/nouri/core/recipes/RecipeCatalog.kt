@@ -17,6 +17,10 @@ import app.nouri.core.units.QuantityUnit.TEASPOON
  * Nouri's built-in recipes: editorial write-ups of widely known home-style
  * dishes (no external source is claimed), plus explicitly labelled variations.
  * Nutrition is always calculated by the engine from the ingredient list.
+ *
+ * Every recipe meets the same standard as the bundled library (`data/recipes/README.md`):
+ * exactly one course tag, no declared diet tags (diets are calculated), and a method
+ * detailed enough to cook from. `RecipeLibraryTest` enforces this.
  */
 object RecipeCatalog {
     val all: List<Recipe> by lazy { buildRecipes() }
@@ -32,6 +36,7 @@ private const val FRIDGE_3_DAYS = StandardRecipeNotes.FRIDGE_3_DAYS
 private const val REHEAT = StandardRecipeNotes.REHEAT
 private const val DEEP_FRY = StandardRecipeNotes.DEEP_FRY
 private const val BEEF_SAFETY = StandardRecipeNotes.BEEF
+private const val LAMB_SAFETY = StandardRecipeNotes.LAMB
 
 private class RecipeBuilder(val id: String, val name: String, val cuisine: String, val region: String?, val servings: Int, val prep: Int, val cook: Int, val difficulty: Difficulty) {
     var description = ""
@@ -92,7 +97,7 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
     recipe("chicken_karahi", "Chicken karahi", "pakistani", "Peshawar / Lahore", 4, 15, 35) {
         description = "Bone-in chicken cooked fast and hot with tomatoes, ginger, garlic and green chillies until the masala clings to the meat."
         equipment("Karahi or wide heavy wok", "Wooden spoon")
-        tags("high-protein", "gluten-free", "dinner")
+        tags("main")
         ing("chicken_curry_cut", 1000.0, GRAM, "Chicken, bone-in, skinless", "cut into 12–14 pieces")
         ing("vegetable_oil", 6.0, TABLESPOON, "Oil (or half ghee)")
         ing("tomato", 500.0, GRAM, "Tomatoes", "quartered or roughly chopped")
@@ -104,12 +109,13 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("chili_powder", 1.0, TEASPOON, "Red chilli flakes or powder")
         ing("salt", 1.5, TEASPOON, "Salt")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander", "chopped")
-        step("Heat the oil in the karahi over high heat. Add the chicken and stir-fry until it loses its pink colour and starts to brown.", 8.0)
-        step("Add the garlic and ginger paste and fry for 1 minute until fragrant.", 1.0)
-        step("Add the tomatoes and salt. Cover and cook on medium heat until the tomatoes soften and their skins lift.", 8.0)
-        step("Uncover, remove any loose tomato skins, and cook on high heat, stirring and pressing the tomatoes, until the masala is thick and the oil separates.", 12.0)
-        step("Add black pepper, cumin, chilli and green chillies; cook 2–3 minutes more until the chicken is cooked through.", 3.0)
-        step("Finish with julienned ginger and coriander. Serve with naan or roti.")
+        step("Pat the chicken pieces dry with kitchen paper so they sear rather than stew. Measure out the tomatoes, ginger, garlic and spices and keep them next to the stove: a karahi cooks fast and hot, and there is no time to chop once you start.")
+        step("Heat the oil in the karahi over high heat until it shimmers. Add the chicken in a single layer and stir-fry, turning the pieces often, until the pink has gone from the outside and the edges are lightly browned, 7–8 minutes.", 8.0)
+        step("Add the garlic paste and the tablespoon of ginger paste and stir constantly for about 1 minute, until the raw smell disappears. Lower the heat slightly if the paste starts to stick and darken.", 1.0)
+        step("Tip in the tomatoes and salt and stir well. Cover and cook over medium heat for about 8 minutes, until the tomatoes have collapsed and their skins have started to curl away from the flesh.", 8.0)
+        step("Uncover and pick out any loose tomato skins with tongs. Turn the heat back up to high and keep stirring and pressing the tomatoes against the side of the karahi for 10–12 minutes, until they have broken down into a thick masala that clings to the chicken and the oil pools glossy at the edges.", 12.0)
+        step("Stir in the black pepper, cumin, chilli and slit green chillies and cook for 2–3 minutes more. Check a thick piece near the bone: the juices should run clear with no pink meat left.", 3.0)
+        step("Take the karahi off the heat, scatter over the julienned ginger and chopped coriander and serve straight from the pan with hot naan or roti.")
         safety(POULTRY_SAFETY)
     }
     recipe("chicken_karahi_lighter", "Lower-oil chicken karahi (variation)", "pakistani", "Peshawar / Lahore", 4, 15, 35) {
@@ -118,7 +124,7 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         variantSummary = "Uses one-third of the oil and boneless chicken breast; the masala is cooked down with a splash of water instead of extra fat."
         description = "A lighter weeknight version of chicken karahi. It is not the traditional preparation — expect a less glossy masala."
         equipment("Non-stick karahi or wok")
-        tags("high-protein", "lower-calorie", "gluten-free", "dinner")
+        tags("main")
         ing("chicken_breast", 700.0, GRAM, "Chicken breast, boneless", "cut into 3 cm pieces")
         ing("vegetable_oil", 2.0, TABLESPOON, "Oil")
         ing("tomato", 500.0, GRAM, "Tomatoes", "chopped")
@@ -129,17 +135,18 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("cumin", 1.0, TEASPOON, "Cumin", "roasted and crushed")
         ing("salt", 1.25, TEASPOON, "Salt")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander")
-        step("Heat the oil in a non-stick karahi over high heat and sear the chicken for 4–5 minutes; remove to a plate.", 5.0)
-        step("Add garlic and ginger paste to the pan, then the tomatoes and salt. Cover and cook until soft.", 8.0)
-        step("Mash the tomatoes and cook uncovered until thick, adding a splash of water if it catches.", 8.0)
-        step("Return the chicken with pepper, cumin and green chillies; cook until the chicken is just done.", 6.0)
-        step("Garnish with ginger and coriander.")
+        step("Pat the chicken pieces dry and keep them in the fridge until the pan is hot. Divide the ginger: use about half as paste for the masala and cut the rest into fine matchsticks for the garnish.")
+        step("Heat the oil in a non-stick karahi or wok over high heat. Add the chicken in one layer and sear, turning once, until golden on two sides but not cooked through, 4–5 minutes. Lift it onto a plate, leaving the oil behind.", 5.0)
+        step("Lower the heat to medium, add the garlic and ginger paste and stir for 30 seconds. Add the tomatoes and salt, cover and cook for about 8 minutes, until the tomatoes are completely soft.", 8.0)
+        step("Uncover and mash the tomatoes with the back of the spoon. Cook over medium-high heat, stirring, for about 8 minutes until the masala is thick and jammy. Breast meat brings little fat, so add a tablespoon or two of water whenever the masala starts to catch rather than more oil.", 8.0)
+        step("Return the chicken and any resting juices with the black pepper, cumin and green chillies. Cook for 5–6 minutes, turning the pieces in the masala, until just cooked through: cut the thickest piece and it should be white with no pink, and still juicy.", 6.0)
+        step("Take the pan off the heat as soon as the chicken is done, because breast dries out quickly. Scatter over the ginger matchsticks and coriander and serve with roti or a small portion of rice.")
         safety(POULTRY_SAFETY)
     }
     recipe("chicken_biryani", "Chicken biryani", "pakistani", "Karachi / Sindhi", 6, 40, 60, Difficulty.INVOLVED) {
         description = "Layered rice and spiced chicken with fried onions, yogurt, mint and potatoes, finished on gentle steam (dum)."
         equipment("Large heavy pot with lid", "Large pan for boiling rice", "Colander")
-        tags("celebration", "rice", "gluten-free")
+        tags("main", "celebration", "rice")
         group("Chicken masala")
         ing("chicken_curry_cut", 1000.0, GRAM, "Chicken, bone-in, skinless", "large pieces")
         ing("onion", 3.0, PIECE, "Onions", "thinly sliced")
@@ -166,19 +173,20 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("milk_whole", 3.0, TABLESPOON, "Milk")
         ing("lemon_juice", 1.0, TABLESPOON, "Lemon juice")
         group(null)
-        step("Fry the onions in the oil until deep golden. Remove half for layering.", 15.0)
-        step("Add ginger, garlic and chicken to the remaining onions; fry 5 minutes. Add tomatoes, spices, salt and potatoes and cook until the tomatoes break down.", 10.0)
-        step("Stir in the yogurt and green chillies; cover and cook until the chicken is almost tender and the masala is thick.", 20.0)
-        step("Meanwhile boil plenty of water with salt and bay leaves. Add the drained rice and boil until about 70% cooked (a grain breaks with a firm centre); drain.", 6.0)
-        step("Layer half the rice over the chicken, then mint, coriander and fried onions; add the remaining rice. Drizzle with ghee, saffron milk and lemon juice.")
-        step("Seal the lid (or cover tightly with foil) and steam on the lowest heat until the rice is fully cooked.", 20.0)
-        step("Rest 5 minutes, then mix gently from the sides and serve with raita.")
+        step("Rinse the basmati in several changes of cold water until the water runs almost clear, then leave it to soak in fresh water for 30 minutes. Warm the milk, crumble in the saffron and leave it to steep.")
+        step("Heat the oil in the large heavy pot over medium-high heat. Add the onions and fry, stirring more often as they colour, until evenly deep golden brown and crisp at the edges, 12–15 minutes. Lift out half with a slotted spoon onto kitchen paper for layering; they crisp up further as they cool.", 15.0)
+        step("Add the ginger and garlic pastes and the chicken to the onions left in the pot and fry over medium-high heat for 5 minutes, turning the pieces. Add the tomatoes, potatoes, biryani masala, chilli powder, turmeric and salt and cook, stirring, until the tomatoes have broken down, about 5 minutes more.", 10.0)
+        step("Lower the heat and stir in the yogurt a few spoonfuls at a time so it doesn't split, then add the green chillies. Cover and cook gently for about 20 minutes, stirring now and then and adding a splash of water if it catches, until the chicken is almost tender, a knife slides into the potatoes and the masala is thick enough to coat the meat rather than pool.", 20.0)
+        step("While the chicken cooks, bring at least 3 litres of water to a rolling boil in the second pan with the tablespoon of salt and the bay leaves. Add the drained rice and boil for 5–6 minutes, until the grains have lengthened and one pressed between your fingers breaks with a firm white centre (about 70% cooked). Drain at once in the colander.", 6.0)
+        step("Spread half the rice over the chicken masala. Scatter over the mint, coriander and half the reserved fried onions, then cover with the remaining rice. Drizzle the melted ghee, saffron milk and lemon juice over the top in streaks, so the finished rice is a mix of white and saffron-gold grains.")
+        step("Cover the pot with foil and press the lid on firmly so no steam can escape. Cook on high heat for 2 minutes, until you hear it sizzle, then turn to the lowest heat and steam (dum) for 18–20 minutes, until the rice is fully tender and fluffy.", 20.0)
+        step("Turn off the heat and leave the pot sealed for 5 minutes. Open it and lift the rice and chicken gently from the sides with a large spoon rather than stirring, so the grains stay whole. Top with the rest of the fried onions and serve with raita.", 5.0)
         safety(POULTRY_SAFETY, RICE_SAFETY)
     }
     recipe("masoor_dal_tadka", "Masoor dal with tadka", "pakistani", "Pakistani / North Indian home-style", 4, 10, 30, EASY) {
         description = "Everyday red lentils simmered with turmeric and finished with a sizzling cumin–garlic tempering."
         equipment("Saucepan", "Small frying pan")
-        tags("vegetarian", "vegan-adaptable", "budget", "gluten-free", "high-fibre")
+        tags("main", "vegan-adaptable", "budget", "high-fibre")
         ing("lentils_red", 1.0, CUP, "Red lentils (masoor dal)", "rinsed")
         ing("water", 4.0, CUP, "Water")
         ing("turmeric", 0.5, TEASPOON, "Turmeric")
@@ -193,17 +201,19 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("chili_powder", 0.5, TEASPOON, "Red chilli powder")
         ing("cilantro", 2.0, TABLESPOON, "Coriander", "chopped")
         group(null)
-        step("Simmer the lentils with water, turmeric, tomato and salt, skimming the foam, until soft and creamy.", 25.0)
-        step("Whisk the dal to the consistency you like, adding hot water if too thick.")
-        step("For the tadka, heat ghee and oil; fry the onion until golden, then add cumin and garlic until the garlic turns light gold. Take off the heat and stir in chilli powder.", 8.0)
-        step("Pour the sizzling tadka over the dal, garnish with coriander and serve with rice or roti.")
+        step("Rinse the lentils in a sieve under cold water, rubbing them between your fingers, until the water runs fairly clear. This washes off the dusty starch that makes dal foam over and stick.")
+        step("Put the lentils, water, turmeric and tomato in a medium saucepan and bring to the boil over high heat. Skim off the grey foam that rises with a spoon, then lower the heat to a gentle simmer and half-cover the pan.", 5.0)
+        step("Simmer for about 20 minutes, stirring every 5 minutes so nothing sticks to the base, until the lentils have lost their shape completely and the dal looks creamy. Stir in the salt.", 20.0)
+        step("Whisk the dal briefly to smooth it out. It should pour slowly from a spoon: add splashes of hot water to loosen it, or simmer a few minutes longer to thicken it. Keep it warm on the lowest heat.")
+        step("For the tadka, heat the ghee and oil in a small frying pan over medium heat. Fry the onion, stirring, until golden brown, 5–6 minutes. Add the cumin seeds and garlic and fry for about 1 minute more, until the seeds crackle and the garlic is light gold; it turns bitter if it goes dark.", 7.0)
+        step("Take the pan off the heat and stir in the chilli powder; it should sizzle and turn the fat red without burning. Pour the tadka straight over the dal, scatter with coriander and serve hot with rice or roti.")
         storage = "Refrigerate up to 4 days; dal thickens as it cools."
         reheating = "Loosen with a splash of water and reheat until bubbling."
     }
     recipe("chana_masala", "Chana masala", "indian", "Punjabi", 4, 10, 30, EASY) {
         description = "Chickpeas simmered in a tangy onion-tomato gravy with warm spices."
         equipment("Heavy saucepan")
-        tags("vegetarian", "vegan", "gluten-free", "high-fibre", "budget")
+        tags("main", "high-fibre", "budget")
         ing("chickpeas_cooked", 2.0, QuantityUnit.CAN, "Chickpeas", "drained and rinsed")
         ing("vegetable_oil", 3.0, TABLESPOON, "Oil")
         ing("onion", 2.0, PIECE, "Onions", "finely chopped")
@@ -217,15 +227,17 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("salt", 1.0, TEASPOON, "Salt")
         ing("lemon_juice", 1.0, TABLESPOON, "Lemon juice")
         ing("water", 1.0, CUP, "Water")
-        step("Fry the cumin in oil for a few seconds, then the onions until deep golden.", 10.0)
-        step("Add ginger and garlic for 1 minute, then tomatoes, spices and salt; cook until the oil separates.", 10.0)
-        step("Add chickpeas and water; simmer, mashing a few chickpeas to thicken the gravy.", 10.0)
-        step("Finish with lemon juice and serve with rice, roti or bhatura.")
+        step("Drain the chickpeas in a sieve and rinse them under cold water. Purée the tomatoes until smooth; a blender or the coarse side of a box grater both work (discard the skins if grating).")
+        step("Heat the oil in a heavy saucepan over medium heat. Add the cumin seeds and let them sizzle for 20–30 seconds until a shade darker, then add the onions and fry, stirring often, until deep golden brown, 8–10 minutes. Take your time: well-browned onions give the gravy its colour and sweetness.", 10.0)
+        step("Add the ginger and garlic and stir for 1 minute, until the raw smell has gone. Add the tomatoes, turmeric, chilli powder, half the garam masala and the salt.", 1.0)
+        step("Cook over medium heat, stirring often and scraping the base, for 8–10 minutes, until the masala darkens, thickens to a paste and the oil starts to separate at the edges.", 9.0)
+        step("Add the chickpeas and water, bring to a simmer and cook for 10 minutes. As it bubbles, mash a ladleful of chickpeas against the side of the pan; this thickens the gravy so it coats the chickpeas. Add a splash more water if it gets too thick.", 10.0)
+        step("Stir in the remaining garam masala and the lemon juice, taste for salt and simmer for 1 minute more. Serve hot with rice, roti or bhatura.", 1.0)
     }
     recipe("aloo_anday", "Aloo anday (potato and egg curry)", "pakistani", "Pakistani home-style", 4, 15, 30, EASY) {
         description = "Boiled eggs and potatoes in a simple tomato–onion masala — a classic Pakistani home dinner."
         equipment("Saucepan", "Pot for boiling eggs")
-        tags("vegetarian", "budget", "gluten-free")
+        tags("main", "budget")
         ing("egg", 6.0, PIECE, "Eggs", "hard-boiled and peeled")
         ing("potato", 3.0, PIECE, "Potatoes", "peeled and cubed")
         ing("onion", 2.0, PIECE, "Onions", "finely chopped")
@@ -240,16 +252,18 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("garam_masala", 0.5, TEASPOON, "Garam masala")
         ing("water", 2.0, CUP, "Water")
         ing("cilantro", 2.0, TABLESPOON, "Coriander", "chopped")
-        step("Fry the onions in oil until golden; add ginger and garlic for 1 minute.", 10.0)
-        step("Add tomatoes, salt and powdered spices; cook until a thick masala forms and oil separates.", 8.0)
-        step("Add potatoes and water; cover and simmer until the potatoes are tender.", 12.0)
-        step("Score the eggs lightly, add them to the gravy and simmer 3 minutes. Finish with garam masala and coriander.", 3.0)
+        step("Put the eggs in a small pot, cover with cold water and bring to the boil. Simmer for 9–10 minutes, then move them into a bowl of cold water. When they are cool enough to handle, peel them.", 10.0)
+        step("Heat the oil in a saucepan over medium heat and fry the onions, stirring often, until golden brown, 8–10 minutes. Add the ginger and garlic pastes and stir for 1 minute.", 10.0)
+        step("Add the tomatoes, salt, chilli powder, turmeric and ground coriander. Cook, stirring and mashing the tomatoes, for about 8 minutes, until they have melted into a thick masala and the oil shows at the edges. Add a splash of water if the spices start to stick.", 8.0)
+        step("Add the potatoes and stir to coat them in the masala for a minute, then pour in the water. Bring to the boil, cover and simmer over low heat for 12–15 minutes, until a knife slides easily into the potatoes.", 12.0)
+        step("Make 3–4 shallow cuts down the sides of each peeled egg so the gravy can soak in. Add the eggs to the pan and simmer uncovered for 3 minutes, spooning the gravy over them; it should be thick enough to coat a spoon.", 3.0)
+        step("Sprinkle over the garam masala and coriander and serve hot with roti, paratha or plain rice.")
         safety("Hard-boil eggs until the yolks are firm.")
     }
     recipe("aloo_murgh", "Aloo murgh (chicken and potato curry)", "pakistani", "Punjabi home-style", 4, 15, 40) {
         description = "Chicken and potatoes in a yogurt–tomato gravy, everyday Punjabi comfort food."
         equipment("Heavy pot with lid")
-        tags("high-protein", "gluten-free", "dinner")
+        tags("main")
         ing("chicken_breast", 600.0, GRAM, "Chicken breast or thigh", "cubed")
         ing("potato", 3.0, PIECE, "Potatoes", "cubed")
         ing("onion", 2.0, PIECE, "Onions", "sliced")
@@ -264,17 +278,18 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("garam_masala", 1.0, TEASPOON, "Garam masala")
         ing("salt", 1.25, TEASPOON, "Salt")
         ing("water", 1.5, CUP, "Water")
-        step("Brown the onions in oil, then add garlic and ginger.", 10.0)
-        step("Add the chicken and fry until it changes colour; add tomatoes, salt and powdered spices and cook until soft.", 10.0)
-        step("Lower the heat, stir in the yogurt a spoonful at a time so it doesn't split, then cook until the oil separates.", 5.0)
-        step("Add potatoes and water; cover and simmer until both chicken and potatoes are tender.", 15.0)
-        step("Sprinkle garam masala and serve with roti or rice.")
+        step("Heat the oil in a heavy lidded pot over medium heat. Add the onions and fry, stirring often, until golden brown, 8–10 minutes. Add the garlic and ginger and stir for 1 minute until fragrant.", 10.0)
+        step("Turn the heat up to medium-high, add the chicken and fry, turning the pieces, until they are white on all sides, about 4 minutes.", 4.0)
+        step("Add the tomatoes, salt, chilli powder, turmeric and ground coriander. Cook, stirring, for about 6 minutes, until the tomatoes have softened into the spices.", 6.0)
+        step("Lower the heat. Stir in the whisked yogurt one spoonful at a time, letting each addition blend in before the next so it doesn't split. Cook for about 5 minutes, stirring, until the masala thickens and the oil starts to separate at the edges.", 5.0)
+        step("Add the potatoes and water, stir and bring to the boil. Cover and simmer over low heat for about 15 minutes, until the potatoes are tender to the point of a knife and the chicken is cooked through with no pink in the centre.", 15.0)
+        step("If the gravy is thin, simmer uncovered for a few minutes; it should be loose but coat the potatoes. Sprinkle over the garam masala, rest off the heat for 2 minutes and serve with roti or rice.")
         safety(POULTRY_SAFETY)
     }
     recipe("chicken_tikka", "Chicken tikka", "pakistani", "Punjabi", 4, 15, 15) {
         description = "Yogurt-and-spice marinated chicken pieces grilled until charred at the edges."
         equipment("Grill, oven or griddle", "Skewers")
-        tags("high-protein", "low-carb", "gluten-free", "grill")
+        tags("main", "low-carb", "grill")
         ing("chicken_thigh", 800.0, GRAM, "Chicken thigh or breast", "3 cm cubes")
         ing("yogurt", 0.75, CUP, "Plain yogurt", consumed = 0.5)
         ing("lemon_juice", 2.0, TABLESPOON, "Lemon juice")
@@ -285,9 +300,12 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("cumin", 1.0, TEASPOON, "Ground cumin")
         ing("salt", 1.5, TEASPOON, "Salt")
         ing("vegetable_oil", 1.0, TABLESPOON, "Oil for basting", consumed = 0.6)
-        step("Mix everything except the oil with the chicken. Marinate at least 2 hours (or overnight) in the fridge.")
-        step("Thread onto skewers. Grill or roast at high heat, turning and basting with oil, until charred at the edges and cooked through.", 15.0, 230)
-        step("Rest 2 minutes; serve with onion rings, lemon and green chutney.")
+        step("In a large bowl, mix the yogurt, lemon juice, ginger and garlic pastes, chilli powder, garam masala, cumin and salt into a thick paste. Add the chicken and massage the marinade into every piece.")
+        step("Cover and refrigerate for at least 2 hours, or overnight for the most tender result. If you are using wooden skewers, soak them in water for 30 minutes while the chicken marinates.")
+        step("Heat the grill or oven to its highest setting, around 230 °C, with a rack set over a foil-lined tray. Thread the chicken onto skewers, leaving small gaps between the pieces so the heat reaches every side. Let excess marinade drip off and discard what is left in the bowl.", tempC = 230)
+        step("Grill or roast for 12–15 minutes, turning the skewers every 4–5 minutes and brushing with the oil each time, until the edges are charred and blistered.", 15.0, 230)
+        step("Check a thick piece by cutting it open: it should be opaque all the way through with clear juices. Give the skewers a few more minutes if not.")
+        step("Rest the skewers for 2 minutes, then slide the chicken off and serve with sliced onion, lemon wedges and green chutney or raita.", 2.0)
         safety(POULTRY_SAFETY, "Discard leftover marinade that has touched raw chicken.")
     }
     recipe("chicken_tikka_bowl", "Chicken tikka rice bowl (variation)", "pakistani", "Modern Pakistani", 4, 20, 20, EASY) {
@@ -296,7 +314,7 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         variantSummary = "Chicken tikka served as a high-protein bowl with basmati rice, kachumber salad and a yogurt–mint sauce."
         description = "A balanced bowl built around grilled chicken tikka. A modern serving style, not a traditional dish."
         equipment("Grill or oven", "Saucepan")
-        tags("high-protein", "meal-prep", "gluten-free", "lunch")
+        tags("main", "meal-prep")
         ing("chicken_breast", 600.0, GRAM, "Chicken breast", "3 cm cubes")
         ing("yogurt", 0.5, CUP, "Plain yogurt for marinade", consumed = 0.5)
         ing("chili_powder", 2.0, TEASPOON, "Chilli powder")
@@ -311,17 +329,18 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("onion", 0.5, PIECE, "Red onion", "finely diced")
         ing("greek_yogurt_nonfat", 1.0, CUP, "Greek yogurt for sauce")
         ing("mint", 2.0, TABLESPOON, "Mint", "chopped")
-        step("Marinate the chicken with yogurt, spices, garlic, ginger, lemon and salt for at least 30 minutes.")
-        step("Cook the rice: simmer with 2 cups water, covered, until absorbed; rest 10 minutes.", 15.0)
-        step("Grill or roast the chicken on a rack until charred and cooked through.", 15.0, 230)
-        step("Mix cucumber, tomato and onion with a pinch of salt; stir mint into the Greek yogurt.")
-        step("Build bowls with rice, chicken, salad and yogurt sauce.")
+        step("Mix the yogurt, chilli powder, garam masala, garlic and ginger pastes, half the lemon juice and 1 teaspoon of the salt in a bowl. Add the chicken, turn to coat and refrigerate for at least 30 minutes, or up to overnight.")
+        step("Rinse the rice until the water runs clear. Put it in the saucepan with 480 ml (2 cups) water and a pinch of the salt, bring to the boil, then cover and cook on the lowest heat for 12–15 minutes until the water is absorbed. Leave covered off the heat for 10 minutes, then fluff with a fork.", 15.0)
+        step("Heat the oven or grill to 230 °C and set a rack over a lined tray. Spread the chicken over the rack in a single layer, shaking off the excess marinade (discard what is left in the bowl).", tempC = 230)
+        step("Roast or grill for 12–15 minutes, turning once, until charred at the edges and cooked through with no pink in the middle. Rest for 3 minutes, then slice.", 15.0, 230)
+        step("Meanwhile, make the kachumber by mixing the cucumber, tomatoes and red onion with the remaining lemon juice and a pinch of salt. For the sauce, stir the mint and a pinch of salt into the Greek yogurt.")
+        step("Divide the rice between four bowls and top with the sliced chicken, a pile of kachumber and a spoonful of mint yogurt. For meal prep, pack the salad and sauce separately and add them after reheating the rice and chicken.")
         safety(POULTRY_SAFETY, RICE_SAFETY)
     }
     recipe("seekh_kebab", "Seekh kebab with yogurt salad", "pakistani", "Lahori / Mughlai", 4, 20, 15) {
         description = "Spiced minced-meat kebabs grilled on skewers, served with a cooling yogurt and cucumber salad."
         equipment("Flat skewers", "Grill, griddle or oven")
-        tags("high-protein", "low-carb", "grill", "gluten-free")
+        tags("main", "low-carb", "grill")
         ing("beef_ground_lean", 600.0, GRAM, "Lean minced beef (or lamb)")
         ing("onion", 1.0, PIECE, "Onion", "grated and squeezed dry")
         ing("green_chili", 3.0, PIECE, "Green chillies", "finely chopped")
@@ -338,16 +357,18 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("cucumber", 1.0, PIECE, "Cucumber", "grated")
         ing("mint", 1.0, TABLESPOON, "Mint", "chopped")
         group(null)
-        step("Knead the mince with onion, chillies, ginger, garlic, coriander, spices and salt for 3–4 minutes until sticky. Chill 30 minutes.")
-        step("With wet hands, press portions onto skewers into long kebabs.")
-        step("Grill over high heat, turning and brushing with oil, until browned and cooked through.", 12.0)
-        step("Mix the yogurt salad and serve alongside with onions and lemon.")
+        step("Grate the onion and squeeze it hard in your hands or a clean cloth to remove as much juice as possible; wet onion makes the kebabs slide off the skewers.")
+        step("Put the mince in a large bowl with the onion, green chillies, ginger and garlic pastes, coriander, garam masala, chilli flakes, cumin and salt. Knead firmly for 3–4 minutes until the mixture turns sticky and comes together in one mass. Cover and chill for 30 minutes so it firms up.")
+        step("Divide the mixture into 8 portions. With wet hands, mould each portion around a flat skewer into a long, even sausage about 2 cm thick, squeezing so it grips the metal, and pinch the ends tight.")
+        step("Heat the grill, griddle or oven grill to high. Brush the kebabs with the oil and cook for 10–12 minutes, turning every 2–3 minutes and brushing again, until browned all over and firm when pressed. Cut one open: there should be no pink in the centre.", 12.0)
+        step("While the kebabs cook, squeeze the grated cucumber to remove its excess water and stir it into the yogurt with the mint and a pinch of the salt.")
+        step("Rest the kebabs for 2 minutes, then ease them off the skewers with a fork. Serve hot with the yogurt salad, sliced onion and lemon wedges.", 2.0)
         safety(MINCE_SAFETY)
     }
     recipe("palak_paneer", "Palak paneer", "indian", "Punjabi", 4, 15, 25) {
         description = "Paneer cubes in a smooth, gently spiced spinach purée."
         equipment("Pot for blanching", "Blender", "Frying pan")
-        tags("vegetarian", "gluten-free", "high-protein")
+        tags("main")
         ing("spinach", 500.0, GRAM, "Spinach", "washed")
         ing("paneer", 250.0, GRAM, "Paneer", "cubed")
         ing("onion", 1.0, PIECE, "Onion", "chopped")
@@ -361,17 +382,20 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("garam_masala", 1.0, TEASPOON, "Garam masala")
         ing("cream_heavy", 3.0, TABLESPOON, "Cream", optional = true)
         ing("salt", 1.0, TEASPOON, "Salt")
-        step("Blanch the spinach for 1 minute, cool in iced water, then blend with the green chillies.", 2.0)
-        step("Heat ghee and oil; fry cumin, then onion until soft, then garlic, ginger and tomato until mushy.", 10.0)
-        step("Add the spinach purée and salt; simmer 5 minutes. Add paneer and garam masala and warm through.", 6.0)
-        step("Swirl in cream if using and serve with roti.")
+        step("Bring a large pot of water to the boil and fill a bowl with iced water. Push the spinach into the boiling water and blanch for 1 minute, just until wilted and bright green, then lift it straight into the iced water to keep the colour vivid.", 2.0)
+        step("Squeeze the spinach lightly, leaving a little moisture, and blend it with the green chillies to a smooth purée. Add a few tablespoons of water only if the blender needs help.")
+        step("Put the paneer cubes in a bowl of hot water while you make the base; soaking softens them so they stay tender in the sauce.")
+        step("Heat the ghee and oil in the frying pan over medium heat. Add the cumin seeds and let them crackle for a few seconds, then add the onion and cook until soft and pale gold, about 5 minutes. Add the garlic (finely chopped) and ginger for 1 minute, then the tomato, and cook until it collapses into a soft mush, 3–4 minutes.", 10.0)
+        step("Stir in the spinach purée and salt and simmer gently for 5 minutes, stirring; it bubbles and spits, so keep the heat low. Add a splash of water if it is thicker than a pouring sauce.", 5.0)
+        step("Drain the paneer and fold it into the spinach with the garam masala. Warm through for 1–2 minutes only; longer and the paneer turns rubbery.", 2.0)
+        step("Swirl in the cream, if using, and serve straight away with roti or naan; the spinach loses its bright colour if it sits on the heat.")
     }
 
     // ================================================================ Middle East & Africa
     recipe("shakshuka", "Shakshuka", "moroccan", "Maghrebi / Levantine", 2, 10, 20, EASY) {
         description = "Eggs gently poached in a spiced tomato and pepper sauce."
         equipment("Lidded frying pan")
-        tags("vegetarian", "gluten-free", "breakfast", "one-pan")
+        tags("breakfast", "one-pan")
         ing("olive_oil", 2.0, TABLESPOON, "Olive oil")
         ing("onion", 1.0, PIECE, "Onion", "sliced")
         ing("bell_pepper", 1.0, PIECE, "Red pepper", "sliced")
@@ -383,17 +407,19 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("salt", 0.5, TEASPOON, "Salt")
         ing("egg", 4.0, PIECE, "Eggs")
         ing("parsley", 2.0, TABLESPOON, "Parsley or coriander")
-        step("Soften the onion and pepper in olive oil, then add garlic and spices for 1 minute.", 8.0)
-        step("Add tomatoes and salt; simmer until thickened.", 8.0)
-        step("Make four wells and crack in the eggs. Cover and cook on low until the whites are set.", 6.0)
-        step("Scatter herbs and serve with bread.")
+        step("Heat the olive oil in a lidded frying pan, about 24–26 cm across, over medium heat. Add the onion and pepper with a pinch of the salt and cook, stirring now and then, until soft and sweet with a few browned edges, 6–7 minutes.", 7.0)
+        step("Add the garlic, cumin, paprika and chilli flakes and stir for 1 minute, until the spices smell toasty; don't let the garlic brown.", 1.0)
+        step("Pour in the tomatoes and add the rest of the salt. Simmer for 8–10 minutes, stirring occasionally, until the sauce is thick enough that a spoon dragged through it leaves a clear trail for a moment. Taste and adjust the seasoning.", 8.0)
+        step("Turn the heat to low. Make four wells in the sauce with the back of a spoon and crack an egg into each. Spoon a little sauce over the edges of the whites, leaving the yolks uncovered.")
+        step("Cover and cook for 5–7 minutes, until the whites are completely set and opaque but the yolks still wobble. Cook a few minutes longer if you prefer firm yolks.", 6.0)
+        step("Scatter with the chopped herbs and serve straight from the pan, with bread for scooping up the sauce.")
         safety(EGG_SAFETY)
         storage = "Best eaten fresh; the sauce alone keeps 3 days refrigerated."
     }
     recipe("menemen", "Menemen", "turkish", "Anatolian", 2, 5, 12, EASY) {
         description = "Soft scrambled eggs with tomatoes and green peppers, a Turkish breakfast favourite."
         equipment("Frying pan")
-        tags("vegetarian", "gluten-free", "breakfast", "quick")
+        tags("breakfast", "quick")
         ing("olive_oil", 1.0, TABLESPOON, "Olive oil")
         ing("butter", 1.0, TABLESPOON, "Butter")
         ing("green_chili", 2.0, PIECE, "Long green peppers (sivri biber)", "sliced")
@@ -401,18 +427,20 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("egg", 4.0, PIECE, "Eggs", "lightly beaten")
         ing("salt", 0.5, TEASPOON, "Salt")
         ing("chili_powder", 0.5, TEASPOON, "Pul biber (chilli flakes)", optional = true)
-        step("Cook the peppers in oil and butter until soft.", 3.0)
-        step("Add tomatoes and salt and cook until most of the liquid has evaporated.", 5.0)
-        step("Pour in the eggs and stir gently just until softly set.", 2.0)
-        step("Sprinkle chilli flakes and serve with bread.")
+        step("Slice the peppers into thin rings, removing the stems and most of the seeds; leave a few seeds in if you like some heat.")
+        step("Halve the tomatoes and grate the cut sides on a box grater into a bowl, discarding the skins (or chop them very finely). Lightly beat the eggs with a fork; a few streaks of white are fine.")
+        step("Heat the olive oil and butter in a frying pan, about 24 cm across, over medium heat until the butter foams. Add the peppers and cook, stirring, until softened and just starting to colour, about 3 minutes.", 3.0)
+        step("Add the tomatoes and salt and cook, stirring now and then, until most of the liquid has evaporated and the mixture looks jammy rather than watery, about 5 minutes.", 5.0)
+        step("Lower the heat to medium-low and pour in the eggs. Leave them for 20 seconds, then stir slowly with a wooden spoon, folding the tomato through, for 1–2 minutes, until softly set in large, creamy curds. Take the pan off the heat while they still look slightly wet, because they keep cooking.", 2.0)
+        step("Sprinkle with pul biber, if using, and serve straight from the pan with fresh bread.")
         safety(EGG_SAFETY)
         storage = "Best eaten immediately."
         reheating = null
     }
     recipe("mercimek_corbasi", "Mercimek çorbası (red lentil soup)", "turkish", "Anatolian", 6, 10, 30, EASY) {
         description = "Silky red lentil soup with onion, carrot and a paprika butter drizzle."
-        equipment("Large pot", "Stick blender")
-        tags("vegetarian", "budget", "soup", "gluten-free")
+        equipment("Large pot", "Stick blender", "Small pan")
+        tags("soup", "budget")
         ing("lentils_red", 1.0, CUP, "Red lentils", "rinsed")
         ing("onion", 1.0, PIECE, "Onion", "chopped")
         ing("carrot", 1.0, PIECE, "Carrot", "chopped")
@@ -425,15 +453,17 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("butter", 1.0, TABLESPOON, "Butter for drizzling")
         ing("paprika", 1.0, TEASPOON, "Paprika or pul biber")
         ing("lemon", 1.0, PIECE, "Lemon wedges to serve", optional = true)
-        step("Soften onion, carrot and potato in olive oil; stir in tomato paste.", 6.0)
-        step("Add lentils, water, cumin and salt; simmer until everything is very soft.", 20.0)
-        step("Blend until smooth, thinning with hot water if needed.")
-        step("Melt the butter with paprika and drizzle over each bowl; serve with lemon.")
+        step("Rinse the lentils in a sieve under cold running water until the water runs almost clear. Chop the onion, carrot and potato into rough 1–2 cm pieces; they will be blended, so neatness doesn't matter.")
+        step("Heat the olive oil in a large pot over medium heat. Add the onion, carrot and potato and cook, stirring occasionally, until the onion is soft and translucent, 5–6 minutes. Stir in the tomato paste and cook for 1 minute until it darkens slightly.", 6.0)
+        step("Add the lentils, water (or stock), cumin and salt. Bring to the boil and skim off any foam, then lower the heat, partly cover and simmer for 20 minutes, stirring now and then, until the lentils have collapsed and the potato and carrot crush easily against the side of the pot.", 20.0)
+        step("Take the pot off the heat and blend with a stick blender until completely smooth and silky. If the soup is thicker than single cream, add hot water a splash at a time; taste and adjust the salt.")
+        step("Just before serving, melt the butter in a small pan over medium heat until it foams, then take it off the heat and stir in the paprika. It should turn brick red and smell toasty without burning.", 1.0)
+        step("Ladle the soup into warm bowls, drizzle the paprika butter over the top and serve with lemon wedges to squeeze in at the table.")
     }
     recipe("jollof_rice", "Jollof rice", "nigerian", "Nigerian", 6, 15, 45) {
         description = "Rice cooked in a rich, smoky tomato–pepper base — the West African party staple."
         equipment("Heavy pot with tight lid", "Blender")
-        tags("vegan", "gluten-free", "rice", "party")
+        tags("main", "rice", "party")
         ing("rice_white", 500.0, GRAM, "Long-grain parboiled rice", "rinsed")
         ing("tomato", 4.0, PIECE, "Tomatoes")
         ing("bell_pepper", 2.0, PIECE, "Red bell peppers")
@@ -448,17 +478,19 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("garam_masala", 1.0, TEASPOON, "Curry powder")
         ing("salt", 2.0, TEASPOON, "Salt (or stock cubes)")
         ing("water", 3.0, CUP, "Water or stock")
-        step("Blend tomatoes, peppers, one onion, scotch bonnet, garlic and ginger until smooth.")
-        step("Fry the second onion (sliced) in oil, add tomato paste and fry 3 minutes until darkened.", 6.0)
-        step("Add the blended base, bay, thyme, curry powder and salt; cook until reduced and the oil rises.", 15.0)
-        step("Stir in rice and water, cover tightly (foil under the lid) and cook on low until the rice is tender.", 25.0)
-        step("Let the bottom catch slightly for the smoky 'party' flavour, then fluff and serve.")
+        step("Roughly chop the tomatoes, the peppers (discarding the seeds and stems) and one of the onions. Blend them with the scotch bonnet, garlic and ginger until completely smooth, adding a splash of the water only if the blender needs it. Thinly slice the second onion.")
+        step("Heat the oil in the heavy pot over medium heat. Fry the sliced onion until soft and starting to colour, about 3 minutes, then add the tomato paste and fry, stirring constantly, for 3 minutes, until it darkens from bright red to a deep brick colour.", 6.0)
+        step("Pour in the blended base and add the bay leaves, thyme, curry powder and salt. Cook uncovered over medium-high heat, stirring regularly and scraping the bottom, for about 15 minutes, until reduced by about a third, the raw pepper smell has gone and a layer of red oil rises to the surface.", 15.0)
+        step("Stir in the rinsed rice until every grain is coated, then add the water and bring to the boil. Taste the liquid: it should be well seasoned, a little saltier than you want the finished rice.")
+        step("Cover the pot with a sheet of foil and then the lid, so no steam escapes. Cook on the lowest heat for 25 minutes without stirring, until the liquid has been absorbed and the rice is tender. If the rice is still firm, sprinkle over 2–3 tablespoons of water, cover again and give it 5 minutes more.", 25.0)
+        step("For the smoky 'party' flavour, turn the heat up to medium for the last 2–3 minutes and let the rice on the bottom catch lightly; you will smell it toasting, but stop before it burns. Turn off the heat and leave covered for 5 minutes.", 3.0)
+        step("Remove the bay leaves, fluff the rice with a fork, folding the toasted bits through, and serve with fried plantain, salad or grilled meat.")
         safety(RICE_SAFETY)
     }
     recipe("misir_wat", "Misir wat", "ethiopian", "Ethiopian", 4, 10, 35, EASY) {
         description = "Red lentils slow-cooked with lots of onion and berbere spice."
         equipment("Heavy saucepan")
-        tags("vegan", "gluten-free", "budget")
+        tags("main", "budget")
         ing("onion", 2.0, PIECE, "Red onions", "very finely chopped")
         ing("vegetable_oil", 4.0, TABLESPOON, "Oil (or niter kibbeh)")
         ing("garlic", 3.0, CLOVE, "Garlic", "minced")
@@ -468,17 +500,19 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("lentils_red", 1.0, CUP, "Red lentils", "rinsed")
         ing("water", 3.5, CUP, "Water")
         ing("salt", 1.0, TEASPOON, "Salt")
-        step("Cook the onions in a dry pan until softened, then add the oil and continue until deep golden.", 12.0)
-        step("Add garlic, ginger, berbere and tomato paste; cook 2 minutes.", 2.0)
-        step("Add lentils and water; simmer, stirring, until thick and creamy.", 20.0)
-        step("Season and serve with injera.")
+        step("Chop the onions as finely as you can (pulse them in a food processor if you like, without turning them to purée); they should almost melt into the stew. Rinse the lentils until the water runs clear.")
+        step("Put the onions in the dry saucepan over medium heat and cook, stirring constantly, for about 5 minutes, until they soften and release their moisture. Cooking them dry first is traditional and gives a sweeter base.", 5.0)
+        step("Add the oil and keep cooking, stirring often, for 7–8 minutes, until the onions are deep golden and jammy.", 8.0)
+        step("Stir in the garlic, ginger, berbere and tomato paste and cook for 2 minutes, stirring constantly, until the paste darkens and smells rich. Add a tablespoon of water if it starts to catch.", 2.0)
+        step("Add the lentils and water and bring to the boil, then lower the heat and simmer uncovered for about 20 minutes, stirring every few minutes and more often towards the end, until the lentils have broken down into a thick, creamy stew.", 20.0)
+        step("Season with the salt, adding a splash of hot water if it is stiffer than thick porridge. Rest off the heat for a few minutes so the flavours settle, then serve warm with injera or rice.")
     }
 
     // ================================================================ East & Southeast Asia
     recipe("egg_fried_rice", "Egg fried rice", "chinese", "Cantonese home-style", 2, 5, 10, EASY) {
         description = "Day-old rice stir-fried hot with egg and spring onions."
         equipment("Wok or large frying pan")
-        tags("vegetarian", "quick", "leftovers", "dairy-free")
+        tags("main", "quick", "leftovers")
         ing("rice_white", 400.0, GRAM, "Cooked rice, cold (day-old)", cooked = true)
         ing("egg", 3.0, PIECE, "Eggs", "beaten")
         ing("vegetable_oil", 2.0, TABLESPOON, "Oil")
@@ -487,17 +521,19 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("soy_sauce", 1.5, TABLESPOON, "Light soy sauce")
         ing("sesame_oil", 1.0, TEASPOON, "Sesame oil")
         ing("peas", 0.5, CUP, "Frozen peas", optional = true)
-        step("Heat the wok until smoking. Add oil, then the eggs; scramble until just set and push aside.", 1.0)
-        step("Add garlic and the white parts of the spring onions for 20 seconds.", 0.5)
-        step("Add the rice, breaking up clumps, and toss over high heat until hot and slightly toasted.", 4.0)
-        step("Season with soy sauce, mix the egg back in, finish with sesame oil and spring onion greens.")
+        step("Break up the cold rice with your fingers so there are no clumps. Slice the spring onions, keeping the white and green parts separate. Put everything next to the stove: once the wok is hot this cooks in minutes.")
+        step("Heat the wok over high heat until it just begins to smoke. Add half the oil, swirl, then pour in the eggs. Let them puff for a few seconds, then scramble until just set but still soft, about 1 minute. Tip them onto a plate.", 1.0)
+        step("Add the rest of the oil, then the garlic and spring onion whites, and stir-fry for 20 seconds until fragrant but not browned.", 0.5)
+        step("Add the rice (and the peas, if using) and toss over high heat for 3–4 minutes, pressing the rice against the wok and tossing again, until every grain is hot, separate and lightly toasted. Spread it out if it starts to steam rather than sizzle.", 4.0)
+        step("Drizzle the soy sauce around the edge of the wok so it sizzles, toss to colour the rice evenly, then return the egg, breaking it into pieces.", 1.0)
+        step("Turn off the heat, stir through the sesame oil and spring onion greens and serve immediately.")
         safety(RICE_SAFETY)
         storage = "Refrigerate promptly; eat within 1 day."
     }
     recipe("kimchi_fried_rice", "Kimchi bokkeumbap (kimchi fried rice)", "korean", "Korean home-style", 2, 5, 10, EASY) {
         description = "Leftover rice fried with chopped kimchi and gochujang, topped with a fried egg."
         equipment("Frying pan")
-        tags("quick", "leftovers", "spicy")
+        tags("main", "quick", "leftovers", "spicy")
         ing("rice_glutinous", 400.0, GRAM, "Cooked short-grain rice, cold", cooked = true)
         ing("kimchi", 1.0, CUP, "Well-fermented kimchi", "chopped, plus 2 tbsp juice")
         ing("gochujang", 1.0, TABLESPOON, "Gochujang")
@@ -506,10 +542,12 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("egg", 2.0, PIECE, "Eggs")
         ing("scallion", 2.0, PIECE, "Spring onions", "sliced")
         ing("sesame_seeds", 1.0, TEASPOON, "Sesame seeds")
-        step("Fry the kimchi in oil until slightly caramelised.", 3.0)
-        step("Add gochujang and kimchi juice, then the rice; stir-fry until well coated and hot.", 4.0)
-        step("Finish with sesame oil. Fry the eggs separately.", 3.0)
-        step("Serve topped with an egg, spring onions and sesame seeds.")
+        step("Chop the kimchi into small pieces, keeping 2 tablespoons of its juice. Break up the cold rice so there are no large clumps.")
+        step("Heat 1 tablespoon of the oil in a large frying pan over medium-high heat. Add the kimchi and fry, stirring, for about 3 minutes, until it softens and starts to caramelise at the edges.", 3.0)
+        step("Stir in the gochujang and kimchi juice, then add the rice. Stir-fry for 3–4 minutes, pressing and turning the rice, until every grain is evenly red, hot through and slightly crisp in places.", 4.0)
+        step("Take the pan off the heat, stir in the sesame oil and divide the rice between two bowls. Wipe out the pan with kitchen paper.")
+        step("Heat the remaining oil in the pan over medium heat and fry the eggs for 2–3 minutes, until the whites are fully set and the edges crisp. Cover the pan for the last minute if you want the yolks set too.", 3.0)
+        step("Top each bowl with an egg and scatter over the spring onions and sesame seeds. Break the yolk into the rice as you eat.")
         safety(RICE_SAFETY, EGG_SAFETY)
         storage = "Best eaten fresh; refrigerate leftovers for 1 day."
     }
@@ -519,7 +557,7 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         variantSummary = "A pared-down bibimbap-style bowl using just seasoned spinach (sigeumchi namul), egg and rice."
         description = "Seasoned blanched spinach and a fried egg over rice — a simple bowl in the spirit of bibimbap."
         equipment("Pot", "Frying pan")
-        tags("vegetarian", "quick", "leftovers", "dairy-free")
+        tags("main", "quick", "leftovers")
         ing("spinach", 300.0, GRAM, "Spinach")
         ing("sesame_oil", 2.0, TEASPOON, "Sesame oil")
         ing("soy_sauce", 2.0, TEASPOON, "Soy sauce")
@@ -529,31 +567,34 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("egg", 2.0, PIECE, "Eggs")
         ing("vegetable_oil", 1.0, TABLESPOON, "Oil")
         ing("gochujang", 1.0, TABLESPOON, "Gochujang", optional = true)
-        step("Blanch the spinach 30 seconds, rinse in cold water and squeeze dry.", 1.0)
-        step("Season with sesame oil, soy sauce, garlic and sesame seeds.")
-        step("Fry the eggs sunny-side up.", 3.0)
-        step("Top warm rice with spinach and egg; add gochujang if you like.")
+        step("Bring a pot of water to the boil and have a bowl of cold water ready. Wash the spinach well in several changes of water, keeping small leaves whole.")
+        step("Blanch the spinach for 30 seconds, just until wilted, then drain and plunge it into the cold water. Squeeze it firmly in your hands to remove as much water as possible, then cut it into 5 cm lengths.", 1.0)
+        step("Toss the spinach with the sesame oil, soy sauce, garlic and sesame seeds, loosening the clumps with your fingers so the seasoning reaches every strand.")
+        step("Reheat the rice until it is steaming hot all the way through: in the empty pot over low heat with a tablespoon of water and the lid on, stirring once, or covered in a microwave.", 3.0)
+        step("Heat the oil in the frying pan over medium heat and fry the eggs sunny-side up for about 3 minutes, until the whites are fully set and the edges lightly crisp.", 3.0)
+        step("Divide the rice between two bowls, pile the spinach on one side and slide an egg on top. Add a spoonful of gochujang if you like, and mix everything together at the table.")
         safety(EGG_SAFETY, RICE_SAFETY)
     }
     recipe("gyeran_mari", "Gyeran-mari (rolled omelette)", "korean", "Korean", 2, 5, 10, EASY) {
         description = "Thin layers of seasoned egg rolled into a soft omelette log, a common banchan and lunchbox dish."
         equipment("Non-stick frying pan (rectangular if available)", "Spatula")
-        tags("vegetarian", "gluten-free", "dairy-free", "quick")
+        tags("side", "quick")
         ing("egg", 4.0, PIECE, "Eggs")
         ing("scallion", 1.0, PIECE, "Spring onion", "finely chopped")
         ing("carrot", 0.25, PIECE, "Carrot", "finely diced")
         ing("salt", 1.0, PINCH, "Salt")
         ing("vegetable_oil", 1.0, TEASPOON, "Oil")
-        step("Beat the eggs with salt, spring onion and carrot.")
-        step("Heat a lightly oiled pan on medium-low; pour in a thin layer. When almost set, roll it to one end.", 2.0)
-        step("Pour in another thin layer, letting it flow under the roll; roll back. Repeat until the egg is used.", 6.0)
-        step("Rest a minute, then slice into thick rounds.")
+        step("Beat the eggs with the salt until the whites and yolks are fully combined but not frothy, then stir in the spring onion and carrot. For an extra-smooth roll, strain the beaten eggs through a sieve before adding the vegetables.")
+        step("Heat the pan over medium-low heat and wipe it with a little of the oil on kitchen paper. Pour in about a quarter of the egg and tilt to cover the base thinly. When the top is almost set but still glossy, after about 1 minute, roll it up from one end into a log with the spatula.", 2.0)
+        step("Push the roll to the far end of the pan, wipe the empty part with oil again and pour in another quarter of the egg, lifting the roll so raw egg flows underneath it. When nearly set, roll the log back over the new layer. Repeat until all the egg is used, keeping the heat low so it doesn't brown.", 6.0)
+        step("Press the sides of the finished roll with the spatula to square it off, then cook for 30 seconds on each side so it is set right through.", 1.0)
+        step("Move it to a board and rest for a minute to firm up, then cut into 2 cm slices. Serve warm or at room temperature as a side dish or in a lunchbox.")
         safety(EGG_SAFETY)
     }
     recipe("chicken_adobo", "Chicken adobo", "filipino", "Tagalog", 4, 10, 40, EASY) {
         description = "Chicken braised in vinegar, soy sauce, garlic, bay and black pepper until glossy."
         equipment("Lidded pot")
-        tags("high-protein", "dairy-free")
+        tags("main")
         ing("chicken_curry_cut", 1000.0, GRAM, "Chicken thighs and drumsticks")
         ing("soy_sauce", 0.33, CUP, "Soy sauce")
         ing("vinegar", 0.33, CUP, "Cane or white vinegar")
@@ -563,10 +604,12 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("water", 0.5, CUP, "Water")
         ing("vegetable_oil", 1.0, TABLESPOON, "Oil")
         ing("brown_sugar", 1.0, TEASPOON, "Brown sugar", optional = true)
-        step("Combine chicken, soy sauce, garlic, bay and pepper; marinate 30 minutes if time allows.")
-        step("Brown the chicken in oil, add the marinade, vinegar and water; simmer uncovered for 5 minutes without stirring (lets the vinegar mellow).", 5.0)
-        step("Cover and simmer until tender, then reduce the sauce until glossy.", 30.0)
-        step("Serve with steamed rice.")
+        step("Put the chicken in a bowl with the soy sauce, garlic, bay leaves and peppercorns and turn to coat. If you have time, marinate for 30 minutes at room temperature or up to overnight in the fridge.")
+        step("Lift the chicken out of the marinade, keeping the marinade, and pat the skin dry with kitchen paper. Heat the oil in the lidded pot over medium-high heat and brown the chicken in batches, skin side first, for 3–4 minutes per side until golden.", 8.0)
+        step("Return all the chicken to the pot and pour in the marinade, vinegar and water. Bring to the boil and simmer uncovered for 5 minutes without stirring; this lets the sharpest edge of the vinegar cook off.", 5.0)
+        step("Cover, lower the heat and simmer gently for about 25 minutes, turning the pieces once halfway, until the meat is tender and starts to pull away from the bone.", 25.0)
+        step("Uncover, add the sugar if using and turn the heat to medium-high. Boil for about 5 minutes, turning the chicken often, until the sauce has reduced to a glossy glaze that coats the meat. Check the thickest drumstick is cooked through at the bone.", 5.0)
+        step("Remove the bay leaves and serve the chicken with its sauce spooned over and plenty of steamed rice to soak it up.")
         safety(POULTRY_SAFETY)
     }
 
@@ -574,7 +617,7 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
     recipe("tinga_de_pollo", "Tinga de pollo", "mexican", "Pueblan", 4, 10, 30, EASY) {
         description = "Shredded chicken simmered in a smoky tomato–onion sauce, for tacos and tostadas."
         equipment("Saucepan", "Blender")
-        tags("high-protein", "dairy-free", "gluten-free")
+        tags("main")
         ing("chicken_breast", 600.0, GRAM, "Chicken breast")
         ing("tomato", 4.0, PIECE, "Tomatoes")
         ing("onion", 1.5, PIECE, "Onions", "half for the sauce, the rest sliced")
@@ -584,16 +627,18 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("vegetable_oil", 2.0, TABLESPOON, "Oil")
         ing("salt", 1.0, TEASPOON, "Salt")
         ing("tortilla_corn", 8.0, PIECE, "Corn tortillas", optional = true)
-        step("Poach the chicken in salted water until cooked; shred.", 15.0)
-        step("Blend tomatoes, half an onion, garlic, chilli and oregano.")
-        step("Soften the sliced onion in oil, add the sauce and simmer 5 minutes; stir in the chicken and cook until thick.", 10.0)
-        step("Serve in warm tortillas or on tostadas.")
+        step("Put the chicken in the saucepan, cover with cold water and add a pinch of the salt. Bring to a gentle simmer and poach for 12–15 minutes, until the thickest part is white all the way through. Lift it out and keep 120 ml of the cooking liquid.", 15.0)
+        step("When the chicken is cool enough to handle, shred it into thin strands with two forks.")
+        step("Roughly chop the tomatoes and the half onion for the sauce, and blend them with the garlic, chilli powder, oregano and the remaining salt until smooth.")
+        step("Wipe out the saucepan and heat the oil over medium heat. Add the sliced onion and cook until soft and lightly golden, about 5 minutes.", 5.0)
+        step("Pour in the tomato sauce (it will splutter) and simmer for 5 minutes until it darkens slightly. Stir in the shredded chicken with a splash of the reserved cooking liquid and cook for 5 minutes more, stirring, until the sauce is thick and clings to the chicken rather than pooling.", 10.0)
+        step("Taste for salt and heat. Warm the tortillas in a dry pan for 20–30 seconds a side and serve the tinga piled into them as tacos, or on crisp tostadas.")
         safety(POULTRY_SAFETY)
     }
     recipe("frittata_spinach_cheese", "Spinach and cheese frittata", "italian", "Italian home-style", 4, 10, 15, EASY) {
         description = "A thick open omelette with spinach and cheese, finished in the oven; good warm or cold."
         equipment("Oven-safe frying pan")
-        tags("vegetarian", "gluten-free", "high-protein", "quick")
+        tags("breakfast", "quick")
         ing("egg", 8.0, PIECE, "Eggs")
         ing("spinach", 150.0, GRAM, "Spinach")
         ing("cheddar", 80.0, GRAM, "Cheese (cheddar, feta or parmesan)", "grated or crumbled")
@@ -601,9 +646,12 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("olive_oil", 1.0, TABLESPOON, "Olive oil")
         ing("salt", 0.5, TEASPOON, "Salt")
         ing("black_pepper", 0.25, TEASPOON, "Black pepper")
-        step("Heat the oven to 200 °C. Soften the onion in oil, add spinach and wilt.", 6.0, 200)
-        step("Beat eggs with salt, pepper and most of the cheese; pour into the pan and cook on low until the edges set.", 4.0)
-        step("Top with remaining cheese and bake until just set in the centre.", 8.0, 200)
+        step("Heat the oven to 200 °C with a shelf in the upper third. Use an oven-safe frying pan about 24–26 cm across; a smaller pan gives a thicker frittata that needs a few minutes longer.", tempC = 200)
+        step("Heat the olive oil in the pan over medium heat and cook the onion, stirring, until soft and lightly golden, about 4 minutes. Add the spinach a handful at a time and stir until it wilts and the liquid it releases has evaporated, 1–2 minutes.", 6.0)
+        step("Meanwhile, beat the eggs in a bowl with the salt, pepper and about three-quarters of the cheese until evenly mixed.")
+        step("Spread the vegetables evenly over the base, turn the heat to low and pour in the eggs. Cook without stirring for 3–4 minutes, until the edges are set and the base is lightly golden when lifted with a spatula; the centre will still be liquid.", 4.0)
+        step("Scatter over the remaining cheese and transfer the pan to the oven. Bake for 7–8 minutes, until the centre is just set and springs back when pressed and the top is puffed and golden. Use an oven glove, as the handle gets very hot.", 8.0, 200)
+        step("Rest in the pan for 3 minutes, then loosen the edges and slide the frittata onto a board. Cut into wedges and serve warm, or cool completely and pack for lunch.")
         safety(EGG_SAFETY)
     }
     recipe("spinach_egg_cheese_rice", "Spinach, egg and cheese rice skillet", "international", null, 2, 5, 12, EASY) {
@@ -612,7 +660,7 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         variantSummary = "A fusion take on egg fried rice for leftover rice, adding spinach and melted cheese."
         description = "A quick one-pan dinner from leftover rice, eggs, spinach and cheese. A fusion dish, not a traditional recipe."
         equipment("Frying pan with lid")
-        tags("vegetarian", "quick", "leftovers")
+        tags("main", "quick", "leftovers")
         ing("rice_white", 350.0, GRAM, "Cooked rice, cold", cooked = true)
         ing("egg", 3.0, PIECE, "Eggs", "beaten")
         ing("spinach", 100.0, GRAM, "Spinach", "roughly chopped")
@@ -621,16 +669,19 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("olive_oil", 1.0, TABLESPOON, "Oil")
         ing("salt", 0.5, TEASPOON, "Salt")
         ing("chili_powder", 0.25, TEASPOON, "Chilli flakes", optional = true)
-        step("Fry garlic in oil, add spinach and wilt.", 2.0)
-        step("Add the rice and salt; fry until hot and lightly crisp.", 4.0)
-        step("Pour over the eggs, stir gently until nearly set, scatter cheese, cover and cook until melted.", 3.0)
+        step("Break up the cold rice with your fingers so there are no clumps. Beat the eggs with a pinch of the salt.")
+        step("Heat the oil in the frying pan over medium heat and fry the garlic for 30 seconds until fragrant. Add the spinach and stir until it has just wilted, about 1 minute.", 2.0)
+        step("Add the rice and the rest of the salt, turn the heat to medium-high and fry, stirring and then pressing it flat, for about 4 minutes, until hot through and lightly crisp on the bottom.", 4.0)
+        step("Lower the heat to medium-low and pour the eggs evenly over the rice. Stir gently once or twice, then leave for about 1 minute until the egg is nearly set.", 1.0)
+        step("Scatter the cheese over the top, cover with the lid and cook for 2 minutes, until the cheese has melted and the eggs are fully set with no runny patches.", 2.0)
+        step("Sprinkle with chilli flakes if you like and serve straight from the pan, scraping up the crisp rice from the bottom.")
         safety(RICE_SAFETY, EGG_SAFETY)
         storage = "Eat within 1 day."
     }
     recipe("horiatiki", "Horiatiki (Greek village salad)", "greek", "National", 4, 15, 0, EASY) {
         description = "Chunky tomatoes, cucumber, onion and peppers with olives, a slab of feta and good olive oil."
         equipment("Large bowl")
-        tags("vegetarian", "gluten-free", "no-cook", "salad")
+        tags("salad", "no-cook")
         ing("tomato", 4.0, PIECE, "Ripe tomatoes", "wedges")
         ing("cucumber", 1.0, PIECE, "Cucumber", "thick slices")
         ing("onion", 0.5, PIECE, "Red onion", "thinly sliced")
@@ -640,15 +691,18 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("vinegar", 1.0, TABLESPOON, "Red wine vinegar")
         ing("oregano", 1.0, TEASPOON, "Dried oregano")
         ing("salt", 0.5, TEASPOON, "Salt")
-        step("Combine the vegetables with salt.")
-        step("Top with the feta, sprinkle oregano, and dress with olive oil and vinegar just before serving.")
+        step("Cut the tomatoes into chunky wedges, removing the cores, and slice the cucumber into thick half-moons (peel it in stripes if the skin is tough). Slice the red onion and the pepper into thin rings, discarding the pepper's seeds.")
+        step("If the onion tastes very sharp, soak the slices in cold water for 10 minutes, then drain and pat dry; this softens its bite.")
+        step("Put the tomatoes, cucumber, onion and pepper in a large bowl or on a platter, sprinkle with the salt and toss gently. Leave for a few minutes so the tomatoes release a little juice, which becomes part of the dressing.")
+        step("Lay the slab of feta on top, unbroken. Crumble the oregano over the feta, rubbing it between your fingers to release its aroma.")
+        step("Just before serving, drizzle over the vinegar and then the olive oil. Serve with bread to mop up the juices; there is no need to toss again.")
         storage = "Best fresh; undressed vegetables keep 1 day refrigerated."
         reheating = null
     }
     recipe("pasta_pomodoro", "Pasta al pomodoro", "italian", "Roman / Neapolitan", 4, 5, 20, EASY) {
         description = "Pasta with a simple sauce of tomatoes, garlic, olive oil and basil."
         equipment("Large pot", "Frying pan")
-        tags("vegetarian", "vegan", "quick", "budget")
+        tags("main", "quick", "budget")
         ing("pasta", 400.0, GRAM, "Spaghetti or penne")
         ing("olive_oil", 3.0, TABLESPOON, "Olive oil")
         ing("garlic", 3.0, CLOVE, "Garlic", "sliced")
@@ -656,14 +710,17 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("basil", 0.5, CUP, "Fresh basil")
         ing("salt", 1.0, TEASPOON, "Salt for the sauce")
         ing("parmesan", 2.0, TABLESPOON, "Parmesan", optional = true)
-        step("Gently fry garlic in olive oil until fragrant, add tomatoes and salt; simmer until thick.", 15.0)
-        step("Boil the pasta in well-salted water until al dente; reserve a cup of pasta water.", 10.0)
-        step("Toss pasta with sauce and basil, loosening with pasta water. Add parmesan if using.")
+        step("Tip the tomatoes into a bowl and crush them with your hands into small pieces, pulling out any tough cores. Put a large pot of water (about 4 litres) on to boil for the pasta.")
+        step("Put the olive oil and garlic in the cold frying pan and set it over medium-low heat. Cook gently for 2–3 minutes, until the garlic is fragrant and pale gold at the edges; browned garlic tastes bitter, so pull the pan off the heat if it colours too fast.", 3.0)
+        step("Add the crushed tomatoes and the salt, bring to a lively simmer and cook for 12–15 minutes, stirring occasionally, until the sauce has thickened and the oil glistens on the surface. Tear in half the basil.", 15.0)
+        step("When the sauce is about halfway done, salt the boiling water and cook the pasta until al dente, usually 1–2 minutes less than the packet time. Scoop out a mugful of the starchy cooking water before draining.", 10.0)
+        step("Add the drained pasta to the sauce over medium heat with a splash of the pasta water. Toss for 1 minute until the sauce coats every strand and looks glossy, adding more water if it seems tight.", 1.0)
+        step("Tear over the remaining basil and serve at once, with grated Parmesan at the table if you like.")
     }
     recipe("chicken_potato_traybake", "Chicken, potato and tomato traybake", "british_irish", "British home-style", 4, 15, 45, EASY) {
         description = "Chicken thighs roasted on one tray with potatoes, onions, tomatoes, garlic and herbs."
         equipment("Large roasting tray")
-        tags("high-protein", "one-pan", "gluten-free", "dairy-free")
+        tags("main", "one-pan")
         ing("chicken_thigh", 700.0, GRAM, "Boneless chicken thighs")
         ing("potato", 600.0, GRAM, "Potatoes", "quartered")
         ing("onion", 2.0, PIECE, "Red onions", "wedges")
@@ -674,14 +731,18 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("paprika", 1.0, TEASPOON, "Paprika")
         ing("salt", 1.25, TEASPOON, "Salt")
         ing("black_pepper", 0.5, TEASPOON, "Black pepper")
-        step("Heat the oven to 210 °C. Toss potatoes and onions with half the oil, herbs and salt; roast 15 minutes.", 15.0, 210)
-        step("Add chicken, tomatoes and garlic, drizzle with the rest of the oil and paprika; roast until the chicken is golden and cooked through.", 30.0, 210)
+        step("Heat the oven to 210 °C (190 °C fan) with a shelf in the middle. Cut any large potatoes into 4 cm chunks so they all cook in the same time.", tempC = 210)
+        step("Tip the potatoes and onion wedges into the roasting tray, about 30 × 40 cm, with half the oil, half the herbs and half the salt. Toss well and spread out in a single layer; crowded potatoes steam instead of crisping.")
+        step("Roast for 15 minutes, until the potatoes are starting to colour at the edges.", 15.0, 210)
+        step("Meanwhile, rub the chicken thighs all over with the remaining oil, herbs and salt, the paprika and the pepper.")
+        step("Take the tray out, turn the potatoes, and nestle the chicken, tomato halves (cut side up) and unpeeled garlic among them. Roast for 30 minutes more, until the chicken is golden, the potatoes crisp and the tomatoes slumped. The chicken is done when the juices run clear and the thickest piece reaches 74 °C.", 30.0, 210)
+        step("Rest the tray for 5 minutes. Squeeze the soft garlic out of its skins and stir it into the tray juices, then spoon them over the chicken and potatoes to serve.")
         safety(POULTRY_SAFETY)
     }
     recipe("bibimbap", "Bibimbap", "korean", "Jeonju (Jeolla)", 2, 30, 20) {
         description = "Rice topped with seasoned vegetables, beef, a fried egg and gochujang sauce, mixed at the table."
         equipment("Frying pan", "Pot")
-        tags("balanced", "dairy-free")
+        tags("main", "balanced")
         ing("rice_glutinous", 400.0, GRAM, "Cooked short-grain rice", cooked = true)
         ing("beef_stew", 150.0, GRAM, "Beef (ribeye or sirloin)", "thinly sliced")
         ing("soy_sauce", 2.0, TABLESPOON, "Soy sauce")
@@ -697,12 +758,14 @@ private fun buildRecipes(): List<Recipe> = RecipeListBuilder().apply {
         ing("vegetable_oil", 1.5, TABLESPOON, "Oil")
         ing("gochujang", 2.0, TABLESPOON, "Gochujang")
         ing("sesame_seeds", 1.0, TEASPOON, "Sesame seeds")
-        step("Marinate beef with 1 tbsp soy sauce, sugar and 1 clove garlic.")
-        step("Blanch spinach and sprouts separately; season each with a little sesame oil, salt and garlic.", 3.0)
-        step("Stir-fry carrot, courgette and mushrooms separately in a little oil.", 6.0)
-        step("Stir-fry the beef until just cooked; fry the eggs sunny-side up.", 4.0)
-        step("Arrange everything over the rice; mix gochujang with remaining sesame oil and soy sauce and serve on the side.")
-        safety(EGG_SAFETY, RICE_SAFETY)
+        step("Mix the beef with 1 tablespoon of the soy sauce, the sugar and one clove of the garlic, and leave it to marinate while you prepare the vegetables. Reheat the rice until steaming hot and keep it covered.")
+        step("Bring the pot of water to the boil. Blanch the spinach for 30 seconds, lift it into cold water and squeeze dry. Blanch the bean sprouts in the same water for 2 minutes and drain. Season each separately with a few drops of sesame oil and soy sauce and a little of the remaining garlic.", 3.0)
+        step("Heat a little of the oil in the frying pan over medium-high heat and stir-fry the carrot for 1–2 minutes until just tender, then set aside. Repeat with the courgette, then the mushrooms with the last of the garlic, cooking each separately so they keep their own colour and flavour.", 6.0)
+        step("Add a little more oil and stir-fry the beef over high heat for 2–3 minutes, until browned and no longer pink.", 3.0)
+        step("Wipe the pan, add the last of the oil and fry the eggs sunny-side up over medium heat until the whites are set and the edges crisp, about 2 minutes.", 2.0)
+        step("Stir the gochujang with the remaining sesame oil and soy sauce into a smooth sauce, loosening it with a teaspoon of water if it is very thick.")
+        step("Divide the rice between two wide bowls and arrange the vegetables and beef in separate piles on top, with an egg in the centre. Sprinkle with sesame seeds and serve with the sauce, then mix everything together at the table.")
+        safety(BEEF_SAFETY, EGG_SAFETY, RICE_SAFETY)
     }
 
     southAsianKitchen()
@@ -716,7 +779,7 @@ private fun RecipeListBuilder.southAsianKitchen() {
     recipe("butter_chicken", "Butter chicken (murgh makhani)", "indian", "Punjabi / Delhi", 4, 25, 35) {
         description = "Marinated, charred chicken in a smooth tomato, butter and cream sauce scented with fenugreek leaves. Marinate for at least an hour, or overnight."
         equipment("Grill pan or oven tray", "Heavy pan", "Blender")
-        tags("high-protein", "gluten-free", "dinner", "celebration")
+        tags("main", "celebration")
         group("Marinade")
         ing("chicken_thigh", 700.0, GRAM, "Chicken thighs, boneless", "cut into large pieces")
         ing("yogurt", 100.0, GRAM, "Plain yogurt")
@@ -739,12 +802,12 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("cream_heavy", 100.0, MILLILITRE, "Cream")
         ing("salt", 0.5, TEASPOON, "Salt")
         ing("cilantro", 1.0, TABLESPOON, "Fresh coriander", "to garnish", optional = true)
-        step("Mix the chicken with all the marinade ingredients. Cover and refrigerate for 1 hour, or overnight.")
-        step("Grill or roast the chicken at high heat until charred at the edges and just cooked through.", 15.0, 230)
-        step("Melt 2 tbsp butter with the oil; cook the onion until soft and golden.", 8.0)
-        step("Add the tomatoes, drained cashews and chilli powder; simmer until thick, then blend until completely smooth.", 12.0)
-        step("Return the sauce to the pan with the chicken, garam masala, crushed fenugreek, sugar and salt; simmer 5 minutes.", 5.0)
-        step("Stir in the cream and the last tablespoon of butter. Serve with naan or rice.")
+        step("Mix the yogurt, ginger and garlic pastes, chilli powder, garam masala, lemon juice and salt for the marinade in a bowl. Add the chicken and turn until coated, then cover and refrigerate for at least 1 hour, or overnight. Soak the cashews in hot water for 20 minutes.")
+        step("Heat the grill or oven to 230 °C. Spread the chicken on a lined oven tray (or cook it on a very hot grill pan), shaking off excess marinade, and cook for 12–15 minutes, turning once, until charred at the edges and just cooked through.", 15.0, 230)
+        step("Meanwhile, melt 2 tablespoons of the butter with the oil in a heavy pan over medium heat. Add the onion and cook, stirring, until soft and golden, about 8 minutes.", 8.0)
+        step("Add the tomatoes, drained cashews and chilli powder. Simmer for 10–12 minutes, stirring now and then, until thick and the raw tomato taste has gone. Let it cool for a few minutes, then blend until completely smooth and silky.", 12.0)
+        step("Return the sauce to the pan and add the chicken with any juices, the garam masala, the fenugreek (crush it between your palms as you add it), sugar and salt. Simmer gently for 5 minutes so the chicken takes on the sauce, loosening with a splash of water if it is thicker than double cream.", 5.0)
+        step("Take off the heat and stir in the cream and the last tablespoon of butter until glossy. Taste for salt, garnish with coriander if you like and serve with naan or basmati rice.")
         safety(POULTRY_SAFETY)
     }
     recipe("butter_chicken_lighter", "Lighter butter chicken (variation)", "indian", "Punjabi / Delhi", 4, 25, 30) {
@@ -753,7 +816,7 @@ private fun RecipeListBuilder.southAsianKitchen() {
         variantSummary = "Chicken breast, a quarter of the butter, no cashews, and low-fat milk with Greek yogurt in place of cream."
         description = "A lighter weeknight take on butter chicken. It is not the traditional dish — the sauce is tangier and less rich."
         equipment("Grill pan or oven tray", "Heavy pan", "Blender")
-        tags("high-protein", "lower-calorie", "gluten-free", "dinner")
+        tags("main")
         group("Marinade")
         ing("chicken_breast", 700.0, GRAM, "Chicken breast", "cut into large pieces")
         ing("greek_yogurt_nonfat", 100.0, GRAM, "Nonfat Greek yogurt")
@@ -774,17 +837,18 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("milk_low_fat", 120.0, MILLILITRE, "Low-fat milk")
         ing("greek_yogurt_nonfat", 3.0, TABLESPOON, "Nonfat Greek yogurt", "stirred in off the heat")
         ing("salt", 0.5, TEASPOON, "Salt")
-        step("Marinate the chicken for at least 1 hour.")
-        step("Grill or roast at high heat until charred at the edges and just cooked through.", 12.0, 230)
-        step("Cook the onion in the butter and oil until soft; add tomatoes and chilli and simmer until thick, then blend.", 15.0)
-        step("Add the chicken, garam masala, fenugreek, milk and salt; simmer 5 minutes.", 5.0)
-        step("Take off the heat and stir in the Greek yogurt so it doesn't split.")
+        step("Mix the Greek yogurt for the marinade with the ginger and garlic pastes, chilli powder, garam masala, lemon juice and salt. Coat the chicken, cover and refrigerate for at least 1 hour, or overnight.")
+        step("Heat the grill or oven to 230 °C. Spread the chicken on a lined tray, shaking off excess marinade, and cook for 10–12 minutes, turning once, until charred at the edges and just cooked through. Breast dries out quickly, so check the thickest piece early.", 12.0, 230)
+        step("Meanwhile, melt the butter with the oil in a heavy pan over medium heat and cook the onion until soft and golden, 6–8 minutes. Add a splash of water if it starts to catch, rather than more fat.", 8.0)
+        step("Add the tomatoes and chilli powder and simmer for 8–10 minutes, stirring, until thick. Cool briefly, then blend until smooth.", 10.0)
+        step("Return the sauce to the pan with the chicken, garam masala, crushed fenugreek, milk and salt. Simmer gently for 5 minutes, without letting it boil hard, until slightly thickened.", 5.0)
+        step("Take the pan off the heat and wait a minute, then stir in the 3 tablespoons of Greek yogurt; adding it off the heat keeps it from splitting. Serve with rice or roti.")
         safety(POULTRY_SAFETY)
     }
     recipe("chicken_korma", "Chicken korma", "indian", "Mughlai / Awadhi", 4, 20, 45) {
         description = "Chicken braised gently in yogurt with golden fried onions, ground almonds and whole spices — fragrant rather than fiery."
         equipment("Heavy lidded pot", "Blender or spice grinder")
-        tags("gluten-free", "high-protein", "dinner", "celebration")
+        tags("main", "celebration")
         ing("chicken_curry_cut", 1000.0, GRAM, "Chicken, bone-in, skinless", "curry-cut pieces")
         ing("vegetable_oil", 5.0, TABLESPOON, "Oil or ghee")
         ing("onion", 2.0, PIECE, "Onions", "thinly sliced")
@@ -801,18 +865,18 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("garam_masala", 1.0, TEASPOON, "Garam masala")
         ing("salt", 1.5, TEASPOON, "Salt")
         ing("saffron", 1.0, PINCH, "Saffron", "soaked in 2 tbsp warm milk", optional = true)
-        step("Fry the onions in the oil until deep golden; lift them out, leaving the oil, and blend with 3 tbsp of the yogurt to a paste.", 15.0)
-        step("Fry the whole spices in the same oil for 30 seconds, then the ginger and garlic for 1 minute.", 2.0)
-        step("Add the chicken and sear lightly; add coriander, chilli and salt.", 6.0)
-        step("Lower the heat, stir in the remaining yogurt a spoonful at a time so it doesn't curdle, then the onion paste and ground almonds.")
-        step("Cover and cook gently until the chicken is tender, adding a splash of water if it catches.", 25.0)
-        step("Finish with garam masala and saffron if using. Serve with naan or rice.")
+        step("Heat the oil in the heavy lidded pot over medium heat. Fry the onions, stirring more often as they colour, until evenly deep golden, 12–15 minutes. Lift them out with a slotted spoon, leaving the oil in the pot, and blend with 3 tablespoons of the yogurt to a smooth paste.", 15.0)
+        step("Return the pot to medium heat and add the cardamom, cloves, cinnamon and bay leaves. Fry for 30 seconds until they puff and smell fragrant, then add the ginger and garlic pastes and stir for 1 minute.", 2.0)
+        step("Add the chicken and turn it in the spiced oil for 5–6 minutes, until it is white all over and lightly golden in places. Stir in the ground coriander, chilli powder and salt.", 6.0)
+        step("Turn the heat to low. Stir in the remaining yogurt one spoonful at a time, letting each blend in before adding the next, so the sauce stays smooth rather than curdling. Then stir in the onion paste and ground almonds.")
+        step("Cover and cook gently for 25 minutes, stirring every 5–10 minutes and adding a splash of water if the sauce catches, until the chicken is tender and comes away from the bone and the sauce is thick, creamy and pale gold.", 25.0)
+        step("Stir in the garam masala, and the saffron with its milk if using, and cook for 1 minute more. Remove the cinnamon stick and bay leaves and serve with naan or rice, warning diners about the whole cardamom and cloves.", 1.0)
         safety(POULTRY_SAFETY)
     }
     recipe("beef_nihari", "Beef nihari", "pakistani", "Karachi / Muhajir", 6, 20, 240, Difficulty.INVOLVED) {
         description = "Beef (traditionally shank) slow-cooked overnight-style in a rich, spiced gravy thickened with flour and finished with ginger, chillies and lemon."
         equipment("Large heavy pot with lid")
-        tags("high-protein", "celebration", "dinner")
+        tags("main", "celebration")
         ing("beef_stew", 1000.0, GRAM, "Beef shank or stewing beef", "large pieces")
         ing("vegetable_oil", 6.0, TABLESPOON, "Oil")
         ing("ghee", 2.0, TABLESPOON, "Ghee")
@@ -836,18 +900,19 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("green_chili", 3.0, PIECE, "Green chillies", "sliced")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander", "chopped")
         ing("lemon", 1.0, PIECE, "Lemon", "wedges", optional = true)
-        step("Heat the oil and ghee; fry the onion until golden, then lift out half for garnish.", 12.0)
-        step("Add the beef, ginger and garlic and sear until the meat changes colour.", 8.0)
-        step("Stir in all the ground and whole spices and salt; fry 2 minutes, adding a splash of water so they don't burn.", 2.0)
-        step("Add the water, bring to the boil, cover and simmer on the lowest heat until the meat is very tender.", 210.0)
-        step("Stir in the flour slurry and simmer, stirring, until the gravy is silky and thick.", 15.0)
-        step("Serve topped with fried onion, ginger, chillies, coriander and lemon, with naan.")
+        step("Heat the oil and ghee in the large heavy pot over medium heat. Fry the onion, stirring, until golden brown, 10–12 minutes. Lift out half with a slotted spoon and keep it for the garnish.", 12.0)
+        step("Turn the heat up to medium-high, add the beef with the ginger and garlic pastes and sear, turning the pieces, for about 8 minutes, until the meat has changed colour all over and the paste smells cooked.", 8.0)
+        step("Stir in the ground coriander, chilli powder, turmeric, fennel, garam masala, black pepper, cardamom, cloves, bay leaves and salt. Fry for 2 minutes, adding a splash of water whenever the spices begin to stick, until fragrant and the oil turns red.", 2.0)
+        step("Pour in the water, bring to the boil and skim off any scum. Cover, turn the heat to the lowest setting and simmer for about 3½ hours, stirring every 30–40 minutes, until the meat is very tender and falls apart when pressed with a spoon. Top up with a little hot water if the level drops below the meat.", 210.0)
+        step("Whisk the flour with its cup of water until no lumps remain. Pour it slowly into the pot while stirring, then simmer for 15 minutes, stirring often so it doesn't catch, until the gravy is silky, thick enough to coat a spoon and no longer tastes floury.", 15.0)
+        step("Taste for salt, then turn off the heat and let the pot settle for 5 minutes; a layer of red oil rises to the top, which is traditionally spooned over each bowl.")
+        step("Serve in deep bowls topped with the reserved fried onion, julienned ginger, green chillies and coriander, with lemon wedges and hot naan alongside.")
         safety(BEEF_SAFETY)
     }
     recipe("haleem", "Haleem (simplified home style)", "pakistani", "Karachi / Muhajir", 8, 30, 180, Difficulty.INVOLVED) {
         description = "A simplified one-pot haleem: beef, cracked wheat and mixed lentils cooked until they melt together, topped with fried onions, ginger and mint. Traditional haleem uses whole wheat berries and barley and is stirred for many hours."
-        equipment("Large heavy pot", "Hand blender or wooden masher")
-        tags("high-protein", "celebration", "ramadan")
+        equipment("Large heavy pot", "Large saucepan", "Hand blender or wooden masher")
+        tags("main", "celebration", "ramadan")
         ing("beef_stew", 750.0, GRAM, "Boneless beef", "cubed")
         ing("bulgur", 150.0, GRAM, "Cracked wheat or bulgur", "soaked 1 hour")
         ing("chana_dal", 60.0, GRAM, "Chana dal")
@@ -870,18 +935,19 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("mint", 1.0, QuantityUnit.HANDFUL, "Mint leaves")
         ing("green_chili", 3.0, PIECE, "Green chillies", "sliced")
         ing("lemon", 1.0, PIECE, "Lemon", "wedges", optional = true)
-        step("Fry the onions in the oil until crisp and brown; set aside half for garnish.", 15.0)
-        step("Add the beef, ginger, garlic and spices to the remaining onions and oil; fry until well browned.", 10.0)
-        step("Add 1 litre of water and simmer, covered, until the beef falls apart.", 90.0)
-        step("Meanwhile, boil the wheat, lentils and rice in the remaining water until completely soft.", 60.0)
-        step("Shred the beef, combine everything and cook on low heat, mashing and stirring often, until thick and stretchy.", 30.0)
-        step("Serve with fried onions, ginger, mint, chillies and lemon.")
+        step("Soak the bulgur in plenty of water for 1 hour. Rinse the chana, masoor, moong and urad dals and the rice together until the water runs clear, then leave them to soak in fresh water at the same time; drain both before cooking.")
+        step("Heat the oil in the large heavy pot over medium heat and fry the onions, stirring often, until crisp and deep brown, 12–15 minutes. Lift out half onto kitchen paper for the garnish; they crisp further as they cool.", 15.0)
+        step("Add the beef, ginger and garlic pastes, chilli powder, turmeric, ground coriander and half the salt to the onions and oil left in the pot. Fry over medium-high heat for about 10 minutes, stirring, until the meat is well browned and the spices smell toasted.", 10.0)
+        step("Pour in 1 litre of the water, bring to the boil, then cover and simmer on low heat for about 1½ hours, until the beef falls apart when pressed. Check now and then and add a splash of water if it looks dry.", 90.0)
+        step("Meanwhile, put the drained bulgur, dals and rice in the large saucepan with the remaining 1.5 litres of water and the rest of the salt. Simmer, partly covered and stirring occasionally, for about 1 hour, until everything is completely soft and porridge-like.", 60.0)
+        step("Lift the beef out and shred it finely with two forks, then return it to the pot with the grain and lentil mixture. Cook on low heat for about 30 minutes, mashing or pulsing briefly with the blender and stirring constantly from the bottom, until thick, smooth and stretchy. Add hot water if it becomes too stiff to stir.", 30.0)
+        step("Stir in the garam masala and taste for salt. Serve in bowls topped with the reserved fried onions, ginger, mint and green chillies, with lemon wedges on the side.")
         safety(BEEF_SAFETY)
     }
     recipe("dal_makhani", "Dal makhani", "indian", "Punjabi", 6, 15, 120, Difficulty.MEDIUM) {
         description = "Whole black lentils and kidney beans simmered slowly with tomato, butter and cream until velvety. Soak the lentils and beans overnight."
         equipment("Pressure cooker or heavy pot")
-        tags("vegetarian", "gluten-free", "dinner")
+        tags("main")
         ing("urad_dal", 200.0, GRAM, "Whole black lentils (sabut urad)", "soaked overnight")
         ing("kidney_beans", 50.0, GRAM, "Dried kidney beans (rajma)", "soaked overnight")
         ing("water", 1500.0, MILLILITRE, "Water")
@@ -894,16 +960,18 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("fenugreek", 1.0, TEASPOON, "Dried fenugreek leaves (kasuri methi)")
         ing("cream_heavy", 100.0, MILLILITRE, "Cream")
         ing("salt", 1.5, TEASPOON, "Salt")
-        step("Boil the drained lentils and beans in fresh water until completely soft (or pressure-cook 25 minutes). Kidney beans must boil hard for at least 10 minutes.", 60.0)
-        step("Melt 3 tbsp butter; fry the ginger and garlic, then add tomato purée and chilli and cook until thick.", 12.0)
-        step("Add the cooked lentils with their liquid and salt; simmer on low heat, stirring and mashing a little, until creamy.", 45.0)
-        step("Stir in garam masala, crushed fenugreek, cream and the remaining butter.")
+        step("The night before, rinse the urad and kidney beans, cover them with plenty of cold water and leave to soak for 8–12 hours. Drain and rinse them, discarding the soaking water.")
+        step("Put the lentils and beans in the pot with the 1.5 litres of fresh water and bring to the boil. Boil hard for at least 10 minutes (essential for kidney beans), skimming off any foam, then lower the heat, partly cover and simmer for about 50 minutes, until the lentils crush easily between your fingers and the beans are creamy inside. In a pressure cooker, cook for about 25 minutes at pressure after the hard boil.", 60.0)
+        step("Tip the lentils and their cooking liquid into a bowl. Melt 3 tablespoons of the butter in the same pot over medium heat, add the ginger and garlic pastes and fry for 1 minute until fragrant.", 1.0)
+        step("Add the tomato purée and chilli powder and cook, stirring, for about 10 minutes, until the sauce has thickened and darkened and the butter starts to separate at the edges.", 10.0)
+        step("Return the lentils and their liquid to the pot with the salt. Simmer uncovered on the lowest heat for 45 minutes, stirring every 5–10 minutes and mashing a few lentils against the side, until thick and velvety. Add hot water if it thickens too much; it should flow slowly off a spoon.", 45.0)
+        step("Stir in the garam masala, crush the fenugreek between your palms over the pot, then add the cream and the last tablespoon of butter. Simmer for 2 minutes more and serve with naan, roti or rice.", 2.0)
         safety("Dried kidney beans contain a natural toxin destroyed only by boiling hard for at least 10 minutes; slow cookers alone are not enough.")
     }
     recipe("rajma", "Rajma (kidney bean curry)", "indian", "Punjabi", 4, 15, 75) {
         description = "Kidney beans simmered in a thick onion-tomato masala; the classic Punjabi comfort meal with rice. Soak the beans overnight."
-        equipment("Pressure cooker or heavy pot")
-        tags("vegan", "gluten-free", "high-fibre", "dinner")
+        equipment("Pressure cooker or heavy pot", "Heavy frying pan")
+        tags("main", "high-fibre")
         ing("kidney_beans", 250.0, GRAM, "Dried kidney beans", "soaked overnight")
         ing("vegetable_oil", 3.0, TABLESPOON, "Oil")
         ing("cumin", 1.0, TEASPOON, "Cumin seeds")
@@ -917,17 +985,18 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("garam_masala", 1.0, TEASPOON, "Garam masala")
         ing("salt", 1.5, TEASPOON, "Salt")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander")
-        step("Boil the soaked beans hard for 10 minutes, then simmer (or pressure-cook) until creamy inside.", 50.0)
-        step("Fry cumin in the oil, then onions until golden, then ginger and garlic.", 12.0)
-        step("Add tomatoes and powdered spices; cook until the oil separates.", 10.0)
-        step("Add the beans with some cooking liquid and simmer, mashing a few beans to thicken.", 15.0)
-        step("Finish with garam masala and coriander. Serve with rice.")
+        step("Soak the beans overnight in plenty of cold water; they will roughly double in size. Drain and rinse them, then put them in the pot with fresh water to cover by 5 cm.")
+        step("Bring to the boil and boil hard for 10 minutes, skimming off any foam; this destroys the natural toxin in kidney beans. Lower the heat, partly cover and simmer for about 40 minutes (or pressure-cook for 15–20 minutes), until the beans are creamy right through when squashed. Keep the cooking liquid.", 50.0)
+        step("While the beans cook, heat the oil in the frying pan over medium heat. Add the cumin seeds and let them sizzle for 20 seconds, then add the onions and fry, stirring often, until golden brown, 8–10 minutes. Stir in the ginger and garlic pastes for 1 minute.", 12.0)
+        step("Add the tomatoes, ground coriander, chilli powder, turmeric and salt. Cook, stirring and scraping the base, for about 10 minutes, until the masala darkens, thickens to a paste and the oil separates at the edges.", 10.0)
+        step("Tip the masala into the beans with about 300 ml of their cooking liquid, or enough to make a thick gravy. Simmer for 15 minutes, mashing a ladleful of beans against the side of the pot to thicken it.", 15.0)
+        step("Stir in the garam masala and fresh coriander and taste for salt. Rajma tastes even better after resting for 10 minutes; serve it with plain rice.")
         safety("Dried kidney beans contain a natural toxin destroyed only by boiling hard for at least 10 minutes; slow cookers alone are not enough.")
     }
     recipe("aloo_gobi", "Aloo gobi", "indian", "Punjabi", 4, 15, 30, EASY) {
         description = "Potatoes and cauliflower cooked dry with cumin, turmeric, ginger and green chilli."
         equipment("Wide lidded pan")
-        tags("vegan", "gluten-free", "dinner")
+        tags("main")
         ing("potato", 400.0, GRAM, "Potatoes", "cut into chunks")
         ing("cauliflower", 500.0, GRAM, "Cauliflower", "florets")
         ing("vegetable_oil", 3.0, TABLESPOON, "Oil")
@@ -942,15 +1011,17 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("garam_masala", 0.5, TEASPOON, "Garam masala")
         ing("salt", 1.25, TEASPOON, "Salt")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander")
-        step("Fry cumin in the oil, then the onion until soft, then ginger and green chillies.", 6.0)
-        step("Add potatoes, turmeric, coriander, chilli and salt; cover and cook 10 minutes, stirring once.", 10.0)
-        step("Add cauliflower and tomato; cover and cook on low heat until both are tender but holding their shape.", 12.0)
-        step("Uncover, sprinkle with garam masala and coriander and let any moisture cook off.")
+        step("Cut the potatoes into 3 cm chunks and the cauliflower into florets of a similar size, so they finish cooking together. Rinse the cauliflower and shake off most of the water; a little clinging moisture helps it steam.")
+        step("Heat the oil in the wide lidded pan over medium heat. Add the cumin seeds and let them sizzle for 20 seconds, then add the onion and cook until soft and lightly golden, about 4 minutes. Stir in the ginger and green chillies for 1 minute.", 6.0)
+        step("Add the potatoes, turmeric, ground coriander, chilli powder and salt and stir until the potatoes are evenly yellow. Cover and cook over medium-low heat for 10 minutes, stirring once halfway so they don't stick.", 10.0)
+        step("Add the cauliflower and tomato and turn gently to coat in the spices. Cover again and cook on low heat for 10–12 minutes, stirring carefully every few minutes, until a knife slides into both vegetables but they still hold their shape. Sprinkle in a tablespoon of water only if it starts to catch.", 12.0)
+        step("Uncover, turn the heat up to medium and cook for 2–3 minutes, stirring gently, so any moisture evaporates and the edges of the cauliflower take on a little colour.", 3.0)
+        step("Sprinkle over the garam masala and coriander and serve hot with roti or paratha, or with dal and rice.")
     }
     recipe("keema_matar", "Keema matar", "pakistani", "Punjabi", 4, 10, 35) {
         description = "Spiced minced beef cooked with peas, onions and tomatoes — a quick everyday dish with roti or rice."
         equipment("Heavy frying pan or karahi")
-        tags("high-protein", "gluten-free", "dinner")
+        tags("main")
         ing("beef_ground", 500.0, GRAM, "Minced beef (or lamb)")
         ing("vegetable_oil", 2.0, TABLESPOON, "Oil")
         ing("onion", 2.0, PIECE, "Onions", "finely chopped")
@@ -966,17 +1037,18 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("green_chili", 2.0, PIECE, "Green chillies", "sliced")
         ing("salt", 1.25, TEASPOON, "Salt")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander")
-        step("Fry onions in the oil until golden; add ginger and garlic.", 10.0)
-        step("Add the mince and cook, breaking it up, until browned and the liquid has evaporated.", 10.0)
-        step("Add tomatoes, yogurt, powdered spices and salt; cook until the masala is thick and the oil separates.", 10.0)
-        step("Add the peas and green chillies; cook until the peas are tender.", 5.0)
-        step("Finish with garam masala and coriander.")
+        step("Heat the oil in the frying pan or karahi over medium heat. Fry the onions, stirring often, until golden brown, 8–10 minutes. Add the ginger and garlic pastes and stir for 1 minute until the raw smell has gone.", 10.0)
+        step("Turn the heat up to medium-high and add the mince. Cook, breaking it into small crumbs with a wooden spoon, for about 10 minutes, until it has lost all its pink colour, the liquid it releases has evaporated and it starts to sizzle and brown.", 10.0)
+        step("Add the tomatoes, yogurt, ground coriander, chilli powder, turmeric and salt. Cook, stirring often, for about 10 minutes, until the tomatoes have melted into the meat, the masala is thick and the oil separates at the edges. Add a splash of water if it sticks.", 10.0)
+        step("Stir in the peas and green chillies with 3–4 tablespoons of water. Cover and cook for about 5 minutes, until the peas are tender (frozen peas need only 3 minutes).", 5.0)
+        step("Uncover and cook for a minute or two more if any watery liquid is left; keema should be moist but not saucy. Check that no pink meat remains.")
+        step("Sprinkle over the garam masala and coriander, stir once and serve hot with roti, paratha or rice.")
         safety(MINCE_SAFETY)
     }
     recipe("sarson_ka_saag", "Sarson ka saag", "pakistani", "Punjabi", 4, 20, 60) {
         description = "Mustard greens and spinach slow-cooked and mashed with ginger, garlic and a little cornmeal, finished with ghee. Traditionally eaten with makki di roti."
-        equipment("Large pot", "Wooden masher or hand blender")
-        tags("vegetarian", "gluten-free", "winter")
+        equipment("Large pot", "Wooden masher or hand blender", "Small frying pan")
+        tags("side", "winter")
         ing("mustard_greens", 500.0, GRAM, "Mustard greens (sarson)", "chopped")
         ing("spinach", 250.0, GRAM, "Spinach", "chopped")
         ing("ginger", 1.0, TABLESPOON, "Ginger", "chopped")
@@ -988,15 +1060,17 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("onion", 1.0, PIECE, "Onion", "finely chopped")
         ing("salt", 1.25, TEASPOON, "Salt")
         ing("butter", 1.0, TABLESPOON, "Butter", "to serve", optional = true)
-        step("Simmer the greens with ginger, half the garlic, chillies, salt and the water until very soft.", 40.0)
-        step("Mash or blend coarsely; whisk in the cornmeal and cook, stirring, until thick.", 10.0)
-        step("Heat the ghee; fry the onion and remaining garlic until golden and pour over the saag.", 8.0)
-        step("Serve with a knob of butter and makki di roti.")
+        step("Wash the mustard greens and spinach in several changes of water to remove any grit, then chop them roughly, including the tender mustard stems. Peel and slice the garlic, keeping half aside for the tempering.")
+        step("Put the greens in the large pot with the ginger, half the garlic, the green chillies, salt and water. Cover and bring to the boil; the greens collapse dramatically as they wilt.", 5.0)
+        step("Simmer, covered, over low heat for 35–40 minutes, stirring every 10 minutes, until the mustard stems are completely soft. Add a splash of water if the pot runs dry.", 35.0)
+        step("Mash the greens with the masher, or pulse briefly with a hand blender, to a coarse purée that keeps some texture. Sprinkle in the cornmeal while stirring so it doesn't form lumps, then cook on low heat for 10 minutes, stirring often, until it thickens and the raw cornmeal taste has gone.", 10.0)
+        step("Heat the ghee in the small frying pan over medium heat. Fry the onion until golden, about 6 minutes, then add the remaining garlic and cook for 1–2 minutes more until light gold. Pour the sizzling ghee over the saag and stir it in.", 8.0)
+        step("Serve hot with a knob of butter melting on top, if you like, alongside makki di roti or any flatbread.")
     }
     recipe("raita", "Cucumber and mint raita", "pakistani", null, 3, 10, 0, EASY) {
         description = "Cool yogurt with grated cucumber, mint and roasted cumin, served alongside spicy dishes."
         equipment("Box grater", "Bowl", "Small dry pan")
-        tags("vegetarian", "gluten-free", "side", "quick")
+        tags("side", "quick")
         storage = "Refrigerate and eat within 1 day."
         reheating = null
         ing("yogurt", 450.0, GRAM, "Plain yogurt", "whisked")
@@ -1005,13 +1079,15 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("cumin", 1.0, TEASPOON, "Cumin seeds", "dry-roasted and crushed")
         ing("salt", 0.5, TEASPOON, "Salt")
         ing("chili_powder", 1.0, PINCH, "Chilli powder", optional = true)
-        step("Whisk the yogurt until smooth and stir in the cucumber, mint, cumin and salt.")
-        step("Chill until serving; dust with chilli if you like.")
+        step("Toast the cumin seeds in the small dry pan over medium heat, shaking the pan, for 1–2 minutes until a shade darker and fragrant. Tip them onto a plate to cool, then crush coarsely with the back of a spoon.", 2.0)
+        step("Coarsely grate the cucumber, then squeeze it firmly in your hands over the sink to remove its excess water; this keeps the raita from turning watery.")
+        step("Whisk the yogurt in the bowl until smooth and creamy. Stir in the cucumber, mint, most of the cumin and the salt, then taste and add a little more salt if needed.")
+        step("Chill for at least 15 minutes so the flavours mingle. Just before serving, sprinkle over the rest of the cumin and a pinch of chilli powder, if using, and serve cold alongside biryani, kebabs or spicy curries.")
     }
     recipe("kheer", "Kheer (rice pudding)", "pakistani", null, 6, 10, 60, EASY) {
         description = "Rice simmered slowly in milk with sugar and cardamom until thick and creamy, topped with nuts."
         equipment("Heavy-based pot")
-        tags("vegetarian", "gluten-free", "dessert", "eid")
+        tags("dessert", "eid")
         ing("milk_whole", 1000.0, MILLILITRE, "Whole milk")
         ing("rice_white", 60.0, GRAM, "Basmati rice", "rinsed and soaked 30 minutes")
         ing("sugar", 80.0, GRAM, "Sugar")
@@ -1020,9 +1096,12 @@ private fun RecipeListBuilder.southAsianKitchen() {
         ing("pistachios", 15.0, GRAM, "Pistachios", "chopped")
         ing("saffron", 1.0, PINCH, "Saffron", optional = true)
         ing("raisins", 2.0, TABLESPOON, "Raisins", optional = true)
-        step("Bring the milk to the boil in a heavy pot, add the drained rice and cardamom, and simmer on low heat, stirring often so it doesn't stick.", 45.0)
-        step("When the rice is very soft and the milk has thickened, stir in the sugar and saffron and cook 5 minutes more.", 5.0)
-        step("Serve warm or chilled, topped with almonds and pistachios.")
+        step("Rinse the rice, then soak it in cold water for 30 minutes. Drain it and crush the grains lightly with your fingers or the back of a spoon so they break into smaller pieces; this helps the kheer thicken.")
+        step("Pour the milk into the heavy-based pot and bring it to the boil over medium heat, stirring occasionally so it doesn't catch on the bottom or boil over.", 8.0)
+        step("Add the rice and cardamom, lower the heat and simmer gently, uncovered, for about 45 minutes. Stir every few minutes, scraping the base and sides with a flat wooden spoon, and stir in any skin that forms; it adds body.", 45.0)
+        step("When the rice is completely soft and the milk has reduced by about a third and coats the back of the spoon, stir in the sugar, plus the saffron and raisins if using. Cook for 5 minutes more, stirring, until the sugar has dissolved.", 5.0)
+        step("Take the pot off the heat and fish out the cardamom pods if you can find them. Kheer thickens a lot as it cools, so it should still look slightly runny now; stir in a splash of milk later if it sets too firm.")
+        step("Serve warm, or cool, cover and chill for at least 2 hours to serve cold. Scatter the almonds and pistachios over each bowl just before serving so they stay crunchy.")
         storage = "Refrigerate within 2 hours; eat within 2 days."
     }
 }
@@ -1032,7 +1111,7 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
     recipe("pad_thai", "Pad Thai", "thai", "Central", 2, 20, 10) {
         description = "Stir-fried rice noodles with chicken, tofu and egg in a sweet-sour tamarind sauce, finished with bean sprouts, peanuts and lime."
         equipment("Wok or large frying pan")
-        tags("dairy-free", "gluten-free", "dinner")
+        tags("main")
         ing("rice_noodles", 170.0, GRAM, "Flat rice noodles, dried", "soaked in warm water 20 minutes")
         ing("chicken_breast", 200.0, GRAM, "Chicken breast (or prawns)", "thinly sliced")
         ing("tofu_firm", 100.0, GRAM, "Firm tofu", "small cubes")
@@ -1049,17 +1128,19 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("peanuts", 30.0, GRAM, "Roasted peanuts", "chopped")
         ing("lime", 1.0, PIECE, "Lime", "wedges")
         ing("chili_powder", 0.5, TEASPOON, "Chilli flakes", optional = true)
-        step("Stir the tamarind, fish sauce and sugar together until dissolved.")
-        step("Heat the oil in a wok over high heat; stir-fry the garlic, chicken and tofu until the chicken is cooked.", 4.0)
-        step("Push everything aside, scramble the eggs in the space, then add the drained noodles and the sauce; toss until the noodles soften and absorb it.", 4.0)
-        step("Add bean sprouts and spring onions and toss for 30 seconds.", 1.0)
-        step("Serve with peanuts, lime and chilli on top.")
+        step("Soak the noodles in warm (not boiling) water for about 20 minutes, until pliable but still firm in the centre, then drain well. They finish cooking in the wok, so don't let them go fully soft.")
+        step("Stir the tamarind, fish sauce and sugar together in a small bowl until the sugar dissolves. Taste: it should be sour, salty and sweet in roughly equal measure. Put all the other ingredients next to the stove.")
+        step("Heat 2 tablespoons of the oil in the wok over high heat until shimmering. Add the tofu and fry for 1 minute until lightly golden, then add the garlic and chicken and stir-fry for about 3 minutes, until the chicken is white all the way through.", 4.0)
+        step("Push everything to one side and add the last of the oil to the empty space. Crack in the eggs, let them set for a few seconds, then scramble them roughly and mix them in.", 1.0)
+        step("Add the drained noodles and the sauce and toss continuously over high heat for 2–3 minutes, until the noodles have absorbed the sauce and are tender but chewy. If they are still firm and the wok looks dry, sprinkle in 2 tablespoons of water and keep tossing.", 3.0)
+        step("Add the bean sprouts and spring onions and toss for 30 seconds, just until they warm through but stay crisp.", 0.5)
+        step("Pile onto plates and top with the peanuts, and chilli flakes if using. Serve with lime wedges to squeeze over at the table.")
         safety(POULTRY_SAFETY, EGG_SAFETY)
     }
     recipe("green_curry_chicken", "Thai green curry with chicken", "thai", "Central", 4, 25, 20) {
         description = "Chicken and aubergine simmered in coconut milk with a fresh green curry paste of chillies, lemongrass, galangal and coriander, finished with basil. A good store-bought paste works too (use about 3 tbsp)."
         equipment("Blender or mortar and pestle", "Wok or saucepan")
-        tags("dairy-free", "gluten-free", "dinner")
+        tags("main")
         group("Curry paste")
         ing("green_chili", 8.0, PIECE, "Green bird's eye chillies")
         ing("lemongrass", 2.0, PIECE, "Lemongrass stalks", "tender part, sliced")
@@ -1081,17 +1162,18 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("brown_sugar", 1.0, TABLESPOON, "Palm or brown sugar")
         ing("basil", 0.5, CUP, "Thai basil leaves")
         ing("lime", 2.0, PIECE, "Makrut lime leaves", "torn", optional = true)
-        step("Blend all the paste ingredients to a smooth paste with a splash of water.", 3.0)
-        step("Fry the paste in the oil with a few spoonfuls of the thick coconut cream until fragrant and the oil separates.", 4.0)
-        step("Add the chicken and stir to coat, then the rest of the coconut milk, stock, aubergine, fish sauce and sugar.", 2.0)
-        step("Simmer until the chicken is cooked and the aubergine tender.", 12.0)
-        step("Stir in the basil and lime leaves. Serve with jasmine rice.")
+        step("Roughly chop the chillies, lemongrass, garlic, shallots, galangal and coriander. Blend or pound them with the cumin, ground coriander, lime juice and pepper to a smooth, bright green paste, adding 1–2 tablespoons of water to help it along and scraping down the sides as you go.", 3.0)
+        step("Open the can of coconut milk without shaking it and spoon off about 4 tablespoons of the thick cream from the top.")
+        step("Heat the oil in the wok or saucepan over medium heat. Add the paste and the coconut cream and fry, stirring constantly, for 3–4 minutes, until it smells intensely fragrant, darkens slightly and the oil starts to separate out in little green pools.", 4.0)
+        step("Add the chicken and stir to coat it in the paste for 1–2 minutes. Pour in the rest of the coconut milk and the stock, then add the aubergine, fish sauce and sugar.", 2.0)
+        step("Bring to a gentle simmer and cook for 10–12 minutes, stirring occasionally, until the chicken is cooked through and the aubergine is soft and has soaked up the sauce. Taste and adjust with more fish sauce for salt, or sugar to round off the heat.", 12.0)
+        step("Turn off the heat, tear in the basil and the lime leaves, if using, and stir until the basil just wilts. Serve in bowls with jasmine rice.")
         safety(POULTRY_SAFETY)
     }
     recipe("tom_kha_gai", "Tom kha gai (coconut chicken soup)", "thai", "Central", 4, 15, 20, EASY) {
         description = "A fragrant coconut-milk soup with chicken, lemongrass, galangal and mushrooms, balanced with lime and fish sauce."
         equipment("Saucepan")
-        tags("dairy-free", "gluten-free", "soup")
+        tags("soup")
         ing("chicken_broth", 500.0, MILLILITRE, "Chicken stock")
         ing("coconut_milk", 400.0, MILLILITRE, "Coconut milk")
         ing("lemongrass", 3.0, PIECE, "Lemongrass stalks", "bruised, cut into lengths")
@@ -1104,16 +1186,18 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("green_chili", 3.0, PIECE, "Bird's eye chillies", "bruised")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander")
         ing("lime", 3.0, PIECE, "Makrut lime leaves", "torn", optional = true)
-        step("Simmer the stock with lemongrass, galangal and lime leaves for 5 minutes.", 5.0)
-        step("Add the coconut milk and bring back to a gentle simmer (don't boil hard, or it can split).", 3.0)
-        step("Add the chicken and mushrooms; simmer until the chicken is cooked through.", 8.0)
-        step("Off the heat, season with fish sauce, lime juice and sugar; add the chillies and coriander.")
+        step("Trim the lemongrass and bash each stalk along its length with the back of a knife to release its oils, then cut into 5 cm lengths. Slice the galangal thinly; there is no need to peel it. Lightly crush the chillies.")
+        step("Put the stock, lemongrass, galangal and torn lime leaves (if using) in the saucepan and bring to a simmer over medium heat. Simmer for 5 minutes to infuse the stock.", 5.0)
+        step("Pour in the coconut milk and bring it back to a gentle simmer, with small bubbles just breaking the surface; boiling hard can make coconut milk split and look curdled.", 3.0)
+        step("Add the chicken and mushrooms and simmer gently for 6–8 minutes, until the chicken is white all the way through and the mushrooms are tender.", 8.0)
+        step("Take the pan off the heat and stir in the fish sauce, lime juice and sugar. Taste and balance: the soup should be sour first, then salty, with a hint of sweetness. Add the chillies, more or fewer depending on how hot you like it.")
+        step("Ladle into bowls and scatter with coriander. The lemongrass, galangal and lime leaves flavour the soup but are not eaten, so leave them in the pot or warn diners to set them aside. Serve with jasmine rice.")
         safety(POULTRY_SAFETY)
     }
     recipe("chicken_teriyaki", "Chicken teriyaki", "japanese", "Kanto", 2, 5, 15, EASY) {
         description = "Pan-fried chicken thighs glazed in a glossy soy and sugar sauce. Mirin and sake are traditional; the sugar version below works without them."
         equipment("Frying pan")
-        tags("high-protein", "dairy-free", "dinner", "quick")
+        tags("main", "quick")
         ing("chicken_thigh", 400.0, GRAM, "Chicken thighs, boneless (skin on if you like)")
         ing("vegetable_oil", 1.0, TABLESPOON, "Oil")
         ing("soy_sauce", 3.0, TABLESPOON, "Soy sauce")
@@ -1123,30 +1207,35 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("white_wine", 2.0, TABLESPOON, "Mirin (replaces the water and half the sugar)", optional = true)
         ing("scallion", 1.0, PIECE, "Spring onion", "sliced")
         ing("sesame_seeds", 1.0, TEASPOON, "Sesame seeds", optional = true)
-        step("Mix soy sauce, sugar, water (or mirin) and ginger.")
-        step("Fry the chicken skin-side down in the oil over medium heat until golden, then turn and cook until nearly done.", 10.0)
-        step("Wipe out excess fat, pour in the sauce and simmer, turning the chicken, until the sauce is thick and glossy.", 3.0)
-        step("Slice and serve over rice with spring onion and sesame seeds.")
+        step("Stir the soy sauce, sugar, water and ginger together until the sugar dissolves. If using mirin, use it in place of the water and halve the sugar.")
+        step("Pat the chicken thighs dry with kitchen paper. If they are uneven, cut shallow slashes into the thickest parts so they cook evenly.")
+        step("Heat the oil in the frying pan over medium heat. Lay in the chicken skin side down (or smooth side down if skinless) and cook without moving for about 6 minutes, pressing it flat with a spatula, until deep golden and crisp.", 6.0)
+        step("Turn the chicken and cook for 4 minutes more, until nearly cooked through. Tilt the pan and wipe out most of the rendered fat with kitchen paper so the glaze will stick.", 4.0)
+        step("Pour in the sauce and let it bubble over medium-high heat for 2–3 minutes, turning the chicken often, until the sauce thickens into a glossy glaze that coats the meat. Check the thickest piece is no longer pink in the middle.", 3.0)
+        step("Rest the chicken for 1 minute, then slice it into strips. Serve over rice, spoon over any glaze left in the pan and scatter with spring onion and sesame seeds.")
         safety(POULTRY_SAFETY)
     }
     recipe("miso_soup", "Miso soup with tofu and wakame", "japanese", null, 3, 5, 10, EASY) {
         description = "A light everyday soup of miso dissolved in stock with soft tofu, wakame and spring onion. Dashi stock is traditional; water gives a lighter, vegetarian version."
         equipment("Saucepan")
-        tags("vegan", "quick", "soup")
+        tags("soup", "quick")
         ing("water", 800.0, MILLILITRE, "Dashi stock or water")
         ing("miso", 3.0, TABLESPOON, "Miso paste")
         ing("tofu_firm", 200.0, GRAM, "Silken or firm tofu (about half a block)", "small cubes")
         ing("wakame", 20.0, GRAM, "Wakame", "rehydrated")
         ing("scallion", 2.0, PIECE, "Spring onions", "thinly sliced")
-        step("Bring the stock to a gentle simmer and add the tofu and wakame.", 3.0)
-        step("Take the pan off the heat; dissolve the miso in a ladle of the stock and stir it back in (boiling miso dulls its flavour).")
-        step("Serve topped with spring onion.")
+        step("Soak the wakame in a bowl of cold water for 5–10 minutes, until it unfurls and softens, then drain and squeeze gently. Cut any large pieces into bite-sized strips.")
+        step("Cut the tofu into 1–2 cm cubes. Silken tofu is fragile, so cut it on a board and slide it gently off the knife. Thinly slice the spring onions.")
+        step("Bring the dashi or water to a gentle simmer in the saucepan over medium heat. Add the tofu and wakame and simmer for 2–3 minutes, just until the tofu is heated through.", 3.0)
+        step("Turn off the heat. Put the miso in a ladle or small bowl, add a few spoonfuls of the hot stock and stir until completely smooth, then stir it back into the pan.")
+        step("Don't let the soup boil once the miso is in, as boiling dulls its flavour and aroma. If you are making it ahead, stop before adding the miso, then bring the stock back to a simmer and add the miso just before serving.")
+        step("Taste and add a little more miso if you like it stronger. Ladle into bowls, scatter with spring onion and serve straight away, alongside rice.")
         storage = "Best eaten fresh; refrigerate within 2 hours and eat within 1 day."
     }
     recipe("oyakodon", "Oyakodon (chicken and egg rice bowl)", "japanese", "Kanto", 2, 10, 15, EASY) {
         description = "Chicken and onion simmered in a sweet soy broth, set with softly cooked egg and served over rice."
         equipment("Small frying pan with lid")
-        tags("high-protein", "dairy-free", "dinner", "quick")
+        tags("main", "quick")
         ing("chicken_broth", 200.0, MILLILITRE, "Dashi or chicken stock")
         ing("soy_sauce", 2.0, TABLESPOON, "Soy sauce")
         ing("sugar", 1.0, TABLESPOON, "Sugar")
@@ -1156,16 +1245,18 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("egg", 4.0, PIECE, "Eggs", "lightly beaten")
         ing("rice_glutinous", 400.0, GRAM, "Cooked short-grain rice", cooked = true)
         ing("scallion", 1.0, PIECE, "Spring onion", "sliced")
-        step("Simmer stock, soy sauce, sugar (and mirin) with the onion until the onion softens.", 4.0)
-        step("Add the chicken and simmer until cooked through.", 7.0)
-        step("Pour in the eggs in a circle, cover and cook until just set but still soft.", 2.0)
-        step("Slide over bowls of hot rice and top with spring onion.")
+        step("Reheat the rice until steaming hot and keep it covered. Beat the eggs lightly with chopsticks or a fork, just enough to break them up; streaks of white and yolk give the classic marbled look.")
+        step("Put the stock, soy sauce, sugar and mirin (if using) in the small frying pan, about 20 cm across, and bring to a simmer over medium heat. Add the onion and simmer for 3–4 minutes, until soft and translucent.", 4.0)
+        step("Add the chicken in a single layer and simmer for 6–7 minutes, turning once, until cooked through with no pink inside. The liquid will reduce a little.", 7.0)
+        step("Turn the heat to medium-low. Pour about two-thirds of the egg in a slow circle over the chicken, cover and cook for 1 minute, until it begins to set.", 1.0)
+        step("Pour in the remaining egg, cover again and cook for 30–60 seconds more, until the egg is just set but still soft and silky on top. Take the pan off the heat straight away, as the egg keeps cooking.", 1.0)
+        step("Divide the rice between two deep bowls and slide half the chicken and egg over each, with some of the broth. Scatter with spring onion and serve straight away.")
         safety(POULTRY_SAFETY, EGG_SAFETY, RICE_SAFETY)
     }
     recipe("bulgogi", "Beef bulgogi", "korean", "Seoul", 4, 15, 10) {
         description = "Thinly sliced beef marinated in soy, sugar, garlic and sesame oil, then cooked quickly over high heat. Grated pear in the marinade tenderises the beef."
         equipment("Large frying pan or grill pan")
-        tags("high-protein", "dairy-free", "dinner")
+        tags("main")
         ing("beef_steak", 600.0, GRAM, "Beef sirloin or ribeye", "very thinly sliced")
         ing("soy_sauce", 4.0, TABLESPOON, "Soy sauce")
         ing("brown_sugar", 2.0, TABLESPOON, "Brown sugar")
@@ -1178,15 +1269,18 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("scallion", 3.0, PIECE, "Spring onions", "cut into lengths")
         ing("vegetable_oil", 1.0, TABLESPOON, "Oil")
         ing("sesame_seeds", 1.0, TABLESPOON, "Toasted sesame seeds")
-        step("Mix soy sauce, sugar, pear, garlic, ginger, sesame oil and pepper; marinate the beef with the onion for at least 30 minutes.")
-        step("Cook in batches in a very hot oiled pan until caramelised at the edges.", 6.0)
-        step("Toss with spring onions, sprinkle with sesame seeds and serve with rice and lettuce leaves.")
+        step("For very thin slices, put the beef in the freezer for 30–40 minutes until firm but not frozen, then slice it across the grain as thinly as you can, about 3 mm.")
+        step("Mix the soy sauce, sugar, grated pear (if using), garlic, ginger, sesame oil and pepper in a bowl until the sugar dissolves.")
+        step("Add the beef and onion and massage the marinade in with your hands so every slice is coated. Cover and refrigerate for at least 30 minutes, or up to 8 hours.")
+        step("Heat the frying pan or grill pan over high heat until very hot, then add a little of the oil. Cook the beef in 2–3 batches, spreading it in a single layer, for 2–3 minutes per batch, turning once, until browned and caramelised at the edges. Crowding the pan makes the meat stew rather than sear.", 6.0)
+        step("Return all the beef to the pan, add the spring onions and toss for 30 seconds, until they just wilt.", 0.5)
+        step("Sprinkle with the sesame seeds and serve straight away with steamed rice, and lettuce leaves for wrapping if you like.")
         safety(BEEF_SAFETY)
     }
     recipe("japchae", "Japchae (stir-fried glass noodles)", "korean", "Seoul", 4, 25, 15) {
         description = "Chewy sweet-potato glass noodles tossed with beef, spinach, carrot, mushrooms and onion in a soy and sesame dressing."
         equipment("Large frying pan or wok", "Pot")
-        tags("dairy-free", "celebration")
+        tags("main", "celebration")
         ing("glass_noodles", 200.0, GRAM, "Sweet-potato glass noodles (dangmyeon)")
         ing("beef_steak", 150.0, GRAM, "Beef sirloin", "thin strips")
         ing("spinach", 200.0, GRAM, "Spinach")
@@ -1200,17 +1294,19 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("vegetable_oil", 2.0, TABLESPOON, "Oil")
         ing("sesame_seeds", 1.0, TABLESPOON, "Toasted sesame seeds")
         ing("egg", 1.0, PIECE, "Egg, fried thin and sliced, to garnish", optional = true)
-        step("Boil the noodles until chewy-tender, rinse in cold water, drain and snip into shorter lengths.", 7.0)
-        step("Blanch the spinach for 30 seconds, squeeze dry and season with a little sesame oil and garlic.", 1.0)
-        step("Stir-fry onion, carrot and mushrooms separately in a little oil; stir-fry the beef with 1 tbsp soy sauce.", 8.0)
-        step("Toss the noodles in the pan with the remaining soy sauce, sugar and sesame oil until glossy, then combine with everything.", 3.0)
-        step("Finish with sesame seeds. Serve warm or at room temperature.")
+        step("Mix the beef strips with 1 tablespoon of the soy sauce, 1 teaspoon of the sugar and a third of the garlic and leave to marinate while you prepare everything else. In a small bowl, mix the remaining soy sauce and sugar for the noodles.")
+        step("Bring a large pot of water to the boil. Blanch the spinach for 30 seconds, lift it out with tongs into cold water, then squeeze it dry and season with 1 teaspoon of the sesame oil and a little of the garlic.", 1.0)
+        step("Cook the noodles in the same boiling water for 6–7 minutes, until chewy-tender and translucent. Drain, rinse under cold water and drain again, then snip into 15–20 cm lengths with scissors and toss with 1 teaspoon of the sesame oil so they don't stick.", 7.0)
+        step("Heat a little of the oil in the large frying pan or wok over medium-high heat. Stir-fry the onion for 2 minutes and set aside; repeat with the carrot (1–2 minutes), then the mushrooms with the last of the garlic (2–3 minutes), cooking each separately so they stay distinct.", 6.0)
+        step("Add the rest of the oil and stir-fry the beef over high heat for about 2 minutes, until browned and cooked through.", 2.0)
+        step("Lower the heat to medium, add the noodles and the soy and sugar mixture and toss for 2–3 minutes, until glossy and the noodles have absorbed the sauce. Return all the vegetables and the beef with the remaining sesame oil and toss with tongs until evenly mixed.", 3.0)
+        step("Taste and add a little more soy sauce or sugar if needed. Pile onto a platter, scatter with sesame seeds, and strips of thin fried egg if you like, and serve warm or at room temperature.")
         safety(BEEF_SAFETY)
     }
     recipe("pho_ga", "Phở gà (chicken pho)", "vietnamese", "Northern (Hanoi)", 4, 20, 90) {
         description = "A clear chicken broth perfumed with charred onion and ginger, star anise and cinnamon, poured over rice noodles and shredded chicken with fresh herbs."
-        equipment("Large stock pot", "Fine sieve")
-        tags("dairy-free", "gluten-free", "soup")
+        equipment("Large stock pot", "Fine sieve", "Saucepan")
+        tags("soup")
         group("Broth")
         ing("chicken_curry_cut", 1200.0, GRAM, "Chicken pieces, bone-in")
         ing("water", 3000.0, MILLILITRE, "Water")
@@ -1231,17 +1327,19 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("basil", 0.5, CUP, "Thai basil", optional = true)
         ing("lime", 2.0, PIECE, "Limes", "wedges")
         ing("green_chili", 2.0, PIECE, "Chillies", "sliced")
-        step("Char the onion and ginger over a flame or under the grill until blackened in spots.", 8.0)
-        step("Toast the star anise, cinnamon, cloves and coriander seeds in a dry pan until fragrant.", 2.0)
-        step("Put the chicken in the water, bring to the boil and skim; add the charred aromatics and spices and simmer gently.", 45.0)
-        step("Lift out the chicken, shred the meat and return the bones to simmer 30 minutes more. Strain and season with fish sauce, sugar and salt.", 30.0)
-        step("Cook the noodles, divide into bowls with the chicken, ladle over boiling broth and serve with the herbs, sprouts, lime and chilli.")
+        step("Char the onion halves and ginger directly over a gas flame with tongs, or under a very hot grill, turning, until blackened in patches all over, 6–8 minutes. Rinse off any loose burnt bits; the charring gives the broth its sweet, smoky depth.", 8.0)
+        step("Toast the star anise, cinnamon, cloves and coriander seeds in the dry saucepan over medium heat, shaking, for 1–2 minutes until fragrant.", 2.0)
+        step("Put the chicken in the stock pot with the water and bring slowly to the boil, skimming off the grey foam with a ladle as it rises; this keeps the broth clear. Add the charred onion and ginger and the toasted spices, lower the heat and simmer very gently, with just a few bubbles breaking, for 45 minutes.", 45.0)
+        step("Lift out the chicken pieces. When they are cool enough to handle, pull the meat from the bones in large shreds, cover and set aside. Return the bones and skin to the pot and simmer for 30 minutes more.", 30.0)
+        step("Strain the broth through the fine sieve into a clean pan and season with the fish sauce, sugar and salt. Taste: it should be well seasoned and slightly sweet. Bring it back to a rolling boil for serving.")
+        step("Cook the noodles in the saucepan of boiling water as the packet directs (usually 4–6 minutes), then drain and rinse briefly with hot water so they don't stick. Divide between four large bowls and top with the shredded chicken and some of the spring onion.", 5.0)
+        step("Ladle the boiling broth over each bowl so it heats the chicken and noodles. Serve with the bean sprouts, coriander, Thai basil, lime wedges and chilli on a plate so everyone can add their own.")
         safety(POULTRY_SAFETY)
     }
     recipe("lemongrass_chicken_bowl", "Lemongrass chicken rice bowl with pickled vegetables", "vietnamese", "Southern (Saigon)", 4, 25, 20) {
         description = "Caramelised lemongrass chicken over rice with quick-pickled carrot and radish, cucumber and herbs — the flavours of a bánh mì in a bowl."
         equipment("Frying pan or grill", "Jar or bowl for pickles", "Pot for rice")
-        tags("high-protein", "dairy-free", "gluten-free", "dinner")
+        tags("main")
         group("Chicken")
         ing("chicken_thigh", 600.0, GRAM, "Chicken thighs, boneless")
         ing("lemongrass", 2.0, PIECE, "Lemongrass stalks", "finely minced")
@@ -1262,17 +1360,18 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Coriander")
         ing("green_chili", 1.0, PIECE, "Chilli", "sliced")
         ing("mayonnaise", 2.0, TABLESPOON, "Mayonnaise", optional = true)
-        step("Toss carrot and daikon with vinegar, sugar and salt; leave to pickle while you cook.")
-        step("Marinate the chicken with lemongrass, garlic, fish sauce, sugar, pepper and half the oil for at least 15 minutes.")
-        step("Cook the rice.", 15.0)
-        step("Fry or grill the chicken in the remaining oil until caramelised and cooked through, then slice.", 12.0)
-        step("Build bowls of rice, chicken, drained pickles, cucumber, coriander and chilli.")
+        step("For the pickles, stir the vinegar, sugar and salt with 4 tablespoons of warm water until dissolved. Add the carrot and daikon, press them under the liquid and leave for at least 20 minutes while you cook; they soften and turn sweet-sour.")
+        step("Trim the tough outer layers from the lemongrass and mince the tender core very finely. Mix it with the garlic, fish sauce, sugar, pepper and 1 tablespoon of the oil, add the chicken and turn to coat. Marinate for at least 15 minutes, or up to overnight in the fridge.")
+        step("Rinse the rice until the water runs clear. Put it in the pot with 450 ml water, bring to the boil, then cover and cook on the lowest heat for 12–15 minutes until the water is absorbed. Leave covered off the heat for 10 minutes.", 15.0)
+        step("Heat the remaining oil in the frying pan over medium heat (or heat the grill). Cook the chicken for 5–6 minutes per side, until deep golden, sticky with caramelised marinade and cooked through with clear juices. Lower the heat if the sugar starts to burn before the chicken is done.", 12.0)
+        step("Rest the chicken for 3 minutes, then slice it into strips. Drain the pickles.", 3.0)
+        step("Fluff the rice and divide between four bowls. Top with the chicken, a pile of pickles, sliced cucumber, coriander and chilli, and a squeeze of mayonnaise if you like.")
         safety(POULTRY_SAFETY, RICE_SAFETY)
     }
     recipe("kung_pao_chicken", "Kung pao chicken", "chinese", "Sichuan", 4, 15, 10) {
         description = "Diced chicken stir-fried with dried chillies, peanuts and spring onion in a glossy sweet, sour and savoury sauce. Add ground Sichuan pepper for the authentic tingle."
         equipment("Wok")
-        tags("high-protein", "dairy-free", "dinner", "quick")
+        tags("main", "quick")
         ing("chicken_breast", 500.0, GRAM, "Chicken breast or thigh", "diced")
         ing("soy_sauce", 1.0, TABLESPOON, "Soy sauce (marinade)")
         ing("cornstarch", 1.0, TABLESPOON, "Cornstarch (marinade)")
@@ -1289,16 +1388,18 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("ginger", 1.0, TABLESPOON, "Ginger", "sliced")
         ing("scallion", 4.0, PIECE, "Spring onions", "cut into short lengths")
         ing("peanuts", 60.0, GRAM, "Roasted peanuts")
-        step("Toss the chicken with the marinade soy sauce and cornstarch. Mix the sauce ingredients.")
-        step("Heat the oil in a wok; fry the chillies (and Sichuan pepper) for a few seconds until fragrant but not black.", 0.5)
-        step("Add the chicken and stir-fry until almost cooked; add garlic, ginger and spring onions.", 5.0)
-        step("Pour in the sauce and toss until glossy and the chicken is cooked; stir in the peanuts and serve with rice.", 2.0)
+        step("Cut the chicken into 1.5–2 cm dice. Toss it with the marinade soy sauce and cornstarch until each piece has a thin coating, and leave for 10 minutes while you prepare the rest.")
+        step("Stir the sauce ingredients together in a small bowl until the cornstarch dissolves. If using whole dried chillies, snip them in half and shake out most of the seeds for less heat. Put everything by the stove, as the cooking takes under 10 minutes.")
+        step("Heat the oil in the wok over medium heat. Add the chillies and fry for 20–30 seconds, stirring, until they darken to deep red and smell toasty. If they turn black, start again: burnt chillies taste bitter.", 0.5)
+        step("Turn the heat to high, add the chicken and spread it out. Stir-fry for 3–4 minutes until it is white all over and almost cooked through, then add the garlic, ginger and spring onions and stir-fry for 1 minute more, until fragrant.", 5.0)
+        step("Give the sauce a stir and pour it in. Toss for 1–2 minutes until it thickens into a glossy coating and the chicken is cooked through, with no pink in the centre of the largest piece.", 2.0)
+        step("Turn off the heat, stir in the peanuts so they stay crunchy and serve straight away with steamed rice.")
         safety(POULTRY_SAFETY)
     }
     recipe("tofu_vegetable_stir_fry", "Tofu and vegetable stir-fry", "chinese", "Cantonese", 3, 15, 12, EASY) {
         description = "Crisp-edged tofu with broccoli, peppers, carrot and mushrooms in a simple garlic, ginger and soy sauce."
         equipment("Wok or large frying pan")
-        tags("vegan", "high-protein", "dinner", "quick")
+        tags("main", "quick")
         ing("tofu_firm", 400.0, GRAM, "Firm tofu", "pressed and cubed")
         ing("cornstarch", 1.0, TABLESPOON, "Cornstarch (for the tofu)")
         ing("vegetable_oil", 2.0, TABLESPOON, "Oil")
@@ -1315,9 +1416,12 @@ private fun RecipeListBuilder.eastAndSoutheastAsianKitchen() {
         ing("water", 4.0, TABLESPOON, "Water")
         ing("sesame_oil", 1.0, TEASPOON, "Sesame oil")
         ing("scallion", 2.0, PIECE, "Spring onions", "sliced")
-        step("Toss the tofu in cornstarch and fry in half the oil until golden on all sides; set aside.", 8.0)
-        step("Stir-fry broccoli, carrot and pepper in the remaining oil with a splash of water until bright and just tender; add mushrooms, garlic and ginger.", 5.0)
-        step("Return the tofu, pour in the mixed sauce and toss until glossy. Finish with spring onions; serve with rice.", 1.0)
+        step("Wrap the tofu in a clean tea towel and press it under a heavy pan for 15 minutes to squeeze out excess water, then cut it into 2 cm cubes. Pressed tofu fries crisper and soaks up more sauce.")
+        step("Mix the soy sauce, sugar, cornstarch, water and sesame oil for the sauce in a small bowl until smooth. Toss the tofu cubes in the tablespoon of cornstarch until lightly coated.")
+        step("Heat 1 tablespoon of the oil in the wok or frying pan over medium-high heat. Fry the tofu in a single layer, turning every couple of minutes, until golden and crisp on most sides, about 8 minutes. Lift onto a plate.", 8.0)
+        step("Add the remaining oil and stir-fry the broccoli, carrot and pepper over high heat for 2 minutes. Add 2 tablespoons of water, which turns to steam and helps the broccoli cook, and stir-fry for 1–2 minutes more until bright green and just tender.", 4.0)
+        step("Add the mushrooms, garlic and ginger and stir-fry for 1–2 minutes, until the mushrooms soften and the garlic smells fragrant.", 2.0)
+        step("Return the tofu, stir the sauce and pour it in. Toss for about 1 minute until the sauce bubbles, thickens and turns glossy. Scatter over the spring onions and serve straight away with rice.", 1.0)
     }
 }
 
@@ -1326,7 +1430,7 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
     recipe("chicken_shawarma", "Chicken shawarma (home oven)", "lebanese", "Levantine", 4, 20, 30) {
         description = "Spiced, yogurt-marinated chicken thighs roasted hot and sliced, wrapped in flatbread with tahini sauce and salad. A home oven stands in for the vertical spit."
         equipment("Mixing bowl", "Roasting tray", "Sharp knife")
-        tags("high-protein", "dinner", "street food")
+        tags("main", "street-food")
         group("Marinade")
         ing("chicken_thigh", 800.0, GRAM, "Chicken thighs, boneless and skinless")
         ing("yogurt", 100.0, GRAM, "Plain yogurt")
@@ -1346,17 +1450,19 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         ing("tomato", 2.0, PIECE, "Tomatoes", "sliced")
         ing("lettuce", 1.0, CUP, "Lettuce", "shredded")
         ing("onion", 0.5, PIECE, "Red onion", "thinly sliced", optional = true)
-        step("Mix all the marinade ingredients, add the chicken and turn to coat. Marinate in the fridge for at least 1 hour (or overnight).", 60.0)
-        step("Heat the oven to 220 °C. Spread the chicken on a tray in one layer.", tempC = 220)
-        step("Roast until charred at the edges and cooked through.", 25.0, 220)
-        step("Rest for 5 minutes, then slice thinly and toss in the pan juices.", 5.0)
-        step("Thin the tahini with lemon juice and water to a pourable sauce. Wrap the chicken in warm flatbread with the sauce, tomato and lettuce.")
+        step("In the mixing bowl, whisk the yogurt with 2 tablespoons of the lemon juice, the olive oil, most of the garlic (keep a little back for the sauce), the cumin, paprika, allspice, turmeric, cinnamon, pepper and salt.")
+        step("Add the chicken thighs and turn until thoroughly coated. Cover and marinate in the fridge for at least 1 hour, or overnight for deeper flavour.", 60.0)
+        step("Heat the oven to 220 °C (200 °C fan) with a shelf near the top. Spread the chicken over the roasting tray in a single layer, with space between the pieces so they roast rather than steam.", tempC = 220)
+        step("Roast for 22–25 minutes, until the edges are charred and crisp and the thickest piece is cooked through with clear juices. For extra char, finish under a hot grill for 2–3 minutes.", 25.0, 220)
+        step("Meanwhile, whisk the tahini with the remaining lemon juice and garlic, then add cold water a tablespoon at a time until smooth and pourable. It seizes and thickens at first, then loosens as you keep whisking.")
+        step("Rest the chicken for 5 minutes, then slice it thinly across the grain with the sharp knife and toss it in the juices on the tray.", 5.0)
+        step("Warm the pitas in the oven for 1–2 minutes. Fill each with chicken, sliced tomato, lettuce and red onion (if using), drizzle with tahini sauce, roll up tightly and serve.")
         safety(POULTRY_SAFETY)
     }
     recipe("falafel", "Falafel", "lebanese", "Levantine", 4, 25, 20) {
         description = "Crisp fritters of soaked (not cooked) chickpeas blended with herbs, onion and spices. Egyptian ta'ameya is made the same way with dried fava beans."
         equipment("Food processor", "Deep pan or wok", "Thermometer", "Slotted spoon")
-        tags("vegan", "dairy-free", "street food")
+        tags("main", "street-food")
         notes += "Start the chickpeas the night before: they must soak 12–24 hours. Canned chickpeas make falafel fall apart in the oil."
         ing("chickpeas_dry", 250.0, GRAM, "Dried chickpeas", "soaked overnight, drained and dried")
         ing("onion", 1.0, PIECE, "Onion", "roughly chopped")
@@ -1373,11 +1479,13 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         ing("tahini", 3.0, TABLESPOON, "Tahini")
         ing("lemon_juice", 2.0, TABLESPOON, "Lemon juice")
         ing("water", 3.0, TABLESPOON, "Water")
-        step("Pulse the soaked raw chickpeas, onion, garlic, herbs, spices and salt to a coarse, damp crumb that holds when squeezed (not a paste).", 3.0)
-        step("Chill the mixture for 30 minutes, then stir in the bicarbonate of soda.", 30.0)
-        step("Heat the oil to 175 °C. Shape walnut-sized balls or patties.", tempC = 175)
-        step("Fry in batches until deep golden and crisp, turning once. Drain on paper.", 4.0, 175)
-        step("Whisk the tahini, lemon juice and water into a smooth sauce. Serve with pita and salad.")
+        step("Drain the soaked chickpeas well and spread them on a clean tea towel to dry, as excess water makes the mixture loose. Don't use canned or cooked chickpeas here: the falafel would fall apart in the oil.")
+        step("Put the chickpeas, onion, garlic, parsley, coriander, cumin, ground coriander, cayenne and salt in the food processor. Pulse, scraping down the sides often, for about 3 minutes, until the mixture looks like coarse, damp green sand that holds together when squeezed. Stop before it becomes a smooth paste.", 3.0)
+        step("Transfer to a bowl, cover and chill for 30 minutes to firm up. Just before shaping, stir in the bicarbonate of soda, which makes the insides light and fluffy.", 30.0)
+        step("Pour the oil into the deep pan or wok to a depth of at least 5 cm, no more than one-third full, and heat it to 175 °C on the thermometer. Meanwhile, shape the mixture into walnut-sized balls or small patties with wet hands, pressing them firmly so they hold.", tempC = 175)
+        step("Fry in batches of 5–6 for about 4 minutes, turning once, until deep golden brown and crisp all over. Don't crowd the pan, and let the oil come back to 175 °C between batches. Lift out with the slotted spoon onto kitchen paper.", 4.0, 175)
+        step("If the first falafel breaks up in the oil, chill the mixture for 15 minutes more and press the next batch more firmly before frying.")
+        step("For the sauce, whisk the tahini with the lemon juice, then add the water a spoonful at a time until smooth and pourable. Serve the falafel hot with the sauce, warm pita and salad.")
         safety(DEEP_FRY)
         storage = "Best eaten fresh; refrigerate leftovers for up to 2 days."
         reheating = "Re-crisp in a hot oven (200 °C) for 8–10 minutes."
@@ -1385,7 +1493,7 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
     recipe("hummus", "Hummus", "lebanese", "Levantine", 8, 15, 90, EASY) {
         description = "Chickpeas cooked very soft and blended with tahini, lemon and garlic until smooth, finished with olive oil."
         equipment("Saucepan", "Food processor or blender")
-        tags("vegan", "dairy-free", "gluten-free", "snack", "meal-prep")
+        tags("snack", "meal-prep")
         ing("chickpeas_dry", 250.0, GRAM, "Dried chickpeas", "soaked overnight")
         ing("baking_soda", 0.5, TEASPOON, "Bicarbonate of soda", "for cooking the chickpeas")
         ing("tahini", 6.0, TABLESPOON, "Tahini")
@@ -1396,17 +1504,18 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         ing("water", 100.0, MILLILITRE, "Ice-cold water", "added gradually")
         ing("olive_oil", 2.0, TABLESPOON, "Extra-virgin olive oil", "to finish")
         ing("paprika", 0.5, TEASPOON, "Paprika or sumac", "to finish", optional = true)
-        step("Drain the soaked chickpeas, cover with fresh water, add the bicarbonate of soda and simmer until completely soft and falling apart.", 75.0)
-        step("Drain, keeping some cooking water. Blend the hot chickpeas with garlic, lemon juice and salt.", 2.0)
-        step("Add the tahini and blend, adding ice-cold water a spoonful at a time, until very smooth and creamy.", 4.0)
-        step("Season, spread in a shallow bowl and finish with olive oil and paprika.")
+        step("Drain the soaked chickpeas and put them in the saucepan with the bicarbonate of soda. Stir over medium heat for 2–3 minutes; this helps the skins break down so the hummus turns out smoother.", 3.0)
+        step("Cover with plenty of fresh water by at least 5 cm and bring to the boil, skimming off the foam and any loose skins that float up. Simmer for about 1¼ hours, until the chickpeas are very soft and collapse when pressed between two fingers. Top up with boiling water if needed.", 75.0)
+        step("Drain, keeping a mugful of the cooking water. While the chickpeas are still hot, blend them with the garlic, lemon juice and salt for 2 minutes, scraping down the sides, until a thick, smooth paste forms.", 2.0)
+        step("Add the tahini and cumin and blend again, pouring in the ice-cold water a tablespoon at a time, for 3–4 minutes, until the hummus turns pale, fluffy and very smooth. Use a little of the cooking water if you need more liquid.", 4.0)
+        step("Taste and adjust with more salt or lemon. Spread into a shallow bowl, making a swirl with the back of a spoon, drizzle with the olive oil and dust with paprika or sumac. Serve with warm bread or raw vegetables.")
         storage = "Refrigerate covered for up to 4 days."
         reheating = null
     }
     recipe("tabbouleh", "Tabbouleh", "lebanese", "Mountain", 4, 25, 0, EASY) {
         description = "A herb salad rather than a grain salad: lots of finely chopped parsley with tomato, mint, spring onion and a little fine bulgur, dressed with lemon and olive oil."
         equipment("Sharp knife", "Large bowl")
-        tags("vegan", "dairy-free", "salad", "no-cook")
+        tags("salad", "no-cook")
         ing("bulgur", 50.0, GRAM, "Fine bulgur")
         ing("parsley", 150.0, GRAM, "Flat-leaf parsley (about 3 bunches)", "leaves and tender stems, finely chopped")
         ing("mint", 1.0, QuantityUnit.HANDFUL, "Mint leaves", "finely chopped")
@@ -1416,16 +1525,18 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         ing("olive_oil", 4.0, TABLESPOON, "Extra-virgin olive oil")
         ing("allspice", 0.25, TEASPOON, "Ground allspice or seven-spice", optional = true)
         ing("salt", 1.0, TEASPOON, "Salt")
-        step("Rinse the bulgur and leave it to soften in the lemon juice and diced tomato for 15 minutes.", 15.0)
-        step("Chop the parsley and mint finely by hand (a food processor bruises them).")
-        step("Combine everything, dress with olive oil and salt, and serve straight away.")
+        step("Rinse the bulgur in a sieve under cold water and drain well. Put it in the large bowl with the diced tomatoes, their juices and the lemon juice, stir and leave for 15 minutes to soften.", 15.0)
+        step("Meanwhile, wash the parsley and mint and dry them thoroughly in a salad spinner or a clean tea towel; wet herbs turn mushy when chopped. Pick off the parsley leaves and tender stems, and the mint leaves.")
+        step("Gather the herbs into tight bunches and slice them very finely with the sharp knife, then run the knife through once more. Avoid a food processor, which bruises the herbs and makes them watery.")
+        step("Add the parsley, mint and spring onions to the bulgur with the salt, the allspice if using, and the olive oil. Toss gently with your hands or two spoons until evenly combined.")
+        step("Taste and add more lemon or salt; it should taste bright and sharp. Serve straight away, as tabbouleh wilts as it stands, with flatbread or as part of a mezze spread.")
         storage = "Best fresh; dressed salad keeps 1 day refrigerated."
         reheating = null
     }
     recipe("mujaddara", "Mujaddara (lentils and rice with crispy onions)", "palestinian", "Levantine", 4, 15, 50) {
         description = "Brown lentils and rice cooked together with cumin and allspice, topped with a generous heap of deeply browned onions."
         equipment("Wide frying pan", "Lidded saucepan")
-        tags("vegan", "dairy-free", "gluten-free", "high-fibre", "budget")
+        tags("main", "high-fibre", "budget")
         ing("lentils_brown", 250.0, GRAM, "Brown or green lentils", "rinsed")
         ing("rice_white", 150.0, GRAM, "Long-grain rice", "rinsed")
         ing("onion", 750.0, GRAM, "Onions (about 4 large)", "halved and thinly sliced")
@@ -1435,17 +1546,18 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         ing("salt", 1.5, TEASPOON, "Salt")
         ing("water", 900.0, MILLILITRE, "Water")
         ing("yogurt", 200.0, GRAM, "Plain yogurt, to serve", optional = true)
-        step("Simmer the lentils in the water until just tender but still holding their shape.", 15.0)
-        step("Meanwhile fry the onions slowly in the oil, stirring often, until deep brown and crisp at the edges. Set half aside for the top.", 30.0)
-        step("Stir the rice, spices, salt and half the onions into the lentils; top up with water to cover by 1 cm if needed.")
-        step("Cover and cook on low heat until the rice is tender and the water absorbed, then rest off the heat for 10 minutes.", 20.0)
-        step("Fluff and serve topped with the reserved onions, with yogurt or salad on the side.")
+        step("Rinse the lentils and pick out any small stones. Put them in the lidded saucepan with the water, bring to the boil, then simmer uncovered for about 15 minutes, until just tender but still holding their shape. Don't drain them.", 15.0)
+        step("Meanwhile, heat the olive oil in the wide frying pan over medium-high heat. Add the onions with a pinch of the salt and cook, stirring often, for 10 minutes, until softened and starting to colour.", 10.0)
+        step("Lower the heat to medium and keep cooking for another 15–20 minutes, stirring more often as they darken, until the onions are deep mahogany brown and crisp at the edges. Lift half of them out onto kitchen paper for the topping, where they will crisp further.", 20.0)
+        step("Rinse the rice and stir it into the lentils with the cumin, allspice, the rest of the salt and the onions left in the pan, scraping in their oil. Check the level: the liquid should cover the rice and lentils by about 1 cm, so top up with water if needed.")
+        step("Bring back to the boil, then cover and cook on the lowest heat for 20 minutes without lifting the lid, until the rice is tender and the liquid has been absorbed. Turn off the heat and leave covered for 10 minutes.", 20.0)
+        step("Fluff gently with a fork, pile onto a platter and top with the reserved crispy onions. Serve warm or at room temperature, with yogurt or a chopped salad.")
         safety(RICE_SAFETY)
     }
     recipe("koshari", "Koshari", "egyptian", "Cairene", 6, 20, 60, Difficulty.INVOLVED) {
         description = "Cairo's layered street dish of rice, lentils, small pasta and chickpeas under a sharp garlic-vinegar tomato sauce and crispy onions."
         equipment("Three saucepans", "Frying pan")
-        tags("vegan", "dairy-free", "high-fibre", "street food", "budget")
+        tags("main", "high-fibre", "street-food", "budget")
         ing("rice_white", 200.0, GRAM, "Short- or medium-grain rice", "rinsed")
         ing("lentils_brown", 200.0, GRAM, "Brown lentils", "rinsed")
         ing("pasta", 200.0, GRAM, "Small macaroni or broken vermicelli")
@@ -1460,18 +1572,19 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         ing("cumin", 1.5, TEASPOON, "Ground cumin")
         ing("chili_powder", 0.5, TEASPOON, "Chilli flakes or cayenne")
         ing("salt", 2.0, TEASPOON, "Salt (divided)")
-        step("Fry the onions in the oil until dark golden and crisp; lift out and keep the oil.", 20.0)
-        step("Simmer the lentils in water until tender, about 20 minutes; drain.", 20.0)
-        step("Fry the rice in 1 tbsp of the onion oil, add 1.5 times its volume of water and salt, cover and cook on low until tender. Stir in the lentils.", 18.0)
-        step("Boil the pasta in salted water until al dente; drain.", 9.0)
-        step("Fry the garlic in a little onion oil, add the tomatoes, cumin, chilli and salt and simmer until thick; stir in the vinegar.", 15.0)
-        step("Layer rice and lentils, pasta and chickpeas; spoon over the sauce and top with crispy onions.")
+        step("Heat the oil in the frying pan over medium-high heat and fry the onions, stirring often, for 15–20 minutes, until dark golden brown and crisp; lower the heat as they darken so they don't burn. Lift them out with a slotted spoon onto kitchen paper and keep the flavoured oil.", 20.0)
+        step("Meanwhile, put the lentils in a saucepan, cover with water by 5 cm and simmer for about 20 minutes, until tender but not mushy. Drain.", 20.0)
+        step("In a second saucepan, fry the rinsed rice in 1 tablespoon of the onion oil for 2 minutes, stirring, until the grains turn opaque. Add about 360 ml water (1½ times the rice's volume) and ½ teaspoon of the salt, bring to the boil, then cover and cook on the lowest heat for 15 minutes until tender. Fold in the lentils and keep covered.", 18.0)
+        step("Bring the third saucepan of water to the boil with ½ teaspoon of the salt and cook the pasta until al dente, about 9 minutes. Drain, toss with a teaspoon of the onion oil so it doesn't stick, then warm the chickpeas in the empty pan with a splash of water for 2 minutes.", 11.0)
+        step("For the sauce, fry the garlic in 1 tablespoon of the onion oil in the frying pan for 30 seconds, until fragrant. Add the tomatoes, cumin, chilli and the remaining salt and simmer for about 15 minutes, stirring occasionally, until thickened.", 15.0)
+        step("Stir the vinegar into the sauce and simmer for 1 minute more; it should taste sharp and garlicky. Taste and adjust the salt.", 1.0)
+        step("To serve, spoon rice and lentils into each bowl, top with pasta and chickpeas, ladle over plenty of the tomato sauce and finish with a generous handful of crispy onions. Put the remaining sauce on the table.")
         safety(RICE_SAFETY)
     }
     recipe("vegetable_couscous", "Vegetable couscous with chickpeas", "moroccan", "Moroccan home-style", 4, 20, 40) {
         description = "Steamed couscous with a gently spiced stew of carrots, courgettes, pumpkin, tomatoes and chickpeas in broth."
         equipment("Large pot", "Bowl with a plate or lid")
-        tags("vegan", "dairy-free", "high-fibre", "dinner")
+        tags("main", "high-fibre")
         ing("olive_oil", 3.0, TABLESPOON, "Olive oil")
         ing("onion", 1.0, PIECE, "Onion", "sliced")
         ing("tomato", 2.0, PIECE, "Tomatoes", "grated")
@@ -1488,15 +1601,17 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         ing("couscous", 300.0, GRAM, "Couscous")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Coriander and parsley", "chopped")
         ing("salt", 1.5, TEASPOON, "Salt")
-        step("Soften the onion in the oil, then add tomato, ginger, turmeric, cinnamon and pepper and cook 3 minutes.", 8.0)
-        step("Add the stock and carrots; simmer 10 minutes. Add the pumpkin, courgettes, chickpeas and raisins and simmer until all the vegetables are tender.", 25.0)
-        step("Pour 400 ml of hot broth from the pot over the couscous, cover and leave 5 minutes, then fluff with a fork.", 5.0)
-        step("Mound the couscous on a platter, arrange the vegetables on top and ladle over more broth. Scatter with herbs.")
+        step("Heat the olive oil in the large pot over medium heat and cook the onion, stirring, until soft and translucent, about 5 minutes. Add the grated tomato, ginger, turmeric, cinnamon stick, pepper and salt and cook for 3 minutes, until the tomato darkens slightly.", 8.0)
+        step("Pour in the stock and add the carrots. Bring to the boil, then simmer, partly covered, for 10 minutes.", 10.0)
+        step("Add the pumpkin, courgettes, chickpeas and the raisins, if using. Simmer for about 15 minutes more, until all the vegetables are tender to the point of a knife but still holding their shape. Taste the broth and adjust the salt.", 15.0)
+        step("Put the couscous in a heatproof bowl. Ladle over 400 ml of the hot broth from the pot, stir once, cover with a plate and leave for 5 minutes until the liquid is absorbed.", 5.0)
+        step("Fluff the couscous with a fork, rubbing out any lumps with your fingertips; a spoonful of the oil from the surface of the broth makes it extra tender.")
+        step("Mound the couscous on a large platter and make a well in the centre. Arrange the vegetables and chickpeas on top with a slotted spoon, remove the cinnamon stick, ladle over more broth to moisten and scatter with the herbs. Serve the remaining broth in a jug at the table.")
     }
     recipe("lamb_tagine", "Lamb tagine with dates and almonds", "moroccan", "Moroccan home-style", 6, 20, 120, Difficulty.MEDIUM) {
         description = "Lamb shoulder braised slowly with onion, ginger, saffron and cinnamon until tender, finished with sweet dates, honey and toasted almonds."
-        equipment("Tagine or heavy lidded casserole")
-        tags("high-protein", "gluten-free", "dairy-free", "dinner", "slow-cooked")
+        equipment("Tagine or heavy lidded casserole", "Small frying pan")
+        tags("main", "slow-cooked")
         ing("lamb", 1000.0, GRAM, "Lamb shoulder, boneless", "4 cm cubes")
         ing("olive_oil", 3.0, TABLESPOON, "Olive oil")
         ing("onion", 2.0, PIECE, "Onions", "grated")
@@ -1512,16 +1627,18 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         ing("honey", 1.0, TABLESPOON, "Honey")
         ing("almonds", 40.0, GRAM, "Almonds", "blanched and toasted")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander", "chopped")
-        step("Mix the lamb with the onion, garlic, ginger, spices, saffron, salt and oil in the pot and leave 15 minutes.", 15.0)
-        step("Brown lightly over medium heat, then add the water, cover and simmer very gently until the lamb is tender, adding a splash of water if it dries out.", 100.0)
-        step("Add the dates and honey and simmer uncovered until the sauce is thick and glossy.", 15.0)
-        step("Scatter with almonds and coriander. Serve with bread or couscous.")
-        safety("Braise lamb until it is tender and steaming hot throughout.")
+        step("Soak the saffron in its 2 tablespoons of warm water. In the tagine or casserole, mix the lamb with the grated onion, garlic, ginger, turmeric, cinnamon stick, pepper, the saffron and its water, the salt and the olive oil. Leave for 15 minutes to take on the flavours.", 15.0)
+        step("Set the pot over medium heat (use a heat diffuser under a clay tagine) and cook, turning the meat now and then, for about 10 minutes, until the lamb has lost its raw colour and the onions have softened into a fragrant base.", 10.0)
+        step("Pour in the water, bring to a gentle simmer, cover and cook on low heat for about 1½ hours, until the lamb is tender enough to cut with a spoon. Check every 20–30 minutes and add a splash of water if the sauce is drying out.", 90.0)
+        step("If your almonds aren't already toasted, toast them in the small dry frying pan over medium heat, shaking often, for 4–5 minutes until golden, then tip them onto a plate so they don't burn.", 5.0)
+        step("Add the dates and honey to the lamb, stir gently and simmer uncovered for about 15 minutes, until the sauce reduces to a thick, glossy glaze around the meat and the dates are soft.", 15.0)
+        step("Remove the cinnamon stick and taste for salt and pepper. Scatter over the toasted almonds and coriander and serve straight from the pot with bread or couscous.")
+        safety(LAMB_SAFETY)
     }
     recipe("groundnut_soup", "Groundnut soup with chicken", "ghanaian", "Akan / Ashanti", 6, 15, 60) {
         description = "A rich peanut and tomato soup with bone-in chicken, ginger and chilli, traditionally eaten with rice balls (omo tuo) or fufu."
         equipment("Large pot", "Blender")
-        tags("high-protein", "gluten-free", "dairy-free", "soup")
+        tags("soup")
         ing("chicken_curry_cut", 1200.0, GRAM, "Chicken, bone-in, skinless", "jointed")
         ing("onion", 2.0, PIECE, "Onions", "1 sliced, 1 blended")
         ing("ginger", 1.0, TABLESPOON, "Ginger")
@@ -1532,17 +1649,19 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         ing("peanut_butter", 250.0, GRAM, "Unsweetened smooth peanut butter")
         ing("water", 1500.0, MILLILITRE, "Water")
         ing("salt", 2.0, TEASPOON, "Salt")
-        step("Season the chicken with salt, the sliced onion and half the ginger and garlic; steam it in its own juices in the covered pot.", 10.0)
-        step("Blend the tomatoes, remaining onion, ginger, garlic and chillies; add to the pot with the tomato paste and 1 litre of water. Simmer 15 minutes.", 15.0)
-        step("Whisk the peanut butter with 500 ml hot water until smooth, then stir it into the soup.")
-        step("Simmer gently, stirring now and then, until the oil rises to the surface and the chicken is very tender.", 35.0)
+        step("Put the chicken in the large pot with the salt, the sliced onion and half the ginger and garlic, chopped. Cover and cook over medium-low heat for about 10 minutes, stirring once or twice, so the chicken steams in its own juices and releases a flavourful liquid.", 10.0)
+        step("Meanwhile, blend the tomatoes, the second onion and the remaining ginger and garlic until smooth. Add the chillies whole for gentle heat, or blend one in for a hotter soup.")
+        step("Add the blended tomato mixture, the tomato paste and 1 litre of the water to the pot. Bring to the boil, then simmer for 15 minutes, until the raw onion smell has gone.", 15.0)
+        step("Heat the remaining 500 ml of water until hot, then whisk it gradually into the peanut butter in a bowl until smooth and free of lumps.")
+        step("Stir the peanut mixture into the soup and simmer gently, partly covered, for 30–35 minutes, stirring every 5–10 minutes so it doesn't catch on the bottom, until the soup thickens slightly, small pools of reddish oil rise to the surface and the chicken is very tender.", 35.0)
+        step("Taste for salt and lift out any whole chillies once the soup is hot enough for you. Serve in bowls with rice balls, fufu or plain rice.")
         safety(POULTRY_SAFETY)
         notes += "Contains peanuts."
     }
     recipe("suya", "Beef suya", "nigerian", "Hausa", 4, 20, 12, EASY) {
         description = "Thin strips of beef coated in yaji, a spicy ground-peanut seasoning, then grilled hot and served with raw onion and tomato."
         equipment("Skewers (soak wooden ones)", "Grill, griddle or oven grill")
-        tags("high-protein", "gluten-free", "dairy-free", "street food")
+        tags("main", "street-food")
         ing("beef_steak", 600.0, GRAM, "Beef sirloin or flank", "very thinly sliced")
         ing("vegetable_oil", 2.0, TABLESPOON, "Oil")
         group("Yaji (suya spice)")
@@ -1556,17 +1675,20 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         group("To serve")
         ing("onion", 1.0, PIECE, "Red onion", "thinly sliced")
         ing("tomato", 2.0, PIECE, "Tomatoes", "sliced")
-        step("Mix the yaji ingredients. Rub the beef with oil, then press most of the yaji onto it. Rest 30 minutes.", 30.0)
-        step("Thread onto skewers and grill on very high heat, turning once, until browned and just cooked.", 10.0)
-        step("Dust with the remaining yaji and serve with sliced onion and tomato.")
+        step("If your peanuts aren't already ground, pulse them in short bursts in a spice grinder until fine and powdery, stopping before they turn into butter. Mix with the cayenne, paprika, ginger, garlic, pepper and salt to make the yaji.")
+        step("If using wooden skewers, soak them in water for 30 minutes. Slice the beef across the grain into thin strips about 5 mm thick; partly freezing it first makes this easier.")
+        step("Rub the beef with the oil, then sprinkle over about three-quarters of the yaji and press it on firmly so the strips are well coated. Cover and leave in the fridge for at least 30 minutes, or up to 4 hours.", 30.0)
+        step("Heat the grill, griddle or barbecue until very hot. Thread the beef onto the skewers in a zigzag, bunching the strips slightly so they stay juicy.")
+        step("Grill for 8–10 minutes, turning once or twice, until well browned, slightly charred at the edges and just cooked through. The thin strips cook fast, so watch them closely.", 10.0)
+        step("Dust the hot skewers with the remaining yaji and serve straight away with the sliced red onion and tomato, and extra yaji on the side for dipping.")
         safety(BEEF_SAFETY)
         notes += "Contains peanuts."
         storage = "Best eaten hot; refrigerate leftovers for up to 2 days."
     }
     recipe("doro_wat", "Doro wat (Ethiopian chicken stew)", "ethiopian", "Amhara", 6, 30, 120, Difficulty.INVOLVED) {
         description = "A deep red stew of chicken and hard-boiled eggs in a slow-cooked base of onions, spiced butter and berbere, served with injera."
-        equipment("Heavy pot", "Wooden spoon")
-        tags("high-protein", "gluten-free", "dinner", "celebration")
+        equipment("Heavy pot", "Wooden spoon", "Small pot for the eggs")
+        tags("main", "celebration")
         ing("chicken_curry_cut", 1200.0, GRAM, "Chicken, bone-in, skinless", "jointed and scored")
         ing("lemon_juice", 2.0, TABLESPOON, "Lemon juice", "for rinsing the chicken")
         ing("onion", 1000.0, GRAM, "Red onions", "very finely chopped")
@@ -1577,25 +1699,28 @@ private fun RecipeListBuilder.middleEastAndAfricanKitchen() {
         ing("water", 500.0, MILLILITRE, "Water or chicken stock")
         ing("egg", 6.0, PIECE, "Eggs", "hard-boiled and peeled")
         ing("salt", 1.5, TEASPOON, "Salt")
-        step("Rub the chicken with lemon juice and a little salt and set aside.", 10.0)
-        step("Cook the onions in a dry pot over medium-low heat, stirring often, until they collapse and turn jammy.", 30.0)
-        step("Add the niter kibbeh and berbere and cook, stirring, until dark red and fragrant.", 20.0)
-        step("Add garlic, ginger, water and the chicken. Cover and simmer gently until the chicken is tender.", 45.0)
-        step("Score the eggs, add them to the stew and simmer 10 minutes more so they take on the sauce.", 10.0)
-        step("Serve with injera.")
+        step("Rub the chicken all over with the lemon juice and a little of the salt and leave for 10 minutes; this traditional step freshens the meat. Meanwhile, hard-boil the eggs for 10 minutes, cool them in cold water and peel.", 10.0)
+        step("Chop the onions very finely, by hand or in short pulses in a food processor; they need to almost disappear into the sauce.")
+        step("Put the onions in the dry heavy pot over medium-low heat and cook, stirring often, for about 30 minutes. They release their liquid, then collapse and turn soft, jammy and lightly coloured. Add a splash of water if they start to stick or brown too fast.", 30.0)
+        step("Add the niter kibbeh and berbere and cook, stirring frequently, for about 20 minutes, until the mixture turns deep brick red, smells rich and the fat starts to separate. Lower the heat if it catches, as burnt berbere is bitter.", 20.0)
+        step("Stir in the garlic and ginger for 1 minute, then add the water (or stock), the remaining salt and the chicken. Turn the pieces to coat, cover and simmer gently for about 45 minutes, turning once or twice, until the chicken is tender and cooked through at the bone.", 45.0)
+        step("Cut a few shallow slits in each egg, add them to the stew and spoon the sauce over. Simmer uncovered for 10 minutes so the eggs take on the colour and flavour and the sauce thickens.", 10.0)
+        step("Taste for salt and serve hot, giving each person a piece of chicken and an egg, with injera or rice.")
         safety(POULTRY_SAFETY, EGG_SAFETY)
         notes += "Berbere blends vary in heat; start with less if yours is very hot."
     }
     recipe("fried_plantain", "Dodo (fried plantain)", "nigerian", "Yoruba", 4, 5, 10, EASY) {
         description = "Ripe plantain slices fried until caramelised at the edges, served as a side with rice, beans or eggs."
         equipment("Frying pan", "Slotted spoon")
-        tags("vegan", "dairy-free", "gluten-free", "side")
+        tags("side")
         ing("plantain", 3.0, PIECE, "Ripe plantains (yellow with black spots)", "peeled, sliced on the diagonal")
         ing("vegetable_oil", 500.0, MILLILITRE, "Oil for frying", "about 6% is absorbed", consumed = 0.06)
         ing("salt", 0.5, TEASPOON, "Salt")
-        step("Toss the plantain slices with the salt.")
-        step("Heat the oil to about 175 °C and fry the plantain in batches until golden brown on both sides.", 5.0, 175)
-        step("Drain on paper and serve warm.")
+        step("Use plantains with yellow skins and plenty of black spots; they should give slightly when pressed. Cut off both ends, slit the skin lengthways and peel it away, then slice the plantain on the diagonal about 1 cm thick.")
+        step("Toss the slices with the salt in a bowl so every piece is lightly seasoned before it goes into the oil.")
+        step("Pour the oil into the frying pan to a depth of about 2 cm, no more than one-third full, and heat to about 175 °C; a slice dropped in should sizzle steadily straight away.", tempC = 175)
+        step("Fry the plantain in batches, without crowding, for 2–3 minutes per side, until deep golden brown and caramelised at the edges. Very ripe plantain browns quickly, so lower the heat if it darkens before it softens.", 5.0, 175)
+        step("Lift out with the slotted spoon onto kitchen paper and serve warm alongside rice, beans or eggs.")
         safety(DEEP_FRY)
         storage = "Best eaten fresh; refrigerate leftovers for 1 day."
         reheating = "Warm in a hot dry pan or oven."
@@ -1607,7 +1732,7 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
     recipe("chicken_tikka_masala", "Chicken tikka masala", "british_irish", "British-Asian", 4, 20, 40) {
         description = "Marinated, charred chicken pieces in a creamy, spiced tomato sauce. Associated with British curry houses; its exact origin is disputed."
         equipment("Grill pan or oven grill", "Large frying pan")
-        tags("high-protein", "gluten-free", "dinner")
+        tags("main")
         group("Chicken tikka")
         ing("chicken_breast", 700.0, GRAM, "Chicken breast", "bite-sized chunks")
         ing("yogurt", 150.0, GRAM, "Plain yogurt")
@@ -1632,17 +1757,18 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("cream_heavy", 150.0, MILLILITRE, "Double cream")
         ing("sugar", 1.0, TEASPOON, "Sugar")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander", "chopped")
-        step("Mix the marinade ingredients, coat the chicken and refrigerate for at least 1 hour.", 60.0)
-        step("Grill the chicken on a very hot grill pan or under the grill until charred in places and just cooked.", 10.0)
-        step("Soften the onion in the oil and butter, then add garlic, ginger and the ground spices and fry 1 minute.", 10.0)
-        step("Add the tomatoes, paste and sugar; simmer until thick, then blend smooth if you like.", 12.0)
-        step("Stir in the cream and the chicken and simmer until the chicken is cooked through. Finish with coriander.", 5.0)
+        step("Mix the yogurt, lemon juice, garam masala, chilli powder, garlic, ginger and salt for the tikka in a bowl. Add the chicken, stir to coat and refrigerate for at least 1 hour, or up to overnight.", 60.0)
+        step("Heat the grill pan over high heat (or the oven grill to its hottest setting). Shake the excess marinade off the chicken and cook for 8–10 minutes, turning every couple of minutes, until charred in patches and almost cooked through; it finishes cooking in the sauce.", 10.0)
+        step("Meanwhile, heat the oil and butter in the large frying pan over medium heat. Add the onion and cook, stirring, for about 8 minutes until soft and golden. Add the garlic and ginger for 1 minute, then stir in the cumin, paprika, turmeric and garam masala for 30 seconds until fragrant.", 10.0)
+        step("Add the tomatoes, tomato paste and sugar with a splash of water and simmer for 10–12 minutes, stirring now and then, until thick and jammy. Blend until smooth if you prefer a silky sauce.", 12.0)
+        step("Stir in the cream and add the chicken with any juices. Simmer gently for 5 minutes, until the chicken is cooked through and the sauce is a rich orange that coats the back of a spoon. Thin with a little water if needed and taste for salt.", 5.0)
+        step("Scatter with the chopped coriander and serve with basmati rice or naan.")
         safety(POULTRY_SAFETY)
     }
     recipe("spaghetti_bolognese", "Spaghetti bolognese", "italian", "Emilian", 4, 15, 90) {
         description = "A slow-cooked meat ragù with soffritto, tomato and milk, tossed with spaghetti. In Bologna ragù is served with fresh tagliatelle; spaghetti is the internationally familiar version."
         equipment("Heavy saucepan", "Large pot")
-        tags("high-protein", "dinner", "meal-prep")
+        tags("main", "meal-prep")
         ing("olive_oil", 2.0, TABLESPOON, "Olive oil")
         ing("onion", 1.0, PIECE, "Onion", "finely chopped")
         ing("carrot", 1.0, PIECE, "Carrot", "finely chopped")
@@ -1658,18 +1784,20 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("black_pepper", 0.5, TEASPOON, "Black pepper")
         ing("pasta", 360.0, GRAM, "Spaghetti, dried")
         ing("parmesan", 4.0, TABLESPOON, "Parmesan", "grated")
-        step("Cook the onion, carrot and celery gently in the oil until soft and sweet.", 10.0)
-        step("Add the garlic and beef and cook, breaking it up, until browned all over.", 8.0)
-        step("Add the wine (if using) and let it bubble away, then the milk, simmering until absorbed.", 6.0)
-        step("Add tomatoes, paste, bay leaf and seasoning. Cover partly and simmer very gently, stirring occasionally.", 60.0)
-        step("Boil the spaghetti in well-salted water until al dente; toss with the sauce and a splash of pasta water. Serve with Parmesan.", 10.0)
+        step("Chop the onion, carrot and celery as finely as you can, into roughly 3–4 mm dice; this soffritto melts into the sauce.")
+        step("Heat the olive oil in the heavy saucepan over medium-low heat and cook the soffritto with a pinch of the salt, stirring occasionally, for 10 minutes, until soft, sweet and translucent but not browned.", 10.0)
+        step("Turn the heat up to medium-high, add the garlic and beef and cook, breaking up the meat with a wooden spoon, for about 8 minutes, until it is no longer pink and the liquid has evaporated so the meat sizzles and browns.", 8.0)
+        step("Pour in the wine, if using, and let it bubble until it has almost disappeared. Add the milk and simmer for about 5 minutes, stirring, until it has been absorbed; the milk keeps the meat tender and the sauce mellow.", 6.0)
+        step("Stir in the tomatoes, tomato paste, bay leaf, the rest of the salt and the pepper. Bring to a bare simmer, partly cover and cook very gently for 1 hour, stirring every 15 minutes and adding a splash of water if it looks dry. The ragù is ready when it is thick and glossy and the fat glistens on top.", 60.0)
+        step("About 15 minutes before the sauce is ready, bring the large pot of salted water to the boil and cook the spaghetti until al dente, 1 minute less than the packet says. Keep a mugful of the cooking water before draining.", 10.0)
+        step("Remove the bay leaf. Toss the spaghetti with the sauce over low heat for 1 minute, loosening it with a splash of the pasta water until it coats the strands. Serve with the grated Parmesan.")
         safety(MINCE_SAFETY)
         storage = "Refrigerate the sauce within 2 hours for up to 3 days, or freeze for 3 months."
     }
     recipe("lasagne", "Lasagne al forno", "italian", "Emilian", 8, 45, 150, Difficulty.INVOLVED) {
         description = "Layers of pasta, slow-cooked meat ragù and béchamel, baked until bubbling and golden with Parmesan."
         equipment("Heavy saucepan", "Saucepan for béchamel", "Whisk", "Baking dish (about 30 × 20 cm)")
-        tags("high-protein", "dinner", "meal-prep", "celebration")
+        tags("main", "meal-prep", "celebration")
         group("Ragù")
         ing("olive_oil", 3.0, TABLESPOON, "Olive oil")
         ing("onion", 1.0, PIECE, "Onion", "finely chopped")
@@ -1689,18 +1817,20 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         group("To assemble")
         ing("pasta", 300.0, GRAM, "Dried lasagne sheets")
         ing("parmesan", 80.0, GRAM, "Parmesan", "grated")
-        step("Make the ragù: soften the vegetables in the oil, brown the beef, add the milk and let it absorb, then add the tomatoes, paste and seasoning.", 20.0)
-        step("Simmer the ragù gently, partly covered, until thick and rich.", 75.0)
-        step("Make the béchamel: melt the butter, whisk in the flour and cook 1 minute, then whisk in the warm milk gradually and simmer until thick. Season with salt and nutmeg.", 10.0)
-        step("Heat the oven to 190 °C. Layer ragù, pasta sheets, béchamel and Parmesan, finishing with béchamel and Parmesan.", tempC = 190)
-        step("Bake until bubbling and golden, then rest 15 minutes before cutting.", 40.0, 190)
+        step("Finely chop the onion, carrot and celery. Heat the olive oil in the heavy saucepan over medium-low heat and cook the vegetables, stirring now and then, for 8–10 minutes until soft and sweet.", 10.0)
+        step("Turn up the heat, add the beef and cook, breaking it up with a spoon, for about 8 minutes, until browned and no longer pink. Add the 150 ml of milk and simmer until it has been absorbed, then add the tomatoes, tomato paste, salt and pepper.", 10.0)
+        step("Bring to a bare simmer, partly cover and cook very gently for about 1¼ hours, stirring every 15 minutes, until the ragù is thick and rich and a spoon drawn through it leaves a clear path. Add a splash of water if it gets too dry; it should be saucy but not runny.", 75.0)
+        step("For the béchamel, melt the butter in the second saucepan over medium heat, whisk in the flour and cook, whisking, for 1 minute without letting it brown. Whisk in the warm milk a ladleful at a time, whisking out any lumps before adding more, then simmer for 5–8 minutes until it thickly coats the back of a spoon. Season with the salt and a grating of nutmeg.", 10.0)
+        step("Heat the oven to 190 °C (170 °C fan). Spread a thin layer of ragù over the base of the baking dish and lay pasta sheets on top, breaking them to fit without much overlap. Add a layer of ragù, then béchamel, then a scattering of Parmesan. Repeat to make 4 layers, finishing with pasta, the last of the béchamel and the rest of the Parmesan.", tempC = 190)
+        step("Bake in the middle of the oven for 40 minutes, until bubbling at the edges and deep golden on top; a knife should slide easily through the pasta. Cover loosely with foil if the top browns too quickly.", 40.0, 190)
+        step("Rest the lasagne for 15 minutes before cutting so the layers set and hold their shape. Serve with a green salad.", 15.0)
         safety(MINCE_SAFETY)
         storage = "Refrigerate within 2 hours for up to 3 days, or freeze portions for 3 months."
     }
     recipe("risotto_ai_funghi", "Mushroom risotto (risotto ai funghi)", "italian", "Northern Italian", 4, 10, 30) {
         description = "Short-grain rice stirred with hot stock until creamy, with sautéed mushrooms, butter and Parmesan."
         equipment("Wide heavy pan", "Saucepan for stock", "Ladle")
-        tags("vegetarian", "gluten-free", "dinner")
+        tags("main")
         notes += "Traditional Parmigiano Reggiano is made with animal rennet; use a vegetarian hard cheese if needed."
         ing("vegetable_broth", 1200.0, MILLILITRE, "Vegetable stock", "kept hot")
         ing("olive_oil", 2.0, TABLESPOON, "Olive oil")
@@ -1714,18 +1844,19 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("parsley", 15.0, GRAM, "Parsley", "chopped")
         ing("salt", 1.0, TEASPOON, "Salt")
         ing("black_pepper", 0.5, TEASPOON, "Black pepper")
-        step("Fry the mushrooms in half the oil over high heat until browned; add the garlic for the last minute and set aside.", 7.0)
-        step("Soften the onion in the remaining oil, add the rice and stir until the grains turn translucent at the edges.", 5.0)
-        step("Add the wine (if using) and let it evaporate, then add hot stock a ladle at a time, stirring, letting each addition absorb before the next.", 18.0)
-        step("When the rice is creamy but still has a slight bite, stir in the mushrooms, butter and Parmesan off the heat. Cover and rest 2 minutes.", 2.0)
-        step("Season and serve with parsley.")
+        step("Bring the stock to a simmer in its saucepan and keep it on the lowest heat beside the risotto pan; adding cold stock stalls the cooking.")
+        step("Heat half the oil in the wide heavy pan over high heat. Add the mushrooms in an even layer and leave for 2 minutes, then stir and cook for 4–5 minutes more, until their liquid has evaporated and they are golden brown. Add the garlic and a pinch of the salt for the last minute, then tip onto a plate.", 7.0)
+        step("Lower the heat to medium, add the remaining oil and the onion and cook gently for about 3 minutes until soft and translucent. Add the rice and stir for 2 minutes, until the grains are hot, glossy and translucent at the edges with a white dot in the centre.", 5.0)
+        step("Pour in the wine, if using, and stir until it has evaporated. Add a ladle of hot stock and stir until it is almost absorbed, then add the next. Continue for 16–18 minutes, stirring often and keeping the rice at a gentle bubble, until it is creamy and the grains are tender with a slight bite in the centre. You may not need all the stock.", 18.0)
+        step("Stir the mushrooms back in with a final half-ladle of stock, so the risotto is loose enough to flow slowly across a plate. Take it off the heat, add the butter and Parmesan, beat vigorously for 30 seconds, then cover and rest for 2 minutes.", 2.0)
+        step("Season with the rest of the salt and the pepper, stir through the parsley and serve straight away in warm bowls; risotto thickens as it stands.")
         safety(RICE_SAFETY)
         storage = "Best eaten fresh; refrigerate leftovers within 1 hour and eat within 1 day."
     }
     recipe("minestrone", "Minestrone", "italian", "Italian home-style", 6, 20, 45, EASY) {
         description = "A thick vegetable soup with beans and small pasta. Every household's version is different; use what's in season."
         equipment("Large pot")
-        tags("vegetarian", "high-fibre", "soup", "meal-prep")
+        tags("soup", "high-fibre", "meal-prep")
         ing("olive_oil", 3.0, TABLESPOON, "Olive oil")
         ing("onion", 1.0, PIECE, "Onion", "diced")
         ing("carrot", 2.0, PIECE, "Carrots", "diced")
@@ -1742,18 +1873,19 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("basil", 0.5, CUP, "Basil or parsley", "torn")
         ing("salt", 1.5, TEASPOON, "Salt")
         ing("parmesan", 30.0, GRAM, "Parmesan, to serve", "grated", optional = true)
-        step("Soften the onion, carrot and celery in the oil.", 10.0)
-        step("Add garlic, potato, courgette and green beans and cook 3 minutes, then add the tomatoes and stock.", 3.0)
-        step("Simmer until the vegetables are tender.", 20.0)
-        step("Add the cabbage, beans and pasta and simmer until the pasta is cooked.", 10.0)
-        step("Season, stir in the herbs and serve with Parmesan and a drizzle of olive oil.")
+        step("Dice the onion, carrots, celery, potato and courgette into roughly 1 cm pieces so they cook evenly and fit on a spoon. Cut the green beans into 2 cm lengths and shred the cabbage.")
+        step("Heat 2 tablespoons of the olive oil in the large pot over medium heat, keeping the last tablespoon for serving. Add the onion, carrots and celery with a pinch of the salt and cook, stirring occasionally, for about 10 minutes, until soft and starting to turn golden.", 10.0)
+        step("Add the garlic, potato, courgette and green beans and stir for 3 minutes, then pour in the tomatoes and stock and add the rest of the salt.", 3.0)
+        step("Bring to the boil, then lower the heat and simmer, partly covered, for about 20 minutes, until the potato is tender.", 20.0)
+        step("Add the cabbage, beans and pasta and simmer for about 10 minutes more, stirring now and then so the pasta doesn't stick, until the pasta is cooked and the cabbage tender. If the soup gets very thick, add a splash of water; it should be thick but still spoonable.", 10.0)
+        step("Taste for salt, stir in the torn herbs and ladle into bowls. Drizzle each with a little of the reserved olive oil and serve with grated Parmesan, if you like, and crusty bread.")
         storage = "Refrigerate within 2 hours for up to 4 days; the pasta keeps absorbing liquid."
         reheating = "Loosen with a little water and reheat until steaming hot throughout."
     }
     recipe("moussaka", "Moussaka", "greek", "National", 6, 40, 90, Difficulty.INVOLVED) {
         description = "Baked layers of roasted aubergine and a cinnamon-scented lamb and tomato sauce under a thick, golden béchamel."
         equipment("Two baking trays", "Frying pan", "Saucepan", "Whisk", "Deep baking dish")
-        tags("high-protein", "dinner", "celebration")
+        tags("main", "celebration")
         ing("eggplant", 1000.0, GRAM, "Aubergines (about 2 large)", "sliced 1 cm thick")
         ing("olive_oil", 5.0, TABLESPOON, "Olive oil", "for brushing and frying")
         group("Meat sauce")
@@ -1773,17 +1905,19 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("milk_whole", 700.0, MILLILITRE, "Whole milk", "warmed")
         ing("egg", 2.0, PIECE, "Egg yolks or whole eggs", "beaten")
         ing("parmesan", 50.0, GRAM, "Kefalotyri or Parmesan", "grated")
-        step("Heat the oven to 200 °C. Brush the aubergine slices with oil, season and roast on trays until soft and golden, turning once.", 25.0, 200)
-        step("Brown the lamb with the onion and garlic, then add tomatoes, paste, spices, oregano and seasoning. Simmer until thick.", 30.0)
-        step("Make the béchamel: melt the butter, whisk in the flour, then the warm milk, and simmer until thick. Off the heat, whisk in the eggs and half the cheese.", 10.0)
-        step("Layer half the aubergine, all the meat sauce, then the rest of the aubergine. Spread over the béchamel and scatter with the remaining cheese.")
-        step("Bake at 180 °C until deep golden. Rest 20–30 minutes before slicing.", 45.0, 180)
+        step("Heat the oven to 200 °C (180 °C fan). Brush the aubergine slices on both sides with about 4 tablespoons of the oil, season lightly with some of the salt and spread them in a single layer on the two baking trays.", tempC = 200)
+        step("Roast for 20–25 minutes, turning once halfway, until soft, floppy and golden. Set aside and turn the oven down to 180 °C.", 25.0, 200)
+        step("Meanwhile, heat the remaining oil in the frying pan over medium-high heat. Brown the lamb with the onion for 8–10 minutes, breaking it up, until no pink remains and the liquid has evaporated; spoon off any excess fat. Add the garlic for 1 minute, then the tomatoes, tomato paste, cinnamon, allspice, oregano, the rest of the salt and the pepper.", 10.0)
+        step("Simmer the meat sauce uncovered for about 20 minutes, stirring occasionally, until thick and no longer watery; a wet sauce makes a soggy moussaka.", 20.0)
+        step("For the béchamel, melt the butter in the saucepan, whisk in the flour and cook for 1 minute. Gradually whisk in the warm milk and simmer, whisking, for 5–8 minutes until thick. Off the heat, let it cool for 2 minutes, then whisk in the eggs and half the cheese.", 10.0)
+        step("Arrange half the aubergine over the base of the baking dish, spread over all the meat sauce, then cover with the remaining aubergine. Pour over the béchamel, smooth it to the edges and scatter with the rest of the cheese.")
+        step("Bake at 180 °C for about 45 minutes, until the top is puffed and deep golden. Rest for 20–30 minutes before slicing so the layers set and cut cleanly.", 45.0, 180)
         safety(MINCE_SAFETY, EGG_SAFETY)
     }
-    recipe("spanakopita", "Spanakopita (spinach and feta pie)", "greek", "National", 8, 30, 45) {
+    recipe("spanakopita", "Spanakopita (spinach and feta pie)", "greek", "National", 8, 30, 60) {
         description = "Spinach, feta, spring onion and herbs baked between layers of crisp, oil-brushed filo pastry."
         equipment("Large pan", "Colander", "Pastry brush", "Baking dish (about 30 × 20 cm)")
-        tags("vegetarian", "lunch", "picnic")
+        tags("main", "picnic")
         ing("spinach", 1000.0, GRAM, "Fresh spinach", "washed and chopped")
         ing("scallion", 6.0, PIECE, "Spring onions", "sliced")
         ing("parsley", 30.0, GRAM, "Dill and parsley", "chopped")
@@ -1792,11 +1926,12 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("black_pepper", 0.5, TEASPOON, "Black pepper and a little nutmeg")
         ing("olive_oil", 6.0, TABLESPOON, "Olive oil", "for the filling and brushing")
         ing("phyllo", 12.0, QuantityUnit.SLICE, "Filo pastry sheets", "kept covered")
-        step("Wilt the spinach in batches in a large pan, then cool and squeeze out as much water as possible.", 10.0)
-        step("Soften the spring onions in 1 tbsp oil and mix with the spinach, herbs, feta, eggs and pepper.", 4.0)
-        step("Heat the oven to 180 °C. Line the dish with 6 filo sheets, brushing each with oil.", tempC = 180)
-        step("Spread in the filling, cover with the remaining sheets, brushing each with oil, and score the top into portions.")
-        step("Bake until crisp and deep golden.", 45.0, 180)
+        step("Wilt the spinach in the large pan over medium heat, a few handfuls at a time with just the water clinging to the leaves, stirring until collapsed. Tip each batch into the colander.", 10.0)
+        step("When the spinach is cool enough to handle, squeeze it hard in your hands, a fistful at a time, to remove as much water as possible; this is the key to a crisp base. Chop it roughly.")
+        step("Heat 1 tablespoon of the oil in the pan and soften the spring onions for 3–4 minutes. In a large bowl, mix them with the spinach, herbs, crumbled feta, beaten eggs, pepper and a grating of nutmeg.", 4.0)
+        step("Heat the oven to 180 °C (160 °C fan) and brush the baking dish with oil. Lay in one filo sheet, letting it come up the sides, and brush it with oil; repeat with 5 more sheets. Keep the rest covered with a damp tea towel so they don't dry out and crack.", tempC = 180)
+        step("Spread the filling evenly over the pastry. Cover with the remaining 6 sheets, brushing each with oil, then tuck in or trim the overhanging edges. Brush the top generously and score through the top layers into 8 portions with a sharp knife.")
+        step("Bake for about 45 minutes, until the pastry is crisp, puffed and deep golden all over. Rest for 10 minutes, then cut along the scored lines and serve warm or at room temperature.", 45.0, 180)
         safety(EGG_SAFETY)
         storage = "Refrigerate within 2 hours for up to 3 days."
         reheating = "Re-crisp in the oven at 180 °C until hot throughout."
@@ -1804,7 +1939,7 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
     recipe("chicken_fajitas", "Chicken fajitas", "american", "Tex-Mex", 4, 15, 15, EASY) {
         description = "Strips of spiced chicken seared with peppers and onion, wrapped in warm flour tortillas with soured cream and coriander."
         equipment("Large cast-iron or heavy frying pan")
-        tags("high-protein", "dinner", "quick")
+        tags("main", "quick")
         ing("chicken_breast", 600.0, GRAM, "Chicken breast", "sliced into strips")
         ing("vegetable_oil", 3.0, TABLESPOON, "Oil")
         ing("lime", 2.0, TABLESPOON, "Lime juice")
@@ -1821,16 +1956,18 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("sour_cream", 4.0, TABLESPOON, "Soured cream")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander")
         ing("avocado", 200.0, GRAM, "Avocado or guacamole", "sliced", optional = true)
-        step("Toss the chicken with half the oil, the lime juice, garlic, spices and salt. Marinate 15 minutes.", 15.0)
-        step("Sear the chicken in a very hot pan in batches until browned and cooked through; set aside.", 7.0)
-        step("Add the remaining oil and stir-fry the peppers and onion until charred but still crisp.", 5.0)
-        step("Return the chicken to the pan, toss, and serve sizzling with warm tortillas and toppings.")
+        step("In a bowl, toss the chicken strips with half the oil, the lime juice, garlic, chilli powder, cumin, paprika, oregano and salt. Leave to marinate for 15 minutes while you slice the peppers and onion into 1 cm strips.", 15.0)
+        step("Heat the cast-iron or heavy frying pan over medium-high heat. Warm the tortillas in it one at a time for 15–20 seconds per side, then stack them and wrap in a clean tea towel to keep warm.")
+        step("Turn the heat to high until the pan is very hot. Add half the chicken in a single layer and sear without moving for 2 minutes, then stir and cook for 1–2 minutes more, until browned and cooked through. Set aside and repeat with the rest.", 7.0)
+        step("Add the remaining oil to the pan and stir-fry the peppers and onion over high heat for 4–5 minutes, until charred in places but still with some crunch.", 5.0)
+        step("Return the chicken and any juices to the pan and toss with the vegetables for 30 seconds to warm through.", 0.5)
+        step("Bring the pan to the table and let everyone fill their own tortillas with chicken and vegetables, a spoonful of soured cream, coriander and avocado, if using.")
         safety(POULTRY_SAFETY)
     }
     recipe("beef_tacos", "Ground beef tacos", "american", "Tex-Mex", 4, 15, 15, EASY) {
         description = "Spiced minced beef in warm corn tortillas with lettuce, tomato, cheese and lime — the familiar Tex-Mex home version."
         equipment("Frying pan")
-        tags("high-protein", "gluten-free", "dinner", "quick")
+        tags("main", "quick")
         ing("vegetable_oil", 1.0, TABLESPOON, "Oil")
         ing("onion", 1.0, PIECE, "Onion", "finely chopped")
         ing("garlic", 2.0, CLOVE, "Garlic", "minced")
@@ -1849,15 +1986,18 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("cheddar", 80.0, GRAM, "Cheddar or Monterey Jack", "grated")
         ing("lime", 1.0, PIECE, "Lime", "wedges")
         ing("sour_cream", 4.0, TABLESPOON, "Soured cream", optional = true)
-        step("Soften the onion in the oil, then add the garlic and beef and cook, breaking it up, until browned.", 8.0)
-        step("Stir in the spices and tomato paste, add the water and salt, and simmer until saucy and the beef is cooked through.", 5.0)
-        step("Warm the tortillas in a dry pan. Fill with the beef and toppings and serve with lime.", 2.0)
+        step("Prepare the toppings first: shred the lettuce, dice the tomatoes, grate the cheese and cut the lime into wedges. Put them in bowls on the table.")
+        step("Heat the oil in the frying pan over medium heat and cook the onion for 3–4 minutes until soft. Add the garlic for 30 seconds, then the beef, and cook over medium-high heat, breaking it up with a wooden spoon, for 5–6 minutes, until browned all over with no pink left.", 8.0)
+        step("Stir in the chilli powder, cumin, paprika, oregano and tomato paste and cook for 1 minute until the spices smell toasted. Add the water and salt and simmer for 4–5 minutes, stirring, until the liquid has reduced to a thick sauce that coats the meat.", 5.0)
+        step("Spoon the beef into a bowl and keep it warm. Wipe out the pan and warm the tortillas over medium-high heat, two at a time if they fit, for about 20 seconds per side until soft and pliable, stacking them in a clean tea towel.")
+        step("Double up the tortillas if they are thin, so they don't split. Spoon in the beef and top with lettuce, tomato, cheese and soured cream, if using.")
+        step("Serve straight away with the lime wedges to squeeze over.")
         safety(MINCE_SAFETY)
     }
     recipe("black_bean_chili", "Black bean and vegetable chili", "american", "Southwestern home-style", 6, 15, 40, EASY) {
         description = "A smoky, meat-free chili of black and kidney beans, peppers, corn and tomatoes. Good for batch cooking."
         equipment("Large pot")
-        tags("vegan", "dairy-free", "gluten-free", "high-fibre", "meal-prep")
+        tags("main", "high-fibre", "meal-prep")
         ing("olive_oil", 2.0, TABLESPOON, "Olive oil")
         ing("onion", 1.0, PIECE, "Large onion", "diced")
         ing("bell_pepper", 2.0, PIECE, "Peppers", "diced")
@@ -1875,16 +2015,18 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("salt", 1.5, TEASPOON, "Salt")
         ing("lime", 1.0, PIECE, "Lime", "wedges")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander")
-        step("Soften the onion, peppers and carrot in the oil.", 8.0)
-        step("Add the garlic and spices and fry for 1 minute.", 1.0)
-        step("Add the tomatoes, beans, corn and stock. Simmer, stirring now and then, until thick.", 30.0)
-        step("Season and serve with lime and coriander, with rice or tortillas.")
+        step("Dice the onion, peppers and carrot into 1 cm pieces. Drain the black and kidney beans in a sieve and rinse them under cold water.")
+        step("Heat the oil in the large pot over medium heat. Add the onion, peppers and carrot with a pinch of the salt and cook, stirring occasionally, for about 8 minutes, until softened and the onion is turning golden.", 8.0)
+        step("Add the garlic, chilli powder, cumin, paprika and oregano and stir for 1 minute, until the spices are fragrant and coat the vegetables; don't let them scorch.", 1.0)
+        step("Add the tomatoes, beans, sweetcorn, stock and remaining salt and bring to the boil. Lower the heat and simmer uncovered for about 30 minutes, stirring every 5–10 minutes so it doesn't catch, until thick and rich.", 30.0)
+        step("For a thicker, creamier chili, crush a ladleful of beans against the side of the pot with the back of the spoon in the last 5 minutes. Taste and adjust the salt and heat.")
+        step("Serve in bowls with a squeeze of lime and plenty of chopped coriander, alongside rice or warm tortillas. The chili tastes even better the next day.")
         storage = "Refrigerate within 2 hours for up to 4 days, or freeze for 3 months."
     }
     recipe("guacamole", "Guacamole", "mexican", null, 6, 10, 0, EASY) {
         description = "Ripe avocado mashed with lime, white onion, chilli, tomato and coriander."
         equipment("Molcajete or bowl and fork")
-        tags("vegan", "dairy-free", "gluten-free", "snack", "no-cook")
+        tags("snack", "no-cook")
         ing("avocado", 600.0, GRAM, "Ripe avocados, whole (about 3 large)", "halved, stoned and scooped")
         ing("lime", 2.0, TABLESPOON, "Lime juice")
         ing("onion", 50.0, GRAM, "White onion", "finely chopped")
@@ -1892,16 +2034,18 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("tomato", 1.0, PIECE, "Tomato", "seeded and diced")
         ing("cilantro", 1.0, QuantityUnit.HANDFUL, "Fresh coriander", "chopped")
         ing("salt", 0.75, TEASPOON, "Salt")
-        step("Crush the onion, chilli, half the coriander and the salt to a rough paste.")
-        step("Add the avocado and mash to the texture you like, leaving some chunks.")
-        step("Fold in the tomato, lime juice and remaining coriander. Taste and adjust salt and lime.")
+        step("Put the onion, chilli, half the coriander and the salt in the molcajete or a sturdy bowl and crush them with the pestle or a fork to a rough, juicy paste. This releases their flavour into the guacamole.")
+        step("Halve the avocados, remove the stones and scoop out the flesh with a spoon. They should be ripe enough to yield to gentle pressure; hard avocados won't mash.")
+        step("Add the avocado to the paste and mash it with the pestle or fork, working from the edges inwards, until you have the texture you like. Leave some small chunks for a traditional, textured guacamole.")
+        step("Fold in the tomato, lime juice and the rest of the coriander. Taste and add more salt or lime; it should taste bright and well seasoned.")
+        step("Serve straight away with tortilla chips, tacos or grilled meat. If you need to keep it for a while, press cling film directly onto the surface to slow browning.")
         storage = "Press cling film onto the surface and refrigerate; best within 1 day (it browns over time)."
         reheating = null
     }
     recipe("jerk_chicken", "Jerk chicken", "caribbean", "Jamaican", 6, 20, 45) {
         description = "Chicken marinated in a fiery paste of Scotch bonnet, allspice, thyme, spring onion and ginger, then grilled or roasted until charred."
         equipment("Blender", "Barbecue or roasting tray")
-        tags("high-protein", "gluten-free", "dairy-free", "dinner")
+        tags("main")
         notes += "Scotch bonnets are very hot: wear gloves to handle them and start with one."
         notes += "Traditionally smoked over pimento (allspice) wood; an oven or barbecue gives a good home result."
         ing("chicken_drumstick", 1500.0, GRAM, "Chicken drumsticks and thighs, bone-in", "slashed to the bone")
@@ -1920,17 +2064,18 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("lime", 3.0, TABLESPOON, "Lime juice")
         ing("vegetable_oil", 2.0, TABLESPOON, "Oil")
         ing("salt", 1.0, TEASPOON, "Salt")
-        step("Blend all the marinade ingredients to a thick paste.", 2.0)
-        step("Rub the paste into the chicken and marinate in the fridge for at least 4 hours, ideally overnight.", 240.0)
-        step("Heat the oven to 200 °C (or a barbecue to medium-hot).", tempC = 200)
-        step("Roast or grill, turning once, until charred and cooked through.", 45.0, 200)
-        step("Rest 5 minutes and serve with rice and peas.", 5.0)
+        step("Wearing gloves, remove the stems from the Scotch bonnets; keep the seeds for maximum heat or scrape them out for a milder marinade. Roughly chop the spring onions, onion, garlic and ginger.")
+        step("Blend the vegetables with the allspice, thyme, cinnamon, pepper, sugar, soy sauce, lime juice, oil and salt to a thick, fairly smooth paste. Taste a tiny amount carefully and add a little more chilli if you like it fiery.", 2.0)
+        step("Make sure each piece of chicken is slashed deeply to the bone. Rub the paste all over and into the cuts, cover and refrigerate for at least 4 hours, ideally overnight.", 240.0)
+        step("Heat the oven to 200 °C (180 °C fan), or prepare a barbecue for medium-hot indirect cooking. Take the chicken out of the fridge 20 minutes before cooking.", tempC = 200)
+        step("Arrange the chicken skin side up on the roasting tray (on a rack if you have one), or on the barbecue away from the hottest coals. Roast for 40–45 minutes, turning once, until charred at the edges and cooked through: the juices should run clear and the thickest piece should reach 74 °C.", 45.0, 200)
+        step("Rest for 5 minutes, then serve with rice and peas.", 5.0)
         safety(POULTRY_SAFETY)
     }
     recipe("rice_and_peas", "Rice and peas", "caribbean", "Jamaican", 6, 10, 35, EASY) {
         description = "Long-grain rice cooked in coconut milk with kidney beans (the \"peas\"), thyme, allspice and a whole Scotch bonnet for fragrance."
         equipment("Heavy lidded saucepan")
-        tags("vegan", "dairy-free", "gluten-free", "side")
+        tags("side")
         ing("kidney_beans", 400.0, GRAM, "Kidney beans, canned", "drained", cooked = true)
         ing("coconut_milk", 400.0, MILLILITRE, "Coconut milk")
         ing("water", 500.0, MILLILITRE, "Water")
@@ -1941,31 +2086,35 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("green_chili", 1.0, PIECE, "Scotch bonnet chilli, whole", "leave unbroken")
         ing("salt", 1.5, TEASPOON, "Salt")
         ing("rice_white", 400.0, GRAM, "Long-grain rice", "rinsed")
-        step("Bring the coconut milk, water, beans, spring onions, garlic, thyme, allspice, chilli and salt to a simmer.", 5.0)
-        step("Stir in the rice, return to a simmer, then cover tightly and cook on the lowest heat until the liquid is absorbed.", 25.0)
-        step("Rest covered off the heat for 5 minutes. Remove the chilli, spring onions and thyme stems and fluff with a fork.", 5.0)
+        step("Rinse the rice in a sieve until the water runs clear, then drain well. Bruise the spring onions by bashing them lightly with the flat of a knife so they release their flavour.")
+        step("Put the coconut milk, water, beans, spring onions, garlic, thyme, allspice, salt and the whole Scotch bonnet in the heavy lidded saucepan. Bring to a simmer over medium heat and simmer for 5 minutes to infuse. Keep the chilli whole: if it bursts, the rice will be very hot.", 5.0)
+        step("Stir in the rice, bring back to a simmer and stir once more so nothing sticks. Cover tightly and cook on the lowest heat for 25 minutes without lifting the lid, until the liquid has been absorbed and the rice is tender.", 25.0)
+        step("Turn off the heat and leave covered for 5 minutes. Carefully lift out the Scotch bonnet, spring onions and any thyme stems, then fluff the rice with a fork, mixing the beans through. Serve with jerk chicken, curries or stews.", 5.0)
         safety(RICE_SAFETY)
     }
     recipe("overnight_oats", "Overnight oats with berries", "international", null, 1, 5, 0, EASY) {
         description = "Rolled oats soaked overnight in milk and yogurt with chia, topped with berries. No cooking needed."
         equipment("Jar or bowl with a lid")
-        tags("vegetarian", "breakfast", "meal-prep", "no-cook")
+        tags("breakfast", "meal-prep", "no-cook")
         ing("oats", 50.0, GRAM, "Rolled oats")
         ing("milk_low_fat", 150.0, MILLILITRE, "Milk (or a plant milk)")
         ing("greek_yogurt_nonfat", 50.0, GRAM, "Greek yogurt")
         ing("chia_seeds", 1.0, TABLESPOON, "Chia seeds")
         ing("honey", 1.0, TEASPOON, "Honey or maple syrup")
         ing("blueberries", 75.0, GRAM, "Blueberries or other berries")
-        step("Stir the oats, milk, yogurt, chia and honey together in a jar.", 2.0)
-        step("Cover and refrigerate overnight (at least 6 hours).", 360.0)
-        step("Stir, loosen with a splash of milk if needed, and top with berries.")
+        step("Use a jar or bowl that holds at least 400 ml, so there is room for the oats to swell and for stirring. Add the oats and chia seeds and stir or shake to mix them evenly.")
+        step("Pour in the milk, add the yogurt and honey, and stir well for about 30 seconds, until there are no dry pockets of oats; chia seeds clump if they are not stirred straight away.", 1.0)
+        step("Leave to stand for 5 minutes, then stir once more. This second stir breaks up any chia that has started to clump and gives a smoother, more even texture.", 5.0)
+        step("Cover with the lid and refrigerate overnight, or for at least 6 hours, until the oats have absorbed most of the liquid and turned soft and creamy.", 360.0)
+        step("In the morning, stir the oats well. If they are thicker than you like, loosen them with a splash of milk until they have the consistency of thick yogurt.")
+        step("Top with the blueberries just before eating, so they stay fresh and don't bleed colour into the oats. Eat from the jar, or take it with you as a ready-made breakfast.")
         storage = "Keep covered in the fridge; eat within 2 days."
         reheating = null
     }
     recipe("pancakes", "Buttermilk-style pancakes", "american", null, 4, 10, 20, EASY) {
         description = "Thick, fluffy American-style pancakes made with milk and baking powder, served with maple syrup."
         equipment("Mixing bowls", "Whisk", "Non-stick frying pan or griddle")
-        tags("vegetarian", "breakfast")
+        tags("breakfast")
         ing("flour", 190.0, GRAM, "Plain flour")
         ing("sugar", 2.0, TABLESPOON, "Sugar")
         ing("baking_powder", 2.0, TEASPOON, "Baking powder")
@@ -1976,26 +2125,32 @@ private fun RecipeListBuilder.europeanAndAmericasKitchen() {
         ing("vegetable_oil", 1.0, TEASPOON, "Oil for the pan")
         ing("maple_syrup", 4.0, TABLESPOON, "Maple syrup, to serve")
         ing("blueberries", 100.0, GRAM, "Blueberries, to serve", optional = true)
-        step("Whisk the flour, sugar, baking powder and salt in a bowl.")
-        step("Whisk the milk, egg and melted butter, pour into the dry ingredients and stir until just combined (a few lumps are fine). Rest 5 minutes.", 5.0)
-        step("Heat a lightly oiled pan over medium heat. Pour in ladlefuls of batter and cook until bubbles appear and the edges set, then flip.", 3.0)
-        step("Cook the second side until golden. Repeat with the rest of the batter and serve with maple syrup.", 2.0)
+        step("Melt the butter in the frying pan over low heat, then pour it into a small bowl to cool slightly. In a large mixing bowl, whisk the flour, sugar, baking powder and salt together so the raising agent is evenly spread.")
+        step("In a second bowl or jug, whisk the milk and egg together, then whisk in the melted butter.")
+        step("Pour the wet ingredients into the dry ones and stir with the whisk until just combined, stopping as soon as no dry flour is visible. A few lumps are fine; over-mixing makes tough, flat pancakes. Rest the batter for 5 minutes, during which it thickens and turns slightly bubbly.", 5.0)
+        step("Heat the frying pan or griddle over medium heat and wipe it with a little of the oil on kitchen paper. Test with a drop of batter: it should sizzle gently, not fiercely.")
+        step("Pour in about 3 tablespoons of batter per pancake, leaving space between them. Cook for 2–3 minutes, until bubbles rise and pop on the surface and the edges look set and dry, then flip with a spatula.", 3.0)
+        step("Cook the second side for 1–2 minutes, until golden and the pancake springs back when pressed in the centre. Keep the cooked pancakes warm under a clean tea towel while you cook the rest, wiping the pan with oil between batches.", 2.0)
+        step("Serve stacked, with maple syrup poured over and the blueberries, if using.")
         storage = "Refrigerate cooled pancakes for up to 2 days, or freeze interleaved with paper."
         reheating = "Warm in a toaster or a dry pan."
     }
     recipe("omelette", "Cheese and herb omelette", "international", null, 1, 3, 4, EASY) {
         description = "Three eggs cooked quickly in butter and folded around grated cheese and spring onion."
         equipment("Non-stick frying pan (20 cm)", "Spatula")
-        tags("vegetarian", "high-protein", "gluten-free", "breakfast", "quick")
+        tags("breakfast", "quick")
         ing("egg", 3.0, PIECE, "Eggs")
         ing("butter", 1.0, TABLESPOON, "Butter")
         ing("cheddar", 30.0, GRAM, "Cheddar or Gruyère", "grated")
         ing("scallion", 1.0, PIECE, "Spring onion or chives", "finely sliced")
         ing("salt", 1.0, PINCH, "Salt")
         ing("black_pepper", 1.0, PINCH, "Black pepper")
-        step("Beat the eggs with salt and pepper.")
-        step("Melt the butter in the pan over medium-high heat until foaming. Add the eggs and stir, then let them set, tilting the pan.", 2.0)
-        step("While the top is still slightly soft, scatter over the cheese and spring onion, fold and slide onto a plate.", 1.0)
+        step("Grate the cheese, slice the spring onion and warm a plate before you start; the omelette cooks in under 3 minutes, so everything needs to be ready.")
+        step("Crack the eggs into a bowl, add the salt and pepper and beat with a fork for 20–30 seconds, until the whites and yolks are completely combined but not frothy.")
+        step("Heat the 20 cm non-stick pan over medium-high heat and add the butter. When it has melted and the foam starts to subside, but before it browns, pour in the eggs.", 1.0)
+        step("Stir the eggs quickly with the spatula for about 20 seconds while shaking the pan, so small soft curds form. Then stop stirring, spread the egg into an even layer and tilt the pan, lifting the set edges so raw egg runs underneath. Cook for about 1 minute, until the base is set and the top is still slightly moist.", 1.5)
+        step("Scatter the cheese and spring onion over one half of the omelette. Leave for 20–30 seconds, until the cheese begins to melt and the egg is just set; cook a little longer if you prefer it firm throughout.", 0.5)
+        step("Tilt the pan and use the spatula to fold the empty half over the filling, then slide the omelette onto the warm plate, seam side down. Eat straight away.")
         safety(EGG_SAFETY)
         storage = "Best eaten immediately."
         reheating = null

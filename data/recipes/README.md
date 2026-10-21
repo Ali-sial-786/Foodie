@@ -70,6 +70,8 @@ Recipes are Nouri's own write-ups of widely known home-style dishes (origin "Tra
 
 ## Quality rules (enforced)
 
+The built-in recipes in `RecipeCatalog.kt` follow the same rules (course and extra tags go in `tags(...)` there); `RecipeLibraryTest` checks both.
+
 - Mains, soups, breakfasts, breads and desserts: at least **6 steps** and **700 characters** of method. Salads, sides, snacks, drinks and sauces: at least 4 steps and 350 characters. Each step is 40–600 characters.
 - Steps should be detailed enough to cook from without prior knowledge: heat level, pan size, times, visual and sensory cues ("until the onions are deep golden and jammy, 12–15 minutes"), doneness checks, resting, how to serve. Put timers and oven temperatures in `min` / `c`.
 - Description 40–400 characters; at least one piece of equipment; storage advice.

@@ -5,16 +5,17 @@
 | Suite | Location | Count | Runs where |
 |---|---|---|---|
 | Shared unit tests | `shared/src/commonTest` | 246 | Locally and in CI (`:shared:jvmTest`) |
-| Shared JVM-only tests (benchmark, dish and recipe table printers) | `shared/src/jvmTest` | 4 | Locally and in CI |
+| Shared JVM-only tests (benchmark, recipe-library and catalogue standards, dish and recipe table printers) | `shared/src/jvmTest` | 10 | Locally and in CI |
 | App unit, Robolectric and Compose UI tests | `app/src/test` | 31 | CI only (`:app:testDebugUnitTest`) |
 | Android lint | — | — | CI only (`:app:lintDebug`; reports uploaded, non-blocking) |
 
-That makes **250 shared tests**. They cover:
+That makes **256 shared tests**. They cover:
 
 - unit conversions and regional cups;
 - the ontology, aliases and allergen/halal flags;
 - recipe and dish calculation, including the estimated pot weight when dry rice, pasta or pulses absorb water;
 - every built-in recipe calculating fully from USDA data, with sensible calories per serving and halal-incompatible items only as optional lines (`RecipeCatalogCoverageTest`);
+- every built-in and bundled-library recipe meeting the authoring rules in `data/recipes/README.md`: exactly one course, no declared diet tags, a method long and detailed enough for its course, equipment, storage advice, a food-safety note for raw meat, poultry or seafood, and calories per serving plausible for the course (`RecipeLibraryTest`);
 - recipe import from messy pasted text (`RecipeImportTest`);
 - the meal estimation pipeline and corrections;
 - the natural-language parser;
