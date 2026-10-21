@@ -7,7 +7,7 @@
 | Shared unit tests | `shared/src/commonTest` | 270 | Locally and in CI on the JVM (`:shared:jvmTest`), and on the iOS simulator in the iOS workflow (`:shared:iosSimulatorArm64Test`) |
 | Shared JVM-only tests (benchmark, recipe-library and catalogue standards, ingredient table export, dish and recipe table printers) | `shared/src/jvmTest` | 11 | Locally and in CI |
 | App unit, Robolectric and Compose UI tests | `app/src/test` | 34 | CI only (`:app:testDebugUnitTest`) |
-| iOS app tests (XCTest, simulator) | `iosApp/NouriTests` | 6 | CI only (`.github/workflows/ios.yml`) |
+| iOS app tests (XCTest, simulator) | `iosApp/NouriTests` | 6 | CI only (`.github/workflows/ios.yml`); all passing on an iPhone simulator, along with the shared tests under Kotlin/Native |
 | Android lint | — | — | CI only (`:app:lintDebug`; reports uploaded, non-blocking) |
 
 That makes **281 shared tests**. They cover:

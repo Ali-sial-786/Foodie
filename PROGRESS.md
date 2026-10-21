@@ -54,6 +54,7 @@ _Last updated: 2026-10-21._
 - Today (ring, meals, log again, recipe ideas), Diary (day navigation, swipe to delete, undo), Add food (search with units and live nutrition, describe on the phone or with AI, photo scan with demo or real provider and consent, barcode scanning with VisionKit and Open Food Facts, quick add, duplicate warning).
 - Discover with the same search, filters, sorting, version picker and ratings as Android; recipe detail with servings, nutrition, diets and allergens, versions, rating, favourites, ingredients, method with timers, safety notes, log a portion, mark cooked.
 - Progress (weight trend and weekly calories with Swift Charts), Settings (profile, suggested or manual targets, units, diets and allergies, AI provider with demo, Sign in with ChatGPT through an in-app browser and a 127.0.0.1 listener, API key in the Keychain with explicit fallback opt-in, photo consent, online lookups, CSV export, delete everything), onboarding.
+- Verified in CI (iOS workflow run 39610087244, Xcode 26 on macOS): the 270 shared tests pass on the iOS simulator under Kotlin/Native, the SwiftUI app compiles and its 6 XCTests pass on an iPhone simulator, and the unsigned device build produces `Nouri-unsigned.ipa` (5.4 MB).
 - Not run on a real iPhone yet: installing needs an Apple account to sign it (see BLOCKERS.md).
 
 ## Not started
