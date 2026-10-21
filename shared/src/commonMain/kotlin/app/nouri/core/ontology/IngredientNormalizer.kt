@@ -32,10 +32,10 @@ class IngredientNormalizer(ingredients: List<CanonicalIngredient> = IngredientCa
     init {
         val map = LinkedHashMap<String, CanonicalIngredient>()
         // Canonical names win over aliases shared by several ingredients.
-        for (ing in ingredients) map.putIfAbsent(normalize(ing.name), ing)
+        for (ing in ingredients) map.getOrPut(normalize(ing.name)) { ing }
         for (ing in ingredients) {
-            map.putIfAbsent(normalize(ing.id.replace('_', ' ')), ing)
-            for (alias in ing.aliases) map.putIfAbsent(normalize(alias), ing)
+            map.getOrPut(normalize(ing.id.replace('_', ' '))) { ing }
+            for (alias in ing.aliases) map.getOrPut(normalize(alias)) { ing }
         }
         aliasIndex = map.filterKeys { it.isNotBlank() }
         aliasesByLength = aliasIndex.entries.map { it.key to it.value }.sortedByDescending { it.first.length }
