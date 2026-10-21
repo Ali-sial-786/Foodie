@@ -15,6 +15,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
 import io.ktor.http.headersOf
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -151,7 +152,8 @@ class ChatGptSignInTest {
     fun theListenerAnswersTheBrowserEvenAfterAnIdleConnection() = runBlocking {
         val receiver = AndroidLoopbackReceiver(clientReadTimeoutMs = 300)
         val port = receiver.start()
-        val callback = async { receiver.awaitCallback(10_000) }
+        // The listener has to run while this thread blocks on the sockets below.
+        val callback = async(Dispatchers.IO) { receiver.awaitCallback(10_000) }
         val loopback = InetAddress.getByName("127.0.0.1")
 
         // Browsers sometimes open a spare connection and never send anything on it.
