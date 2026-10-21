@@ -113,6 +113,8 @@ class SiwcTest {
         var refreshStatus = HttpStatusCode.OK
         var nonce = ""
         var rotation = 0
+        /** Simulates the OS blocking the request before it reaches the server (no HTTP response). */
+        var tokenEndpointUnreachable = false
     }
 
     private fun client(server: Server) = HttpClient(
@@ -124,6 +126,7 @@ class SiwcTest {
                     HttpStatusCode.OK, json,
                 )
                 "/api/accounts/oauth/token" -> {
+                    if (server.tokenEndpointUnreachable) throw IllegalStateException("Unable to resolve host \"auth.openai.com\"")
                     val form = (request.body as FormDataContent).formData
                     server.tokenCalls += form.names().associateWith { form[it]!! }
                     if (form["grant_type"] == "refresh_token" && server.refreshStatus != HttpStatusCode.OK) {
@@ -176,6 +179,40 @@ class SiwcTest {
         assertIs<SignInResult.SignedInWithoutPlanUsage>(result)
         assertNull(manager.token(false), "No plan-usage token without the scope")
         assertFalse(manager.account().connected)
+    }
+
+    @Test
+    fun unreachableTokenEndpointLeavesTheCallbackRetryable() = runTest {
+        val server = Server().apply { tokenEndpointUnreachable = true }
+        val store = InMemorySiwcStore()
+        val manager = SiwcAuthManager(client(server), store, random, FakeClock(1_000_000), sleep = {})
+        val pending = manager.begin(SiwcConfig.redirectUri(5555))
+        server.nonce = pending.nonce
+        val callback = "http://127.0.0.1:5555/auth/callback?code=the-code&state=${pending.state}&client_id=issued-1"
+
+        val first = assertIs<SignInResult.Failed>(manager.complete(pending, callback))
+        assertTrue(first.unreachable, "a request that never reached the server must be marked retryable with the same code")
+        assertNull(store.session())
+
+        server.tokenEndpointUnreachable = false
+        assertIs<SignInResult.Success>(manager.complete(pending, callback))
+        assertEquals("the-code", server.tokenCalls.single()["code"])
+    }
+
+    @Test
+    fun serverRejectionIsNotMarkedUnreachable() = runTest {
+        val server = Server().apply { nonce = "irrelevant" }
+        val manager = SiwcAuthManager(
+            HttpClient(MockEngine { request ->
+                if (request.url.encodedPath == "/api/accounts/oauth/token") respond("""{"error":"invalid_grant"}""", HttpStatusCode.BadRequest, headersOf(HttpHeaders.ContentType, "application/json"))
+                else respond("", HttpStatusCode.NotFound)
+            }),
+            InMemorySiwcStore(), random, FakeClock(1_000_000), sleep = {},
+        )
+        val pending = manager.begin(SiwcConfig.redirectUri(5555))
+        val result = assertIs<SignInResult.Failed>(manager.complete(pending, "http://127.0.0.1:5555/auth/callback?code=c&state=${pending.state}&client_id=issued-1"))
+        assertFalse(result.unreachable, "a used or rejected code must not be retried")
+        assertTrue(server.tokenCalls.isEmpty())
     }
 
     @Test

@@ -4,12 +4,12 @@
 
 | Suite | Location | Count | Runs where |
 |---|---|---|---|
-| Shared unit tests | `shared/src/commonTest` | 227 | Locally and in CI (`:shared:jvmTest`) |
+| Shared unit tests | `shared/src/commonTest` | 229 | Locally and in CI (`:shared:jvmTest`) |
 | Shared JVM-only tests (benchmark, dish table printer) | `shared/src/jvmTest` | 3 | Locally and in CI |
 | App unit, Robolectric and Compose UI tests | `app/src/test` | 30 | CI only (`:app:testDebugUnitTest`) |
 | Android lint | — | — | CI only (`:app:lintDebug`; reports uploaded, non-blocking) |
 
-That makes **230 shared tests**. They cover:
+That makes **232 shared tests**. They cover:
 
 - unit conversions and regional cups;
 - the ontology, aliases and allergen/halal flags;
@@ -79,7 +79,7 @@ Read coverage together with range width: wide ranges make coverage easy. The har
 | App compiles; main flows pass under Robolectric (simulated) | Verified in CI |
 | UI on a real phone or emulator | **Not done** |
 | CameraX capture, ML Kit barcode and OCR on hardware | **Not done** |
-| Sign in with ChatGPT and Responses API against live OpenAI | **In progress on a device**: first attempt reached OpenAI and exposed a host-id format bug (fixed, retest pending); token exchange and AI requests not reached yet |
+| Sign in with ChatGPT and Responses API against live OpenAI | **In progress on a device**: authorization and consent work; the code exchange hit Android 15's background-network block (fixed, retest pending); AI requests not reached yet |
 | Open Food Facts live lookups | **Not done**; mapper tested with sample JSON |
 
 Do not describe a feature as working on devices until it has been tried on one. Record real-device results here, with device model and Android version.
@@ -89,3 +89,4 @@ Do not describe a feature as working on devices until it has been tried on one. 
 | Date | Device / Android | What was tried | Result |
 |---|---|---|---|
 | 2026-10-21 | Not recorded | Install debug APK; Settings › AI provider › Connect ChatGPT | App installed and opened the Custom Tab to `auth.openai.com`. The authorize request was rejected: `invalid_authorize_request`, `param: ext_agent_host_id`. Cause: the host id was `nouri-<hex>` instead of the required `urn:uuid:<UUIDv4>`. Fixed; needs a retest. |
+| 2026-10-21 | Not recorded | Retest with the host-id fix | Authorize request accepted; OpenAI's consent screen showed the agent and the "ChatGPT plan" usage grant. After approving, the code exchange failed in the app with `Unable to resolve host "auth.openai.com"`. Cause: Android 15+ blocks network requests from apps in the background, and Nouri was behind the browser when the callback arrived. Fixed by waiting until Nouri is in the foreground before exchanging the code, with one retry if the request never reached the server; needs a retest. |

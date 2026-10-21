@@ -4,7 +4,7 @@ _Last updated: 2026-10-20._
 
 ## Done
 
-**Shared engine (`:shared`).** 230 tests pass locally and in CI.
+**Shared engine (`:shared`).** 232 tests pass locally and in CI.
 
 - Units, regional cups, household portions.
 - USDA SR28 data pipeline: 235 compiled core foods plus the full table as a search asset.
@@ -57,6 +57,6 @@ _Last updated: 2026-10-20._
 ## Known limitations
 
 - Android code has only been compiled and tested in CI. Nothing has run on a device or emulator.
-- Sign in with ChatGPT has had one real-device attempt: the authorize request reached OpenAI and was rejected because the host id format was wrong (now `urn:uuid:<UUIDv4>`). Token exchange and Responses API calls have still only been tested against mocked HTTP.
+- Sign in with ChatGPT on a real device: authorization and the consent screen work (after fixing the host-id format). The code exchange was blocked by Android 15's background-network restriction; it now waits for the app to return to the foreground. Not yet confirmed end to end, and Responses API calls have still only been tested against mocked HTTP.
 - Default OpenAI model names are placeholders, resolved at runtime from `GET /v1/models`.
 - The benchmark uses synthetic fixtures and the deterministic demo provider, so it does not measure photo recognition.

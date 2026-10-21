@@ -1,6 +1,8 @@
 package app.nouri
 
 import android.content.Context
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
 import app.nouri.ai.ChatGptSignIn
 import app.nouri.core.NouriCore
 import app.nouri.core.ai.AiProvider
@@ -92,7 +94,11 @@ open class AppContainer(
     // ---- AI
     private val random = SecureRandomSource { size -> ByteArray(size).also { SecureRandom().nextBytes(it) } }
     val siwc by lazy { SiwcAuthManager(http, AndroidSiwcStore(secrets), random, Clock { System.currentTimeMillis() }) }
-    val chatGptSignIn by lazy { ChatGptSignIn(siwc) }
+    val chatGptSignIn by lazy {
+        ChatGptSignIn(siwc) {
+            ProcessLifecycleOwner.get().lifecycle.currentStateFlow.first { it.isAtLeast(Lifecycle.State.STARTED) }
+        }
+    }
 
     private val planClient by lazy { ResponsesClient(http, siwc, ResponsesConfig()) }
     private val apiClient by lazy { ResponsesClient(http, BearerTokenSource { apiKeys.get() }, ResponsesConfig()) }

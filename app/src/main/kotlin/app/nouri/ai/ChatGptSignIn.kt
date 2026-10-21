@@ -4,7 +4,9 @@ import app.nouri.core.auth.LoopbackRedirectReceiver
 import app.nouri.core.auth.SignInResult
 import app.nouri.core.auth.SiwcAuthManager
 import app.nouri.core.auth.SiwcConfig
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.InetAddress
@@ -89,10 +91,18 @@ class AndroidLoopbackReceiver(private val returnLink: String = "nouri://auth-com
     }
 }
 
-/** Runs the browser-based Sign in with ChatGPT flow end to end. */
+/**
+ * Runs the browser-based Sign in with ChatGPT flow end to end.
+ *
+ * The browser is in front when the callback arrives, and Android 15+ blocks network
+ * requests from apps in the background (they fail with UnknownHostException). So the
+ * callback is received in the background (loopback only), and the code exchange waits
+ * until [awaitForeground] reports that the user is back in the app.
+ */
 class ChatGptSignIn(
     private val manager: SiwcAuthManager,
     private val receiverFactory: () -> LoopbackRedirectReceiver = { AndroidLoopbackReceiver() },
+    private val awaitForeground: suspend () -> Unit = {},
 ) {
     suspend fun signIn(openBrowser: (String) -> Unit, timeoutMs: Long = 5 * 60_000L): SignInResult {
         val receiver = receiverFactory()
@@ -101,11 +111,27 @@ class ChatGptSignIn(
             val pending = manager.begin(SiwcConfig.redirectUri(port))
             openBrowser(pending.authorizationUrl)
             val callback = receiver.awaitCallback(timeoutMs) ?: return SignInResult.Cancelled("Sign-in was closed or timed out")
-            manager.complete(pending, callback)
+            receiver.stop()
+            withTimeoutOrNull(RETURN_TIMEOUT_MS) { awaitForeground() }
+                ?: return SignInResult.Failed("Sign-in wasn't finished because Nouri wasn't reopened. Please try again.", retryable = true)
+            val first = manager.complete(pending, callback)
+            if (first is SignInResult.Failed && first.unreachable) {
+                // The code was never sent, so it is still valid: give the network a moment and retry once.
+                delay(RETRY_DELAY_MS)
+                awaitForeground()
+                manager.complete(pending, callback)
+            } else {
+                first
+            }
         } catch (e: java.io.IOException) {
             SignInResult.Failed("Couldn't start sign-in: ${e.message}", retryable = true)
         } finally {
             receiver.stop()
         }
+    }
+
+    private companion object {
+        const val RETURN_TIMEOUT_MS = 10 * 60_000L
+        const val RETRY_DELAY_MS = 1_500L
     }
 }

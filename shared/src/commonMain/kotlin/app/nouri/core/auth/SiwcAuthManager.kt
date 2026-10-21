@@ -78,7 +78,13 @@ sealed interface SignInResult {
     data class SignedInWithoutPlanUsage(val session: SiwcSession) : SignInResult
 
     data class Cancelled(val reason: String) : SignInResult
-    data class Failed(val reason: String, val retryable: Boolean) : SignInResult
+
+    /**
+     * [unreachable] means the token endpoint was never reached (no network, or the OS
+     * blocked the request), so the authorization code is unused and the same callback can
+     * be completed again.
+     */
+    data class Failed(val reason: String, val retryable: Boolean, val unreachable: Boolean = false) : SignInResult
 }
 
 data class SignOutResult(val remoteRevocationConfirmed: Boolean, val message: String)
@@ -162,7 +168,10 @@ class SiwcAuthManager(
                 append("code_verifier", pending.pkce.verifier)
                 if (pending.requestedPlanUsage) append("resource", SiwcConfig.RESOURCE)
             },
-        ).getOrElse { return SignInResult.Failed(it.message ?: "Token exchange failed", retryable = true) }
+        ).getOrElse { e ->
+            return if (e is TokenEndpointException) SignInResult.Failed(e.message ?: "Token exchange failed", retryable = true)
+            else SignInResult.Failed("Couldn't reach OpenAI to finish signing in (${e.message ?: e::class.simpleName}).", retryable = true, unreachable = true)
+        }
 
         val idToken = token.idToken ?: return SignInResult.Failed("No ID token returned", retryable = true)
         val claims = IdTokens.decode(idToken) ?: return SignInResult.Failed("Unreadable ID token", retryable = true)
