@@ -38,11 +38,16 @@ import app.nouri.core.recipes.CuisineCatalog
 import app.nouri.core.recipes.Difficulty
 import app.nouri.core.recipes.Recipe
 import app.nouri.core.recipes.RecipeOrigin
+import app.nouri.core.recommend.PreparedRecipe
+import app.nouri.core.recommend.RecipeUsage
 import app.nouri.ui.components.Fmt
 import app.nouri.ui.components.NouriCard
 
 /** One version of a dish, with what the version picker shows about it. */
 data class RecipeVersion(val recipe: Recipe, val kcalPerServing: Double, val rating: Int?, val cookedCount: Int)
+
+fun PreparedRecipe.toVersion(usage: Map<String, RecipeUsage>): RecipeVersion =
+    RecipeVersion(recipe, perServing.energyKcal, usage[recipe.id]?.rating, usage[recipe.id]?.cookedCount ?: 0)
 
 /** Short label telling versions of the same dish apart. */
 fun versionLabel(recipe: Recipe): String = when (recipe.origin) {

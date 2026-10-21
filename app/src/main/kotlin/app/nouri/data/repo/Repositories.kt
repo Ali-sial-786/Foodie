@@ -19,6 +19,7 @@ import app.nouri.core.progress.WeightEntry
 import app.nouri.core.recipes.Recipe
 import app.nouri.core.recipes.RecipeCatalog
 import app.nouri.core.recipes.RecipeLibrary
+import app.nouri.core.recommend.RecipeUsage
 import app.nouri.data.db.DiaryDao
 import app.nouri.data.db.NameCount
 import app.nouri.data.db.PantryDao
@@ -124,8 +125,6 @@ class WeightRepository(private val dao: WeightDao) {
     suspend fun all(): List<WeightEntry> = dao.all().map { it.toDomain() }
     suspend fun allMeasurements(): List<BodyMeasurement> = dao.allMeasurements().map { it.toDomain() }
 }
-
-data class RecipeUsage(val favourite: Boolean = false, val cookedCount: Int = 0, val lastCookedAtEpochMs: Long? = null, val rating: Int? = null)
 
 /**
  * The bundled recipe library (`assets/recipes/library.json`, built from `data/recipes/`).

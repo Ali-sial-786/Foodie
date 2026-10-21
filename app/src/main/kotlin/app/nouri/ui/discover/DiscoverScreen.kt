@@ -67,7 +67,11 @@ import app.nouri.core.recipes.CuisineCatalog
 import app.nouri.core.recipes.RecipeCourse
 import app.nouri.core.recipes.RecipeOrigin
 import app.nouri.core.recipes.WorldRegion
-import app.nouri.data.repo.RecipeUsage
+import app.nouri.core.recommend.CuisineCount
+import app.nouri.core.recommend.DishResult
+import app.nouri.core.recommend.RecipeSearch
+import app.nouri.core.recommend.RecipeSort
+import app.nouri.core.recommend.RecipeUsage
 import app.nouri.ui.LocalAppContainer
 import app.nouri.ui.components.EmptyState
 import app.nouri.ui.components.Fmt
@@ -79,6 +83,7 @@ import app.nouri.ui.recipes.OriginBadge
 import app.nouri.ui.recipes.RecipeIndicators
 import app.nouri.ui.recipes.RecipeText
 import app.nouri.ui.recipes.VersionsSheet
+import app.nouri.ui.recipes.toVersion
 
 @Composable
 fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
@@ -90,7 +95,7 @@ fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
     var versionsOf by remember { mutableStateOf<DishResult?>(null) }
     versionsOf?.let { dish ->
         VersionsSheet(
-            title = dish.versions.first().recipe.name, versions = dish.versions, currentId = null,
+            title = dish.versions.first().recipe.name, versions = dish.versions.map { it.toVersion(state?.usage.orEmpty()) }, currentId = null,
             onDismiss = { versionsOf = null },
         ) { id ->
             versionsOf = null
@@ -127,8 +132,8 @@ fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
                 singleLine = true,
             )
         }
-        item { FilterRow(filters, state?.cuisines.orEmpty(), vm) }
-        state?.let { s ->
+        item { FilterRow(filters, state?.search?.cuisines.orEmpty(), vm) }
+        state?.search?.let { s ->
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -151,7 +156,8 @@ fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
                 AssistChip(onClick = { nav.to(Route.RecipeEditor()) }, label = { Text("New recipe") }, leadingIcon = { Icon(Icons.Outlined.Add, null, Modifier.size(18.dp)) })
             }
         }
-        val s = state
+        val s = state?.search
+        val usage = state?.usage.orEmpty()
         if (s == null) {
             item { LoadingBox(label = "Ranking recipes…") }
         } else {
@@ -173,7 +179,7 @@ fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
             }
             items(s.results, key = { it.shown.recipe.id }) { dish ->
                 RecipeCard(
-                    dish, usage = s.usage[dish.shown.recipe.id], favourite = dish.shown.recipe.id in s.favourites,
+                    dish, usage = usage[dish.shown.recipe.id], favourite = dish.shown.recipe.id in s.favourites,
                     onVersions = { versionsOf = dish },
                 ) { nav.to(Route.RecipeDetail(dish.shown.recipe.id)) }
             }
@@ -268,7 +274,7 @@ private fun FilterRow(f: DiscoverFilters, cuisines: List<Pair<WorldRegion, List<
                 leadingIcon = { Icon(Icons.Outlined.Eco, contentDescription = null, modifier = Modifier.size(18.dp)) },
             )
             DropdownMenu(expanded = dietMenu, onDismissRequest = { dietMenu = false }) {
-                DiscoverViewModel.DIET_FILTERS.forEach { diet ->
+                RecipeSearch.DIET_FILTERS.forEach { diet ->
                     val on = diet in f.diets
                     DropdownMenuItem(
                         text = { Text(diet.label) },
