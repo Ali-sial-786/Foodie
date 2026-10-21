@@ -6,7 +6,7 @@ Nouri is **local-first**. There are no Nouri accounts, servers, analytics, adver
 
 | Data | Where | Protection |
 |---|---|---|
-| Diary, weights, measurements, recipes, pantry, grocery, user foods, scan sessions | Room database (app-private) | Android app sandbox |
+| Diary, weights, measurements, recipes (including your ratings and favourites), pantry, grocery, user foods, scan sessions | Room database (app-private) | Android app sandbox |
 | Settings (profile, targets, preferences, AI choice, privacy choices, correction memory) | DataStore, a single JSON document | App sandbox |
 | Sign in with ChatGPT tokens, optional OpenAI API key | `noBackupFilesDir/secrets/*.bin` | AES-256-GCM with a non-exportable Android Keystore key (`KeystoreCipher`) |
 | Processed food photos | `filesDir/scans` | App sandbox; retention setting below |

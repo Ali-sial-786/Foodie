@@ -63,3 +63,13 @@ Each entry gives the context, the decision and its consequences. Newest decision
 - **Context.** Recipes from many cuisines use ingredients SR28 lacks (sumac, curry leaves, galangal, rice paper) or sells with shells and bones (mussels, whole birds, short ribs).
 - **Decision.** Map an ingredient to a close SR28 record only when the effect on totals is negligible or the foods are near-identical, and say so in a one-line comment beside it (for example `star_anise`, `sumac`, `rice_paper`). Otherwise leave it out. Shell-on and bone-in items keep the edible-portion record and set `edibleFraction`, so recipe weights are as bought. Dry grains and pulses use the dry record plus `cookedYield`.
 - **Consequences.** Stand-ins are visible in code review and easy to replace when a better source arrives. Halloumi, mascarpone, udon, oxtail and dried shrimp have no SR28 record and are not in the ontology yet.
+
+## ADR-015 Bundled recipe library instead of an online recipe API
+- **Context.** The user wanted many more recipes from every cuisine, searchable and filterable, and offered loading them on demand. Online recipe APIs need keys or paid plans, restrict commercial use, send every search to a third party, and return free-text ingredients that often can't be calculated. Filters on calories, diets and allergens need every recipe's nutrition up front.
+- **Decision.** Ship Nouri's own reference recipes as a compressed JSON asset that is decoded the first time recipes are needed (a few hundred KB in the APK). Authoring stays in reviewable JSON with the same rules as the built-in recipes, enforced by a script and a test. Nutrition is never stored: the engine calculates it from USDA data like every other recipe.
+- **Consequences.** Search and filters work offline and reveal nothing to anyone. Adding recipes means an app update; a later downloadable pack can reuse the same format and validator.
+
+## ADR-016 Personal ratings only; dish families for versions
+- **Context.** The user asked for rating indicators and for versions of the same dish to be grouped.
+- **Decision.** Ratings are the user's own 1–5 stars, stored in `recipe_usage` (database v2) next to favourites. Nouri shows no public or invented ratings: its reference recipes have no community behind them and the app has no server. Versions are grouped by `Recipe.family` (the main recipe's id), with variations and copies joining through `variantOf`.
+- **Consequences.** Ratings stay private and influence only this user's ranking and sorting. Grouping needs no extra table and survives copying and editing. Community ratings would need an opt-in sync service; none is planned.

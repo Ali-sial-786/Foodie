@@ -18,15 +18,15 @@ Build: Gradle 9.7.1 (wrapper is checksum-pinned), AGP 9.4.1 with built-in Kotlin
 | `model` | `Nutrients` (unknown optional nutrients are `null`, not 0), `Provenance`/`NutritionSource`, `ConfidenceLevel`, `EstimateRange`, `FoodPreferences` |
 | `units` | Quantities, household units, region-aware cups and spoons, `UnitConverter.toGrams` (every non-exact conversion carries a stated assumption) |
 | `fooddb` | `FoodReference` (per 100 g edible portion), USDA SR28 factory, generated core foods, repositories (in-memory and composite) |
-| `ontology` | ~190 canonical ingredients with regional aliases, allergens, halal status, substitutions; `IngredientNormalizer` |
+| `ontology` | ~385 canonical ingredients with regional aliases, allergens, halal status, substitutions; `IngredientNormalizer` |
 | `nutrition` | `NutritionEngine` (line, recipe and food calculation), `NutritionRounding`/`Precision` |
 | `dishes` | ~85 reference dish compositions, `DishNutrition`, `DishMatcher` |
 | `scan` | Meal estimation pipeline: `FoodMatcher`, `MealEstimator`, `ScanEdit` corrections, `CorrectionMemory`, diary conversion |
 | `parse` | Offline natural-language meal parser and resolver |
 | `label` | Nutrition-label OCR text parser (US, Canada, EU/UK) |
 | `barcode` | GTIN validation, Open Food Facts mapping |
-| `recipes` | Recipe model, cuisine catalogue, 80 built-in recipes, scaling, variations, pantry matching, shopping lists |
-| `recommend` | Explainable `RecipeRanker` (hard filters plus scored reasons) |
+| `recipes` | Recipe model, cuisine catalogue (~80 cuisines), 80 built-in recipes in code, the bundled recipe library decoder (`RecipeLibrary`), courses, dish families (`RecipeFamilies`), scaling, variations, pantry matching, shopping lists |
+| `recommend` | Explainable `RecipeRanker` (hard filters plus scored reasons; the user's own ratings nudge order). `PreparedRecipe` caches per-recipe analysis and nutrition |
 | `pantry` | Pantry and grocery models; deduction proposals (never applied silently) |
 | `diary` | `DiaryEntry` with a frozen `NutritionSnapshot`, daily summaries, diary-day boundary, duplicate guard |
 | `progress` | Weight trend, energy estimates, target calculator, adaptive target advisor |
@@ -52,7 +52,8 @@ data/
                    pantry_items, grocery_items, user_foods, scan_sessions, saved_meals
   prefs/         ─ DataStore: one JSON AppSettings document
   secure/        ─ Android Keystore AES-256-GCM; encrypted blob files in noBackupFilesDir
-  repo/          ─ repositories (Flow-based), Open Food Facts lookup, bundled USDA asset search
+  repo/          ─ repositories (Flow-based), Open Food Facts lookup, bundled USDA asset search,
+                   RecipeLibraryAssets (assets/recipes/library.json, decoded on first use)
 ai/ChatGptSignIn ─ loopback redirect receiver + sign-in orchestration
 image/           ─ photo processing (orientation, crop, downscale, re-encode, hash)
 work/            ─ daily maintenance worker (image retention, purge soft-deleted rows, optional expiry reminder)
@@ -66,6 +67,10 @@ work/            ─ daily maintenance worker (image retention, purge soft-delet
 4. **Correct.** Each `ScanEdit` triggers a full deterministic recalculation. Logged corrections update `CorrectionMemory` on the device.
 5. **Log.** `ScanLogging.toDiaryEntries` freezes a `NutritionSnapshot` with provenance and precision. Repositories store it with an idempotency key.
 
+### Recipe library
+
+Hundreds of reference recipes live as data, not code: `data/recipes/*.json` (format and rules in `data/recipes/README.md`). `scripts/build_recipe_library.py` validates them — known cuisines and ingredients, detailed methods, safety notes, plausible calories per course (it mirrors the engine through a table exported by `IngredientTableExport`) — and writes the minified bundle `app/src/main/assets/recipes/library.json`; CI checks the bundle is current and `RecipeLibraryTest` re-checks every recipe with the real engine. On the phone, `RecipeLibraryAssets` decodes the bundle off the main thread the first time recipes are needed; `AppContainer.preparedRecipes` then computes each recipe's analysis and nutrition once, so Discover's search, filters and sorting run over hundreds of recipes without recalculating. Versions of one dish (regional styles, variations, the user's copies) share a family key (`RecipeFamilies`) and are shown as one Discover card with a version picker.
+
 ### Dependency injection
 
 `AppContainer` builds every dependency once, using `lazy` where helpful. Compose reads it through `LocalAppContainer`. Tests construct it with an in-memory database, a test cipher and zero mock latency. See DECISIONS.md, ADR-002.
@@ -74,4 +79,4 @@ work/            ─ daily maintenance worker (image retention, purge soft-delet
 
 - Diary entries never recalculate. Editing an entry creates a new snapshot by rescaling the frozen per-gram values.
 - Deletes are soft (with undo). Rows deleted more than 30 days ago are purged by the maintenance worker.
-- The Room schema is at version 1 with `exportSchema = true` and no destructive fallback. Migrations must be added to `NouriDatabase.MIGRATIONS` before any schema change ships.
+- The Room schema is at version 2 (v2 adds `recipes.family` and `recipe_usage.rating`) with `exportSchema = true` and no destructive fallback. Schemas are committed in `app/schemas/`; every version bump needs a migration in `NouriDatabase.MIGRATIONS`. `MigrationTest` builds a real v1 database from `1.json`, upgrades it and lets Room validate the result.

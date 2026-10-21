@@ -24,7 +24,7 @@ Every push to GitHub runs CI ([.github/workflows/ci.yml](.github/workflows/ci.ym
 
 | Area | What exists | Status |
 |---|---|---|
-| Nutrition engine | Unit conversion, USDA SR28 data, ~190 canonical ingredients, ~85 regional dish compositions, deterministic recipe calculation, rounding policy, provenance | Implemented, tested (shared) |
+| Nutrition engine | Unit conversion, USDA SR28 data, ~385 canonical ingredients, ~85 regional dish compositions, deterministic recipe calculation, rounding policy, provenance | Implemented, tested (shared) |
 | Meal estimation pipeline | Identification → portion → match → deterministic nutrition → ranges/confidence → corrections → on-device learning | Implemented, tested (shared); review UI built, end-to-end Robolectric test with the demo provider |
 | AI providers | Provider interface; Sign in with ChatGPT (plan usage) and API-key providers via the OpenAI Responses API; deterministic demo provider | Implemented and unit-tested against mocks; **never tested against live OpenAI** |
 | Diary | Room storage with frozen nutrition snapshots, soft delete and undo, duplicate guard, copy meal/day | Implemented; UI compiled in CI |
