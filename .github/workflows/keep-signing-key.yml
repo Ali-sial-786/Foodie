@@ -23,4 +23,5 @@ jobs:
           path: ~/.android/debug.keystore
           key: nouri-debug-keystore-v1
       - name: Report
-        run: echo "Debug signing key cached: ${{ steps.key.outputs.cache-hit == 'true' }}"
+        run: |
+          echo "Debug signing key cached: ${{ steps.key.outputs.cache-hit == 'true' }}"
