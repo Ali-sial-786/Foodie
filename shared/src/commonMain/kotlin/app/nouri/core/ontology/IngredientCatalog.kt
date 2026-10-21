@@ -791,7 +791,7 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
         sub("rice_noodles", GLUTEN_FREE)
     }
     ing("egg_noodles", "Egg noodles", PASTA_NOODLE, ndb = "20109", cookedNdb = "20110", aliases = "egg noodles,chow mein noodles,lo mein noodles") {
-        allergen(WHEAT, GLUTEN, EGG); store(PANTRY, 365); cookedYield = 2.4
+        origin = AnimalOrigin.EGG; allergen(WHEAT, GLUTEN, EGG); store(PANTRY, 365); cookedYield = 2.4
     }
     ing("rice_noodles", "Rice noodles", PASTA_NOODLE, ndb = "20133", cookedNdb = "20134",
         aliases = "rice noodles,rice vermicelli,banh pho,pho noodles,pad thai noodles,sen lek,bihon") {
@@ -953,10 +953,12 @@ private fun buildCatalog(): List<CanonicalIngredient> = CatalogBuilder().apply {
     ing("bok_choy", "Bok choy", VEGETABLE, ndb = "11116", aliases = "pak choi,pak-choi,bok choi,chinese greens") {
         produce(5); portion(QuantityUnit.CUP, 70.0, "1 cup, shredded")
     }
-    ing("bean_sprouts", "Bean sprouts", VEGETABLE, ndb = "11043", aliases = "mung bean sprouts,sprouts,moyashi,kongnamul,taugeh") {
+    ing("bean_sprouts", "Bean sprouts", VEGETABLE, ndb = "11043", aliases = "mung bean sprouts,sprouts,moyashi,sukju,taugeh") {
         produce(3); portion(QuantityUnit.CUP, 104.0, "1 cup")
     }
+    // Most kimchi is seasoned with fish sauce or salted shrimp, so it isn't counted as vegetarian.
     ing("kimchi", "Kimchi", CONDIMENT, ndb = "11118", aliases = "kimchee,baechu kimchi") {
+        origin = AnimalOrigin.FISH; allergen(FISH, CRUSTACEAN)
         store(FRIDGE, 60); portion(QuantityUnit.CUP, 150.0, "1 cup")
     }
     ing("wakame", "Wakame seaweed (rehydrated)", VEGETABLE, ndb = "11669", aliases = "seaweed,wakame seaweed,miyeok,dried wakame") {
