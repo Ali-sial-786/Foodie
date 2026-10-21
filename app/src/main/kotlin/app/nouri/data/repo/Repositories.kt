@@ -1,6 +1,7 @@
 package app.nouri.data.repo
 
 import android.content.Context
+import android.util.Log
 import app.nouri.core.diary.DiaryEntry
 import app.nouri.core.diary.DiaryOperations
 import app.nouri.core.diary.DuplicateCheck
@@ -17,6 +18,7 @@ import app.nouri.core.progress.BodyMeasurement
 import app.nouri.core.progress.WeightEntry
 import app.nouri.core.recipes.Recipe
 import app.nouri.core.recipes.RecipeCatalog
+import app.nouri.core.recipes.RecipeLibrary
 import app.nouri.data.db.DiaryDao
 import app.nouri.data.db.NameCount
 import app.nouri.data.db.PantryDao
@@ -41,6 +43,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 
@@ -123,20 +127,54 @@ class WeightRepository(private val dao: WeightDao) {
 
 data class RecipeUsage(val favourite: Boolean = false, val cookedCount: Int = 0, val lastCookedAtEpochMs: Long? = null)
 
-/** Built-in recipes plus the user's saved, AI-generated and variation recipes. */
-class RecipeRepository(private val dao: RecipeDao, private val clock: () -> Long = System::currentTimeMillis) {
+/**
+ * The bundled recipe library (`assets/recipes/library.json`, built from `data/recipes/`).
+ * It is decoded the first time recipes are needed, off the main thread, and then kept in
+ * memory. If the asset can't be read, the built-in recipes still work.
+ */
+class RecipeLibraryAssets(private val context: Context) {
+    private val mutex = Mutex()
+    @Volatile private var byId: Map<String, Recipe>? = null
+
+    suspend fun all(): Collection<Recipe> = load().values
+
+    suspend fun get(id: String): Recipe? = load()[id]
+
+    private suspend fun load(): Map<String, Recipe> = byId ?: mutex.withLock {
+        byId ?: withContext(Dispatchers.IO) {
+            runCatching { context.assets.open(ASSET).bufferedReader().use { RecipeLibrary.decode(it.readText()) } }
+                .onFailure { Log.w("Nouri", "Recipe library unavailable: ${it.message}") }
+                .getOrDefault(emptyList())
+                .associateBy { it.id }
+        }.also { byId = it }
+    }
+
+    companion object {
+        const val ASSET = "recipes/library.json"
+    }
+}
+
+/** Built-in and library recipes plus the user's saved, AI-generated and variation recipes. */
+class RecipeRepository(
+    private val dao: RecipeDao,
+    private val library: RecipeLibraryAssets? = null,
+    private val clock: () -> Long = System::currentTimeMillis,
+) {
     val saved: Flow<List<Recipe>> = dao.observeAll().map { list -> list.map { it.toDomain() } }
 
     val all: Flow<List<Recipe>> = saved.map { savedRecipes ->
         val ids = savedRecipes.map { it.id }.toSet()
-        savedRecipes + RecipeCatalog.all.filter { it.id !in ids }
+        savedRecipes + RecipeCatalog.all.filter { it.id !in ids } + library?.all().orEmpty().filter { it.id !in ids }
     }
+
+    /** Built-in or library recipe that the user hasn't saved a copy of. */
+    suspend fun isReference(id: String): Boolean = RecipeCatalog[id] != null || library?.get(id) != null
 
     val usage: Flow<Map<String, RecipeUsage>> = dao.observeUsage().map { list ->
         list.associate { it.recipeId to RecipeUsage(it.favourite, it.cookedCount, it.lastCookedAtEpochMs) }
     }
 
-    suspend fun get(id: String): Recipe? = dao.get(id)?.toDomain() ?: RecipeCatalog[id]
+    suspend fun get(id: String): Recipe? = dao.get(id)?.toDomain() ?: RecipeCatalog[id] ?: library?.get(id)
 
     suspend fun save(recipe: Recipe) {
         val (r, ingredients, steps) = recipe.toEntities(clock())

@@ -49,13 +49,13 @@ class HomeViewModel(private val c: AppContainer) : ViewModel() {
         settings,
         today.flatMapLatest { c.diary.observeDay(it) },
         c.diary.observeRecent(12),
-        c.recipes.all,
+        c.preparedRecipes,
         c.pantry.pantry,
     ) { s, entries, recent, recipes, pantry ->
         val date = SystemTime.diaryToday(s.dayStartMinute)
         val summary = DiaryCalculator.summarize(date, entries, s.dailyTargets)
         val expiring = PantryLogic.expiringSoon(pantry, SystemTime.today(), withinDays = 2)
-        val ranking = c.core(s.preferences.measurementSystem).ranker.rank(
+        val ranking = c.core(s.preferences.measurementSystem).ranker.rankPrepared(
             recipes,
             RecommendationContext(
                 preferences = s.preferences,

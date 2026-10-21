@@ -24,14 +24,14 @@ object RecipeCatalog {
     operator fun get(id: String): Recipe? = byId[id]
 }
 
-private const val POULTRY_SAFETY = "Cook chicken until the thickest piece reaches 74 °C (165 °F) and the juices run clear."
-private const val MINCE_SAFETY = "Cook minced meat to 71–74 °C (160–165 °F); it should not be pink in the centre."
-private const val EGG_SAFETY = "Cook eggs until whites are set; serve runny yolks only to people not at higher risk (pregnancy, young children, older adults)."
-private const val RICE_SAFETY = "Cool leftover rice quickly (within 1 hour), refrigerate, and reheat only once until steaming hot."
-private const val FRIDGE_3_DAYS = "Refrigerate within 2 hours in a covered container; eat within 3 days."
-private const val REHEAT = "Reheat until steaming hot throughout (74 °C / 165 °F)."
-private const val DEEP_FRY = "Fill the pan no more than one-third with oil, keep it at 170–180 °C and never leave hot oil unattended."
-private const val BEEF_SAFETY = "Cook beef until browned on the outside; slow-cooked cuts are safe once tender and steaming hot throughout."
+private const val POULTRY_SAFETY = StandardRecipeNotes.POULTRY
+private const val MINCE_SAFETY = StandardRecipeNotes.MINCE
+private const val EGG_SAFETY = StandardRecipeNotes.EGG
+private const val RICE_SAFETY = StandardRecipeNotes.RICE
+private const val FRIDGE_3_DAYS = StandardRecipeNotes.FRIDGE_3_DAYS
+private const val REHEAT = StandardRecipeNotes.REHEAT
+private const val DEEP_FRY = StandardRecipeNotes.DEEP_FRY
+private const val BEEF_SAFETY = StandardRecipeNotes.BEEF
 
 private class RecipeBuilder(val id: String, val name: String, val cuisine: String, val region: String?, val servings: Int, val prep: Int, val cook: Int, val difficulty: Difficulty) {
     var description = ""

@@ -45,6 +45,8 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.withType<Test>().configureEach {
     systemProperty("nouri.repoRoot", rootDir.absolutePath)
+    // RecipeLibraryTest reads the library sources, so editing them must re-run the tests.
+    inputs.dir(rootProject.file("data/recipes")).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("recipeLibrary")
     testLogging {
         events("failed")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL

@@ -17,6 +17,7 @@ import app.nouri.core.ai.openai.ResponsesConfig
 import app.nouri.core.auth.Clock
 import app.nouri.core.auth.SecureRandomSource
 import app.nouri.core.auth.SiwcAuthManager
+import app.nouri.core.recommend.PreparedRecipe
 import app.nouri.core.units.MeasurementSystem
 import app.nouri.data.db.NouriDatabase
 import app.nouri.data.prefs.SettingsRepository
@@ -24,6 +25,7 @@ import app.nouri.data.repo.BarcodeRepository
 import app.nouri.data.repo.DiaryRepository
 import app.nouri.data.repo.OpenFoodFactsService
 import app.nouri.data.repo.PantryRepository
+import app.nouri.data.repo.RecipeLibraryAssets
 import app.nouri.data.repo.RecipeRepository
 import app.nouri.data.repo.ScanRepository
 import app.nouri.data.repo.UsdaAssetFoods
@@ -44,7 +46,14 @@ import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import java.io.File
 import java.security.SecureRandom
@@ -71,7 +80,8 @@ open class AppContainer(
     // ---- data
     val diary by lazy { DiaryRepository(database.diaryDao()) }
     val weights by lazy { WeightRepository(database.weightDao()) }
-    val recipes by lazy { RecipeRepository(database.recipeDao()) }
+    val recipeLibrary by lazy { RecipeLibraryAssets(context) }
+    val recipes by lazy { RecipeRepository(database.recipeDao(), recipeLibrary) }
     val pantry by lazy { PantryRepository(database.pantryDao()) }
     val scans by lazy { ScanRepository(database.scanDao()) }
     val userFoods by lazy { UserFoodRepository(database.userFoodDao(), appScope) }
@@ -89,6 +99,24 @@ open class AppContainer(
     private val cores = HashMap<MeasurementSystem, NouriCore>()
     fun core(system: MeasurementSystem = MeasurementSystem.METRIC): NouriCore = synchronized(cores) {
         cores.getOrPut(system) { NouriCore(userFoods = userFoods, extendedFoods = usdaFoods, measurementSystem = system, newId = ::newId) }
+    }
+
+    /**
+     * Every recipe with its ingredient analysis and per-serving nutrition. Each recipe is
+     * prepared once and reused until it (or the measurement system) changes, so ranking,
+     * search and filters stay fast with hundreds of recipes.
+     */
+    val preparedRecipes: Flow<List<PreparedRecipe>> by lazy {
+        val cache = HashMap<String, PreparedRecipe>()
+        var cachedFor: MeasurementSystem? = null
+        combine(recipes.all, settings.settings.map { it.preferences.measurementSystem }.distinctUntilChanged()) { list, system ->
+            if (system != cachedFor) {
+                cache.clear()
+                cachedFor = system
+            }
+            val ranker = core(system).ranker
+            list.map { r -> cache[r.id]?.takeIf { it.recipe === r || it.recipe == r } ?: ranker.prepare(r).also { cache[r.id] = it } }
+        }.flowOn(Dispatchers.Default).shareIn(appScope, SharingStarted.WhileSubscribed(60_000), replay = 1)
     }
 
     val barcodes by lazy {

@@ -22,7 +22,6 @@ import app.nouri.core.recipes.Recipe
 import app.nouri.core.recipes.RecipeAdjustment
 import app.nouri.core.recipes.RecipeAnalysis
 import app.nouri.core.recipes.RecipeAnalyzer
-import app.nouri.core.recipes.RecipeCatalog
 import app.nouri.core.recipes.RecipeOrigin
 import app.nouri.core.recipes.RecipeScaler
 import app.nouri.core.recipes.RecipeTransformer
@@ -238,7 +237,7 @@ class RecipeDetailViewModel(private val c: AppContainer, private val id: String)
         }
         // Weighing a portion only helps when the whole pot was weighed too.
         val estimated = report.confidence == ConfidenceLevel.LOW || (mode == PortionMode.GRAMS && !report.cookedWeightMeasured)
-        val catalog = RecipeCatalog[recipe.id] != null && !s.saved
+        val catalog = !s.saved && c.recipes.isReference(recipe.id)
         val now = SystemTime.nowEpochMs()
         val settings = c.settings.current()
         val notes = buildList {

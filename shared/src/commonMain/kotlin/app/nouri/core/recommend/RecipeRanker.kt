@@ -41,6 +41,12 @@ data class RankedRecipe(
 
 data class Exclusion(val recipe: Recipe, val reason: String)
 
+/**
+ * The parts of ranking that depend only on the recipe (ingredient analysis and
+ * nutrition), computed once and reused while filters and pantry change.
+ */
+class PreparedRecipe(val recipe: Recipe, val analysis: RecipeAnalysis, val perServing: Nutrients)
+
 data class RankingResult(val ranked: List<RankedRecipe>, val excluded: List<Exclusion>)
 
 /**
@@ -50,17 +56,23 @@ data class RankingResult(val ranked: List<RankedRecipe>, val excluded: List<Excl
  */
 class RecipeRanker(private val engine: NutritionEngine = NutritionEngine()) {
 
-    fun rank(recipes: List<Recipe>, ctx: RecommendationContext): RankingResult {
+    fun prepare(recipe: Recipe): PreparedRecipe =
+        PreparedRecipe(recipe, RecipeAnalyzer.analyze(recipe), engine.calculateRecipe(recipe).perServing)
+
+    fun rank(recipes: List<Recipe>, ctx: RecommendationContext): RankingResult = rankPrepared(recipes.map(::prepare), ctx)
+
+    fun rankPrepared(recipes: List<PreparedRecipe>, ctx: RecommendationContext): RankingResult {
         val excluded = mutableListOf<Exclusion>()
-        val ranked = recipes.mapNotNull { recipe ->
-            val analysis = RecipeAnalyzer.analyze(recipe)
+        val ranked = recipes.mapNotNull { prepared ->
+            val recipe = prepared.recipe
+            val analysis = prepared.analysis
             exclusionReason(recipe, analysis, ctx)?.let { excluded += Exclusion(recipe, it); return@mapNotNull null }
             val pantry = if (ctx.available.isNotEmpty()) PantryMatcher.match(recipe, ctx.available) else null
             if (ctx.onlyAvailable && pantry != null && pantry.missing.isNotEmpty()) {
                 excluded += Exclusion(recipe, "Needs ${pantry.missing.size} ingredient(s) you don't have")
                 return@mapNotNull null
             }
-            score(recipe, analysis, pantry, ctx)
+            score(prepared, pantry, ctx)
         }.sortedByDescending { it.score }
         return RankingResult(ranked, excluded)
     }
@@ -85,10 +97,11 @@ class RecipeRanker(private val engine: NutritionEngine = NutritionEngine()) {
         return null
     }
 
-    private fun score(recipe: Recipe, analysis: RecipeAnalysis, pantry: PantryMatch?, ctx: RecommendationContext): RankedRecipe {
+    private fun score(prepared: PreparedRecipe, pantry: PantryMatch?, ctx: RecommendationContext): RankedRecipe {
+        val recipe = prepared.recipe
+        val analysis = prepared.analysis
         val reasons = mutableListOf<String>()
-        val report = engine.calculateRecipe(recipe)
-        val perServing = report.perServing
+        val perServing = prepared.perServing
         var score = 0.0
 
         // Ingredients on hand (30%)

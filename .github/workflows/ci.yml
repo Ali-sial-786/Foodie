@@ -30,6 +30,11 @@ jobs:
       - name: Shared module tests (nutrition engine, AI contracts, parsers)
         run: ./gradlew :shared:jvmTest --console=plain
 
+      - name: Generated data is up to date
+        run: |
+          python3 scripts/generate_food_data.py --check
+          python3 scripts/build_recipe_library.py --check
+
       - name: Android unit + Robolectric + Compose UI tests
         run: ./gradlew :app:testDebugUnitTest --console=plain
 

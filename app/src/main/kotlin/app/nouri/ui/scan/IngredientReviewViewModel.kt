@@ -134,9 +134,9 @@ class IngredientReviewViewModel(private val c: AppContainer, private val capture
             _state.update { it.copy(ideas = emptyList()) }
             return@launch
         }
-        val recipes = c.recipes.all.first()
+        val recipes = c.preparedRecipes.first()
         val ranked = withContext(Dispatchers.Default) {
-            c.core(settings.preferences.measurementSystem).ranker.rank(
+            c.core(settings.preferences.measurementSystem).ranker.rankPrepared(
                 recipes,
                 RecommendationContext(preferences = settings.preferences, available = available, onlyAvailable = s.onlyAvailable),
             ).ranked.take(8)
