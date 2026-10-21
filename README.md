@@ -2,7 +2,7 @@
 
 Nouri (working name) is a camera-first Android app for tracking food and nutrition. You photograph a meal, your ingredients or a nutrition label. An AI provider identifies what is there, and an on-device engine calculates calories and macros from reference data. Each estimate shows its range, its confidence and where its numbers came from. The same engine powers recipes, a pantry, a diary and weight trends.
 
-> **Status: early development, not released.** The shared domain engine is implemented and has 226 passing JVM tests. All Android screens (camera and scan review, diary, search and logging, progress, recipes, pantry, settings, onboarding) are written and built in GitHub Actions, with Robolectric tests for the main flows. Nothing has run on a real device or emulator yet, and Sign in with ChatGPT has not been tested against live OpenAI. See [PROGRESS.md](PROGRESS.md).
+> **Status: early development, not released.** The shared domain engine is implemented and has 230 passing JVM tests. All Android screens (camera and scan review, diary, search and logging, progress, recipes, pantry, settings, onboarding) are written and built in GitHub Actions, with Robolectric tests for the main flows. The debug APK has been installed on one phone; the first Sign in with ChatGPT attempt reached OpenAI and exposed a host-id format bug, now fixed and awaiting a retest. Nothing else has been verified on a device yet. See [PROGRESS.md](PROGRESS.md).
 
 ## Quick start
 

@@ -96,9 +96,7 @@ class ResponsesClient(
         val token = tokens.token(false) ?: throw IllegalStateException("Not authenticated")
         val response = http.get("${config.baseUrl}/models") { header(HttpHeaders.Authorization, "Bearer $token") }
         if (!response.status.isSuccess()) throw IllegalStateException("HTTP ${response.status.value}")
-        json.parseToJsonElement(response.bodyAsText()).jsonObject["data"]?.jsonArray
-            ?.mapNotNull { it.jsonObject["id"]?.jsonPrimitive?.contentOrNull }
-            .orEmpty()
+        parseModelList(response.bodyAsText())
     }
 
     private suspend fun createOnce(request: ResponsesRequest, structured: Boolean): ResponsesOutcome {
@@ -219,6 +217,26 @@ class ResponsesClient(
 
     companion object {
         internal const val STRUCTURED_OUTPUT_REJECTED = "structured_output_rejected"
+
+        /**
+         * Model ids from `GET /v1/models`. Plan-usage tokens get a catalogue of `models[]`
+         * entries, where only `visibility == "list"` entries are offered and `slug` is the
+         * model id; API keys get the standard `data[].id` list. Both shapes are accepted.
+         */
+        fun parseModelList(body: String): List<String> {
+            val root = runCatching { Json.parseToJsonElement(body).jsonObject }.getOrNull() ?: return emptyList()
+            (root["models"] as? JsonArray)?.let { models ->
+                return models.mapNotNull { entry ->
+                    val o = entry as? JsonObject ?: return@mapNotNull null
+                    val visibility = (o["visibility"] as? JsonPrimitive)?.contentOrNull
+                    if (visibility != null && visibility != "list") return@mapNotNull null
+                    ((o["slug"] ?: o["id"]) as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
+                }.distinct()
+            }
+            return (root["data"] as? JsonArray)
+                ?.mapNotNull { ((it as? JsonObject)?.get("id") as? JsonPrimitive)?.contentOrNull }
+                .orEmpty()
+        }
 
         /** Maps HTTP status and error codes to typed errors. Usage-limit codes never trigger a fallback. */
         fun mapError(status: Int, code: String?, message: String?, retryAfterSeconds: Long? = null): AiError {

@@ -4,7 +4,7 @@ _Last updated: 2026-10-20._
 
 ## Done
 
-**Shared engine (`:shared`).** 226 tests pass locally and in CI.
+**Shared engine (`:shared`).** 230 tests pass locally and in CI.
 
 - Units, regional cups, household portions.
 - USDA SR28 data pipeline: 235 compiled core foods plus the full table as a search asset.

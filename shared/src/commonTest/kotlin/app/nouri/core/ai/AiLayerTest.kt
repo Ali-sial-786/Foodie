@@ -223,4 +223,13 @@ class AiLayerTest {
         assertEquals("gpt-9-new", OpenAiProvider.chooseModel(listOf("whisper-1", "gpt-9-new", "gpt-image-2")))
         assertNull(OpenAiProvider.chooseModel(listOf("whisper-1")))
     }
+
+    @Test
+    fun modelListAcceptsPlanCatalogueAndApiFormats() {
+        val plan = """{"models":[{"slug":"gpt-x-mini","visibility":"list"},{"slug":"internal-test","visibility":"hide"},{"slug":"gpt-x","visibility":"list"},{"id":"no-visibility-field"}]}"""
+        assertEquals(listOf("gpt-x-mini", "gpt-x", "no-visibility-field"), ResponsesClient.parseModelList(plan))
+        val api = """{"object":"list","data":[{"id":"gpt-4.1","object":"model"},{"id":"whisper-1","object":"model"}]}"""
+        assertEquals(listOf("gpt-4.1", "whisper-1"), ResponsesClient.parseModelList(api))
+        assertEquals(emptyList(), ResponsesClient.parseModelList("not json"))
+    }
 }

@@ -105,7 +105,9 @@ open class AppContainer(
         settings.current().ai.planModel?.let { return it }
         discoveredPlanModel?.let { return it }
         val available = planClient.listModels().getOrNull().orEmpty()
-        return (OpenAiProvider.chooseModel(available) ?: OpenAiProvider.DEFAULT_MODEL_PREFERENCE.first()).also { if (available.isNotEmpty()) discoveredPlanModel = it }
+        // The plan catalogue lists only models offered to this account, so its first entry is a safe default.
+        val chosen = OpenAiProvider.chooseModel(available) ?: available.firstOrNull() ?: OpenAiProvider.DEFAULT_MODEL_PREFERENCE.first()
+        return chosen.also { if (available.isNotEmpty()) discoveredPlanModel = it }
     }
 
     private suspend fun apiModel(): String {

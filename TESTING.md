@@ -4,12 +4,12 @@
 
 | Suite | Location | Count | Runs where |
 |---|---|---|---|
-| Shared unit tests | `shared/src/commonTest` | 223 | Locally and in CI (`:shared:jvmTest`) |
+| Shared unit tests | `shared/src/commonTest` | 227 | Locally and in CI (`:shared:jvmTest`) |
 | Shared JVM-only tests (benchmark, dish table printer) | `shared/src/jvmTest` | 3 | Locally and in CI |
 | App unit, Robolectric and Compose UI tests | `app/src/test` | 30 | CI only (`:app:testDebugUnitTest`) |
 | Android lint | — | — | CI only (`:app:lintDebug`; reports uploaded, non-blocking) |
 
-That makes **226 shared tests**. They cover:
+That makes **230 shared tests**. They cover:
 
 - unit conversions and regional cups;
 - the ontology, aliases and allergen/halal flags;

@@ -82,7 +82,7 @@ Sources (see the official documentation):
   - 403 → `Refused`;
   - 429 → `RateLimited`;
   - 5xx → `Server`.
-- **Model choice.** The provider lists `GET /v1/models` for the account and picks from `OpenAiProvider.DEFAULT_MODEL_PREFERENCE`, falling back to a general `gpt-*` model. **Those model names are placeholders**, resolved against what the account actually offers at runtime. The user can override the model in settings.
+- **Model choice.** The provider lists `GET /v1/models` for the account and picks from `OpenAiProvider.DEFAULT_MODEL_PREFERENCE`, falling back to a general `gpt-*` model. Plan-usage tokens receive a catalogue of `models[]` entries (only `visibility == "list"` entries are offered, and `slug` is the model id); API keys receive the standard `data[].id` list. `ResponsesClient.parseModelList` accepts both, and for plan usage the first catalogue entry is used when no preferred name matches. **Those model names are placeholders**, resolved against what the account actually offers at runtime. The user can override the model in settings.
 
 ## Personalisation
 
