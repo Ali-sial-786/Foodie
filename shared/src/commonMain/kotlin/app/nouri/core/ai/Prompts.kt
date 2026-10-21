@@ -123,6 +123,22 @@ object Prompts {
         append(JSON_ONLY)
     }
 
+    fun recipeImport(request: RecipeImportRequest): String = buildString {
+        appendLine("The user is saving a recipe they found (pasted text and/or screenshots, possibly several pages of one recipe). Transcribe it into the JSON structure.")
+        appendLine("Rules:")
+        appendLine("- Keep the author's recipe: the same ingredients, amounts and steps. Do not add, remove, substitute or 'improve' anything, and do not invent quantities.")
+        appendLine("- Clean up only: fix obvious typos and OCR errors, split combined ingredient lines, put each ingredient's amount and unit in their own fields (keep the original unit; amount null when none is given, e.g. \"salt to taste\"), move preparation words (\"chopped\", \"to taste\") to preparation, keep ingredient groups (\"For the marinade\"), and number steps in order. Merge text that continues across screenshots.")
+        appendLine("- Ignore everything that isn't the recipe: ads, comments, life stories, navigation, nutrition panels.")
+        appendLine("- servings, prepMinutes and cookMinutes: as stated. If not stated, give your best estimate and add a note saying it was estimated.")
+        appendLine("- cuisine and region: best guess from the dish (\"pakistani\", \"italian\"…). isTraditional=false, variantOf=null.")
+        appendLine("- sourceName: the author, website, book or channel only if it is written in the input. Never guess one.")
+        appendLine("- notes: anything the user should check (missing amounts, estimated servings, parts you couldn't read).")
+        appendLine("- If there is no recipe in the input, set isRecipe=false and recipe=null.")
+        appendLine("- Do not include calories or nutrient numbers; they are calculated separately.")
+        if (request.images.size > 1) appendLine("There are ${request.images.size} screenshots; treat them as consecutive pages of one recipe.")
+        append(JSON_ONLY)
+    }
+
     fun labelReading(): String =
         "Transcribe the nutrition facts panel in the photo exactly as printed, one line per row, preserving numbers and units " +
             "(include serving size and servings per container). Also give the product name if visible. Do not compute or correct values. " + JSON_ONLY

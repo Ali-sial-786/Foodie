@@ -105,9 +105,20 @@ object ShoppingListBuilder {
     }
 }
 
-/** Converts AI-generated recipes into Nouri recipes; nutrition is computed afterwards by the engine. */
+/**
+ * Converts structured recipes (AI-generated, or imported from the user's text/screenshots)
+ * into Nouri recipes; nutrition is computed afterwards by the engine.
+ */
 object GeneratedRecipeConverter {
-    fun convert(generated: GeneratedRecipe, id: String, nowEpochMs: Long, normalizer: IngredientNormalizer = RecipeAnalyzer.defaultNormalizer): Recipe {
+    fun convert(
+        generated: GeneratedRecipe,
+        id: String,
+        nowEpochMs: Long,
+        normalizer: IngredientNormalizer = RecipeAnalyzer.defaultNormalizer,
+        origin: RecipeOrigin = RecipeOrigin.AI_GENERATED,
+        attribution: String? = null,
+        extraNotes: List<String> = emptyList(),
+    ): Recipe {
         val cuisine = CuisineCatalog.resolve(generated.cuisine)?.id ?: "international"
         val ingredients = generated.ingredients.map { gi ->
             val unit = gi.unit?.let(QuantityUnit::parse)
@@ -143,14 +154,15 @@ object GeneratedRecipeConverter {
             cookMinutes = generated.cookMinutes,
             difficulty = when (generated.difficulty.lowercase()) { "easy" -> Difficulty.EASY; "involved", "hard" -> Difficulty.INVOLVED; else -> Difficulty.MEDIUM },
             equipment = generated.equipment,
-            tags = generated.tags.map { it.lowercase() }.toSet() + "ai-generated",
-            origin = RecipeOrigin.AI_GENERATED,
+            tags = generated.tags.map { it.lowercase() }.toSet() + if (origin == RecipeOrigin.IMPORTED) "imported" else "ai-generated",
+            origin = origin,
+            attribution = attribution,
             variantOf = generated.variantOf.takeIf { !generated.isTraditional },
             variantSummary = if (!generated.isTraditional && generated.variantOf != null) generated.description else null,
             storage = generated.storage,
             reheating = generated.reheating,
             foodSafety = generated.foodSafety,
-            notes = generated.substitutions.map { "Substitute ${it.ingredient} → ${it.substitute}${it.note?.let { n -> " ($n)" } ?: ""}" },
+            notes = extraNotes + generated.substitutions.map { "Substitute ${it.ingredient} → ${it.substitute}${it.note?.let { n -> " ($n)" } ?: ""}" },
             declaredDiets = diets,
             createdAtEpochMs = nowEpochMs,
         )

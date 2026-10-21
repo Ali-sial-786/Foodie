@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Public
@@ -33,6 +34,7 @@ fun OriginBadge(origin: RecipeOrigin, modifier: Modifier = Modifier) {
         RecipeOrigin.AI_GENERATED -> Icons.Outlined.AutoAwesome to "AI-generated — check before cooking"
         RecipeOrigin.USER -> Icons.Outlined.Edit to "Your recipe"
         RecipeOrigin.EXTERNAL_LICENSED -> Icons.Outlined.Public to "External recipe"
+        RecipeOrigin.IMPORTED -> Icons.Outlined.ContentPaste to "Saved by you from text or a screenshot"
     }
     val (container, content) = when (origin) {
         RecipeOrigin.AI_GENERATED -> NouriTheme.extra.simulatedBanner to NouriTheme.extra.onSimulatedBanner

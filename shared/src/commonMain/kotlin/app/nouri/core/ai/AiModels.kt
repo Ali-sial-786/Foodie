@@ -146,6 +146,18 @@ data class GeneratedRecipe(
 @Serializable
 data class GeneratedRecipes(val recipes: List<GeneratedRecipe>, val notes: String? = null)
 
+/** A recipe the user pasted or photographed, transcribed and structured (not rewritten). */
+@Serializable
+data class ImportedRecipe(
+    /** False when the input doesn't contain a recipe. */
+    val isRecipe: Boolean,
+    val recipe: GeneratedRecipe? = null,
+    /** Author, website, book or channel named in the input itself; never guessed. */
+    val sourceName: String? = null,
+    /** What the user should check: missing amounts, assumed servings, unreadable parts. */
+    val notes: List<String> = emptyList(),
+)
+
 @Serializable
 data class ParsedFoodMention(
     val food: String,

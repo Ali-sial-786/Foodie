@@ -29,6 +29,12 @@ enum class RecipeOrigin(val label: String) {
 
     /** Imported from an external source whose licence permits it; see attribution. */
     EXTERNAL_LICENSED("External recipe"),
+
+    /**
+     * Saved by the user from pasted text or screenshots for their own use. Kept as written;
+     * attribution names the source only when the original stated it.
+     */
+    IMPORTED("Saved from text or a screenshot"),
 }
 
 @Serializable

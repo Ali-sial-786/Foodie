@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -71,6 +72,12 @@ fun NouriApp(onboardingComplete: Boolean, navController: NavHostController = rem
             val result = snackbar.showSnackbar(m.text, actionLabel = m.actionLabel, withDismissAction = m.actionLabel == null, duration = SnackbarDuration.Short)
             if (result == SnackbarResult.ActionPerformed) m.onAction?.let { action -> scope.launch { action() } }
         }
+    }
+
+    // A recipe shared from another app opens the import screen.
+    val sharedRecipe by container.recipeInbox.pending.collectAsStateWithLifecycle()
+    LaunchedEffect(sharedRecipe) {
+        if (sharedRecipe != null) navController.navigate(Route.RecipeImport) { launchSingleTop = true }
     }
 
     Scaffold(

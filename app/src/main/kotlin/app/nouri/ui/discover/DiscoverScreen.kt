@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Kitchen
 import androidx.compose.material.icons.outlined.RestaurantMenu
@@ -81,6 +82,7 @@ fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Discover", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.weight(1f).semantics { heading() })
+                IconButton(onClick = { nav.to(Route.RecipeImport) }) { Icon(Icons.Outlined.ContentPaste, contentDescription = "Import a recipe from text or screenshots") }
                 IconButton(onClick = { nav.to(Route.RecipeEditor()) }) { Icon(Icons.Outlined.Add, contentDescription = "New recipe") }
             }
         }
@@ -99,7 +101,8 @@ fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
         }
         item { FilterRow(filters, state?.cuisines.orEmpty(), vm) }
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                AssistChip(onClick = { nav.to(Route.RecipeImport) }, label = { Text("Import recipe") }, leadingIcon = { Icon(Icons.Outlined.ContentPaste, null, Modifier.size(18.dp)) })
                 AssistChip(onClick = { nav.to(Route.Pantry) }, label = { Text("Pantry") }, leadingIcon = { Icon(Icons.Outlined.Kitchen, null, Modifier.size(18.dp)) })
                 AssistChip(onClick = { nav.to(Route.Grocery) }, label = { Text("Grocery list") }, leadingIcon = { Icon(Icons.Outlined.ShoppingBasket, null, Modifier.size(18.dp)) })
                 AssistChip(onClick = { nav.to(Route.RecipeEditor()) }, label = { Text("New recipe") }, leadingIcon = { Icon(Icons.Outlined.Add, null, Modifier.size(18.dp)) })

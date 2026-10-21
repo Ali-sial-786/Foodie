@@ -26,7 +26,9 @@ sealed interface Route {
     // Recipes and kitchen
     @Serializable data class RecipeDetail(val recipeId: String) : Route
     @Serializable data class CookMode(val recipeId: String, val servings: Double) : Route
-    @Serializable data class RecipeEditor(val recipeId: String? = null) : Route
+    /** [draftId] opens an unsaved draft (e.g. an imported recipe) for review. */
+    @Serializable data class RecipeEditor(val recipeId: String? = null, val draftId: String? = null) : Route
+    @Serializable data object RecipeImport : Route
     @Serializable data object Pantry : Route
     @Serializable data object Grocery : Route
 

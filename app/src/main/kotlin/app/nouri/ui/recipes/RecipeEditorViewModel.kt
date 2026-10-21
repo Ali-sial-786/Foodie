@@ -51,7 +51,7 @@ data class EditorState(
     val isNew: Boolean = true,
 )
 
-class RecipeEditorViewModel(private val c: AppContainer, private val recipeId: String?) : ViewModel() {
+class RecipeEditorViewModel(private val c: AppContainer, private val recipeId: String?, private val draftId: String? = null) : ViewModel() {
     private val _state = MutableStateFlow(EditorState())
     val state: StateFlow<EditorState> = _state.asStateFlow()
 
@@ -66,11 +66,13 @@ class RecipeEditorViewModel(private val c: AppContainer, private val recipeId: S
 
     init {
         viewModelScope.launch {
-            val existing = recipeId?.let { c.recipes.get(it) }
+            val draft = draftId?.let { c.recipeDrafts.take(it) }
+            val existing = draft ?: recipeId?.let { c.recipes.get(it) }
             if (existing != null) {
                 original = existing
                 val saved = c.recipes.saved.first().any { it.id == existing.id }
-                editInPlace = saved && existing.origin != RecipeOrigin.EDITORIAL_TRADITIONAL && existing.origin != RecipeOrigin.EDITORIAL_VARIATION
+                // A draft (e.g. an imported recipe) is new but keeps its own id, origin and attribution.
+                editInPlace = draft != null || (saved && existing.origin != RecipeOrigin.EDITORIAL_TRADITIONAL && existing.origin != RecipeOrigin.EDITORIAL_VARIATION)
                 _state.update {
                     it.copy(
                         fields = EditorFields(
@@ -86,7 +88,7 @@ class RecipeEditorViewModel(private val c: AppContainer, private val recipeId: S
                             cookedWeight = existing.cookedYieldGrams?.let(::formatAmount).orEmpty(),
                         ),
                         savesCopyOf = if (editInPlace) null else existing.id,
-                        isNew = !editInPlace,
+                        isNew = draft != null || !editInPlace,
                     )
                 }
             }
@@ -192,7 +194,7 @@ class RecipeEditorViewModel(private val c: AppContainer, private val recipeId: S
         val id = if (editInPlace) original!!.id else "user:${c.newId()}"
         val recipe = buildRecipe(s.fields, id) ?: return@launch
         c.recipes.save(recipe)
-        c.messages.show(if (editInPlace) "Recipe updated" else "Recipe saved")
+        c.messages.show(if (editInPlace && draftId == null) "Recipe updated" else "Recipe saved")
         _savedId.value = id
     }
 }

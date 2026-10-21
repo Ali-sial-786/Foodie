@@ -7,6 +7,7 @@ enum class AiCapability(val label: String) {
     LABEL_IMAGE_READING("Nutrition label reading"),
     RECIPE_GENERATION("Recipe generation"),
     MEAL_TEXT_PARSING("Natural-language meal logging"),
+    RECIPE_IMPORT("Recipe import from text or screenshots"),
 }
 
 enum class ProviderKind(val label: String) {
@@ -169,6 +170,13 @@ data class MealTextRequest(val text: String, val recentRecipeNames: List<String>
 
 data class LabelImageRequest(val image: ImagePayload)
 
+/** Pasted recipe text and/or screenshots of one recipe (several screenshots = several pages). */
+data class RecipeImportRequest(val text: String? = null, val images: List<ImagePayload> = emptyList()) {
+    init {
+        require(!text.isNullOrBlank() || images.isNotEmpty()) { "Nothing to import" }
+    }
+}
+
 /**
  * Interchangeable AI provider. Authentication is handled outside this interface
  * (OAuth for ChatGPT, key entry for API keys), so providers only perform requests.
@@ -187,4 +195,8 @@ interface AiProvider {
     suspend fun parseMealText(request: MealTextRequest): AiResult<ParsedMealText>
 
     suspend fun readLabel(request: LabelImageRequest): AiResult<LabelReading>
+
+    /** Structures a pasted or photographed recipe. Providers that can't do this say so. */
+    suspend fun importRecipe(request: RecipeImportRequest): AiResult<ImportedRecipe> =
+        AiResult.Failure(AiError.CapabilityUnavailable(AiCapability.RECIPE_IMPORT, "${kind.label} can't import recipes"))
 }

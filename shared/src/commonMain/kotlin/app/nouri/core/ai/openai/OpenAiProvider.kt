@@ -11,6 +11,7 @@ import app.nouri.core.ai.AiValidator
 import app.nouri.core.ai.BillingMode
 import app.nouri.core.ai.GeneratedRecipes
 import app.nouri.core.ai.ImagePayload
+import app.nouri.core.ai.ImportedRecipe
 import app.nouri.core.ai.IngredientAnalysis
 import app.nouri.core.ai.IngredientImageRequest
 import app.nouri.core.ai.LabelImageRequest
@@ -23,6 +24,7 @@ import app.nouri.core.ai.Prompts
 import app.nouri.core.ai.ProviderKind
 import app.nouri.core.ai.ProviderStatus
 import app.nouri.core.ai.RecipeGenerationRequest
+import app.nouri.core.ai.RecipeImportRequest
 import app.nouri.core.ai.Validated
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.JsonObject
@@ -118,6 +120,17 @@ class OpenAiProvider(
             schema = AiSchemas.label,
             serializer = LabelReading.serializer(),
             validate = { r -> if (r.panelText.isBlank()) Result.failure(IllegalArgumentException("No panel text")) else Result.success(Validated(r, emptyList())) },
+        )
+
+    override suspend fun importRecipe(request: RecipeImportRequest): AiResult<ImportedRecipe> =
+        run(
+            instructions = Prompts.recipeImport(request),
+            text = request.text?.takeIf { it.isNotBlank() }?.take(12_000) ?: "Transcribe the recipe in these screenshots.",
+            images = request.images,
+            schemaName = "recipe_import",
+            schema = AiSchemas.recipeImport,
+            serializer = ImportedRecipe.serializer(),
+            validate = AiValidator::importedRecipe,
         )
 
     private suspend fun <T> run(

@@ -68,27 +68,35 @@ object AiSchemas {
         "notes" to str(true),
     )
 
-    val recipes: JsonObject = obj(
-        "recipes" to arr(
+    private fun recipeObject(nullable: Boolean = false) = obj(
+        "name" to str(), "cuisine" to str(), "region" to str(true), "description" to str(),
+        "isTraditional" to bool(), "variantOf" to str(true), "servings" to int(),
+        "prepMinutes" to int(), "cookMinutes" to int(), "difficulty" to enumOf("easy", "medium", "involved"),
+        "equipment" to arr(str()),
+        "ingredients" to arr(
             obj(
-                "name" to str(), "cuisine" to str(), "region" to str(true), "description" to str(),
-                "isTraditional" to bool(), "variantOf" to str(true), "servings" to int(),
-                "prepMinutes" to int(), "cookMinutes" to int(), "difficulty" to enumOf("easy", "medium", "involved"),
-                "equipment" to arr(str()),
-                "ingredients" to arr(
-                    obj(
-                        "name" to str(), "amount" to num(true), "unit" to str(true), "grams" to num(true),
-                        "preparation" to str(true), "optional" to bool(), "group" to str(true),
-                    ),
-                ),
-                "steps" to arr(obj("text" to str(), "timerMinutes" to num(true), "temperatureC" to intN())),
-                "substitutions" to arr(obj("ingredient" to str(), "substitute" to str(), "note" to str(true))),
-                "foodSafety" to arr(str()),
-                "storage" to str(true),
-                "reheating" to str(true),
-                "tags" to arr(str()),
+                "name" to str(), "amount" to num(true), "unit" to str(true), "grams" to num(true),
+                "preparation" to str(true), "optional" to bool(), "group" to str(true),
             ),
         ),
+        "steps" to arr(obj("text" to str(), "timerMinutes" to num(true), "temperatureC" to intN())),
+        "substitutions" to arr(obj("ingredient" to str(), "substitute" to str(), "note" to str(true))),
+        "foodSafety" to arr(str()),
+        "storage" to str(true),
+        "reheating" to str(true),
+        "tags" to arr(str()),
+        nullable = nullable,
+    )
+
+    val recipeImport: JsonObject = obj(
+        "isRecipe" to bool(),
+        "recipe" to recipeObject(nullable = true),
+        "sourceName" to str(true),
+        "notes" to arr(str()),
+    )
+
+    val recipes: JsonObject = obj(
+        "recipes" to arr(recipeObject()),
         "notes" to str(true),
     )
 

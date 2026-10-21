@@ -39,6 +39,10 @@ class AiService(
 
     suspend fun parseMealText(request: MealTextRequest) = call { it.parseMealText(request) }
 
+    /** Screenshots count as photos for consent; pasted text alone does not. */
+    suspend fun importRecipe(request: RecipeImportRequest): AiResult<ImportedRecipe> =
+        if (request.images.isNotEmpty()) withImageConsent { call { it.importRecipe(request) } } else call { it.importRecipe(request) }
+
     private suspend fun <T> withImageConsent(block: suspend () -> AiResult<T>): AiResult<T> {
         val prefs = preferences()
         if (prefs.selected != ProviderKind.MOCK && !prefs.photoAnalysisConsent) {

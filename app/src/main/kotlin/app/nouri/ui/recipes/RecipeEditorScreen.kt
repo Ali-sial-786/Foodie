@@ -57,7 +57,7 @@ import app.nouri.ui.theme.NouriTheme
 @Composable
 fun RecipeEditorScreen(nav: AppNavigator, route: Route.RecipeEditor) {
     val container = LocalAppContainer.current
-    val vm = viewModel { RecipeEditorViewModel(container, route.recipeId) }
+    val vm = viewModel { RecipeEditorViewModel(container, route.recipeId, route.draftId) }
     val s by vm.state.collectAsStateWithLifecycle()
     val savedId by vm.savedId.collectAsStateWithLifecycle()
     LaunchedEffect(savedId) { savedId?.let { nav.replace(Route.RecipeDetail(it)) } }

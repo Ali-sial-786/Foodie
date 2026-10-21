@@ -119,6 +119,18 @@ object AiValidator {
         return Result.success(Validated(raw.copy(recipes = valid), warnings))
     }
 
+    fun importedRecipe(raw: ImportedRecipe): Result<Validated<ImportedRecipe>> {
+        if (!raw.isRecipe || raw.recipe == null) return Result.success(Validated(raw.copy(isRecipe = false, recipe = null), emptyList()))
+        // Imported recipes may omit times; clamp instead of rejecting, then reuse the generated-recipe checks.
+        val r = raw.recipe.copy(
+            servings = raw.recipe.servings.coerceIn(1, 24),
+            prepMinutes = raw.recipe.prepMinutes.coerceIn(0, 1440),
+            cookMinutes = raw.recipe.cookMinutes.coerceIn(0, 2880),
+        )
+        val checked = recipes(GeneratedRecipes(listOf(r))).getOrElse { return Result.failure(IllegalArgumentException("The recipe is missing its name, ingredients or steps")) }
+        return Result.success(Validated(raw.copy(recipe = checked.value.recipes.single(), sourceName = raw.sourceName?.trim()?.takeIf { it.isNotEmpty() }), checked.warnings))
+    }
+
     fun mealText(raw: ParsedMealText): Result<Validated<ParsedMealText>> {
         val items = raw.items.filter { it.food.isNotBlank() }.map {
             it.copy(

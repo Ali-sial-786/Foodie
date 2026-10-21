@@ -20,6 +20,7 @@ import app.nouri.ui.progress.ProgressScreen
 import app.nouri.ui.recipes.CookModeScreen
 import app.nouri.ui.recipes.RecipeDetailScreen
 import app.nouri.ui.recipes.RecipeEditorScreen
+import app.nouri.ui.recipes.RecipeImportScreen
 import app.nouri.ui.scan.CameraScreen
 import app.nouri.ui.scan.IngredientReviewScreen
 import app.nouri.ui.scan.LabelReviewScreen
@@ -54,6 +55,7 @@ fun NouriNavHost(navController: NavHostController, startDestination: Route, cont
         composable<Route.RecipeDetail> { RecipeDetailScreen(nav, it.toRoute()) }
         composable<Route.CookMode> { CookModeScreen(nav, it.toRoute()) }
         composable<Route.RecipeEditor> { RecipeEditorScreen(nav, it.toRoute()) }
+        composable<Route.RecipeImport> { RecipeImportScreen(nav) }
         composable<Route.Pantry> { PantryScreen(nav) }
         composable<Route.Grocery> { GroceryScreen(nav) }
 
