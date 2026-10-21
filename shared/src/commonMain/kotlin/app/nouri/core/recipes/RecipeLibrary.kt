@@ -65,6 +65,7 @@ object RecipeLibrary {
         val notes: List<String> = emptyList(),
         val variantOf: String? = null,
         val variantSummary: String? = null,
+        val family: String? = null,
     ) {
         fun toRecipe(): Recipe {
             val course = requireNotNull(RecipeCourse.fromTag(course)) { "$id: unknown course \"$course\"" }
@@ -74,7 +75,7 @@ object RecipeLibrary {
                 prepMinutes = prep, cookMinutes = cook, difficulty = difficulty, equipment = equipment,
                 tags = tags.toSet() + course.tag,
                 origin = if (variantOf != null) RecipeOrigin.EDITORIAL_VARIATION else RecipeOrigin.EDITORIAL_TRADITIONAL,
-                variantOf = variantOf, variantSummary = variantSummary,
+                variantOf = variantOf, variantSummary = variantSummary, family = family,
                 storage = storage?.let(StandardRecipeNotes::expand)?.ifBlank { null },
                 reheating = reheating?.let(StandardRecipeNotes::expand)?.ifBlank { null },
                 foodSafety = safety.map(StandardRecipeNotes::expand), notes = notes,

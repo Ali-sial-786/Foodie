@@ -116,6 +116,7 @@ fun Recipe.toEntities(now: Long): Triple<RecipeEntity, List<RecipeIngredientEnti
         tagsJson = tags.toList().toJson(), foodSafetyJson = foodSafety.toJson(), notesJson = notes.toJson(),
         declaredDietsJson = declaredDiets.map { it.name }.toJson(),
         createdAtEpochMs = if (createdAtEpochMs > 0) createdAtEpochMs else now, updatedAtEpochMs = now,
+        family = family,
     )
     val ingredients = ingredients.mapIndexed { i, l ->
         RecipeIngredientEntity(
@@ -147,7 +148,7 @@ fun RecipeWithDetails.toDomain(): Recipe {
         prepMinutes = r.prepMinutes, cookMinutes = r.cookMinutes, difficulty = enumOr(r.difficulty, Difficulty.MEDIUM),
         equipment = r.equipmentJson.toStringList(), tags = r.tagsJson.toStringList().toSet(),
         origin = enumOr(r.origin, RecipeOrigin.USER).let { if (it == RecipeOrigin.EXTERNAL_LICENSED && r.attribution.isNullOrBlank()) RecipeOrigin.USER else it },
-        variantOf = r.variantOf, variantSummary = r.variantSummary, attribution = r.attribution, storage = r.storage,
+        variantOf = r.variantOf, variantSummary = r.variantSummary, family = r.family, attribution = r.attribution, storage = r.storage,
         reheating = r.reheating, cookedYieldGrams = r.cookedYieldGrams, foodSafety = r.foodSafetyJson.toStringList(),
         notes = r.notesJson.toStringList(),
         declaredDiets = r.declaredDietsJson.toStringList().mapNotNull { n -> DietGoal.entries.firstOrNull { it.name == n } }.toSet(),

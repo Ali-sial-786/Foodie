@@ -72,6 +72,7 @@ import app.nouri.core.recipes.CuisineCatalog
 import app.nouri.core.recipes.Recipe
 import app.nouri.core.recipes.RecipeAdjustment
 import app.nouri.core.recipes.RecipeAnalysis
+import app.nouri.core.recipes.RecipeCourse
 import app.nouri.core.recipes.RecipeOrigin
 import app.nouri.core.util.SystemTime
 import app.nouri.ui.LocalAppContainer
@@ -175,11 +176,23 @@ private fun RecipeBody(s: RecipeDetailState, vm: RecipeDetailViewModel, nav: App
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { Header(base, s, nav) }
+        item { Header(base, s, nav, vm::rate) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { nav.to(Route.CookMode(base.id, s.servings.toDouble())) }, modifier = Modifier.weight(1f)) { Text("Start cooking") }
                 OutlinedButton(onClick = onLog, modifier = Modifier.weight(1f)) { Text("Log a portion") }
+            }
+        }
+        if (s.versions.size > 1) {
+            item { SectionTitle("${s.versions.size} versions of this dish") }
+            item {
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    s.versions.forEach { v ->
+                        VersionCard(v, current = v.recipe.id == base.id, modifier = Modifier.width(240.dp)) {
+                            if (v.recipe.id != base.id) nav.replace(Route.RecipeDetail(v.recipe.id))
+                        }
+                    }
+                }
             }
         }
         item { NutritionCard(report) }
@@ -279,15 +292,20 @@ private fun RecipeBody(s: RecipeDetailState, vm: RecipeDetailViewModel, nav: App
 }
 
 @Composable
-private fun Header(base: Recipe, s: RecipeDetailState, nav: AppNavigator) {
+private fun Header(base: Recipe, s: RecipeDetailState, nav: AppNavigator, onRate: (Int?) -> Unit) {
     val cuisine = CuisineCatalog[base.cuisineId]?.name
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(base.name, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
         Text(
-            listOfNotNull(cuisine, base.region, RecipeText.minutes(base.totalMinutes), base.difficulty.label).joinToString(" · "),
+            listOfNotNull(RecipeCourse.of(base).label, cuisine, base.region, RecipeText.minutes(base.totalMinutes)).joinToString(" · "),
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        RecipeIndicators(base.difficulty, s.rating, s.cookedCount)
         OriginBadge(base.origin)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Your rating", style = MaterialTheme.typography.labelLarge)
+            RatingBar(s.rating, onRate)
+        }
         base.variantOf?.let { originalId ->
             Text(
                 "Variation of ${s.originalName ?: "another recipe"} — see the original",

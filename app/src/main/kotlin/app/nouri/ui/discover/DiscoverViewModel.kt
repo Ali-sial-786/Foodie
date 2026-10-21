@@ -9,12 +9,15 @@ import app.nouri.core.recipes.CuisineCatalog
 import app.nouri.core.recipes.Difficulty
 import app.nouri.core.recipes.Recipe
 import app.nouri.core.recipes.RecipeCourse
+import app.nouri.core.recipes.RecipeFamilies
 import app.nouri.core.recipes.WorldRegion
 import app.nouri.core.recommend.Exclusion
 import app.nouri.core.recommend.PreparedRecipe
 import app.nouri.core.recommend.RankedRecipe
 import app.nouri.core.recommend.RecommendationContext
 import app.nouri.core.util.SystemTime
+import app.nouri.data.repo.RecipeUsage
+import app.nouri.ui.recipes.RecipeVersion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,8 +28,17 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
+enum class RecipeSort(val label: String) {
+    BEST_MATCH("Best match"),
+    TOP_RATED("Your rating"),
+    QUICKEST("Quickest"),
+    FEWEST_KCAL("Fewest calories"),
+    MOST_PROTEIN("Most protein"),
+}
+
 data class DiscoverFilters(
     val query: String = "",
+    val sort: RecipeSort = RecipeSort.BEST_MATCH,
     val worldRegion: WorldRegion? = null,
     val cuisineId: String? = null,
     val course: RecipeCourse? = null,
@@ -45,15 +57,25 @@ data class DiscoverFilters(
         get() = listOfNotNull(worldRegion, cuisineId, course, maxMinutes, maxKcal).size + diets.size +
             listOf(easyOnly, usePantry, highProtein, favouritesOnly).count { it }
 
-    fun cleared() = DiscoverFilters(query = query)
+    fun cleared() = DiscoverFilters(query = query, sort = sort)
+}
+
+/**
+ * One dish in the results: the best-matching version, plus every version of the dish
+ * (regional styles, variations, the user's copies) for the version picker.
+ */
+data class DishResult(val shown: RankedRecipe, val versions: List<RecipeVersion>) {
+    val versionCount: Int get() = versions.size
 }
 
 data class CuisineCount(val id: String, val name: String, val count: Int)
 
 data class DiscoverState(
-    val results: List<RankedRecipe>,
-    /** All recipes before filters, for "12 of 480". */
+    val results: List<DishResult>,
+    /** Recipes (not dishes) that match, and all recipes before filters. */
+    val matchingRecipes: Int,
     val total: Int,
+    val usage: Map<String, RecipeUsage>,
     /** Hidden because of the user's allergies, diets or dislikes (not because of filters they just tapped). */
     val hiddenByPreferences: List<Exclusion>,
     /** Hidden because "only what I have" is on. */
@@ -87,16 +109,20 @@ class DiscoverViewModel(private val c: AppContainer) : ViewModel() {
                 maxMinutes = f.maxMinutes,
                 recentlyCookedRecipeIds = recentlyCooked,
                 favouriteRecipeIds = favourites,
+                ratings = usage.mapNotNull { (id, u) -> u.rating?.let { id to it } }.toMap(),
             ),
         )
-        val results = ranking.ranked
+        val ranked = ranking.ranked
             .filter { r -> (!f.highProtein || isHighProtein(r)) && (f.maxKcal == null || r.perServing.energyKcal <= f.maxKcal) }
             // A search for a dish should list that dish first, ahead of recipes that merely contain the words.
             .let { list -> if (terms.isEmpty()) list else list.sortedByDescending { r -> terms.count { r.recipe.name.lowercase().contains(it) } } }
+            .let { sortResults(it, f.sort, usage) }
         val preferenceReasons = ranking.excluded.filter { !it.reason.startsWith("Needs ") }
         DiscoverState(
-            results = results,
+            results = dishes(ranked, prepared, usage),
+            matchingRecipes = ranked.size,
             total = prepared.size,
+            usage = usage,
             hiddenByPreferences = preferenceReasons,
             hiddenMissingIngredients = ranking.excluded.count { it.reason.startsWith("Needs ") },
             favourites = favourites,
@@ -142,6 +168,32 @@ class DiscoverViewModel(private val c: AppContainer) : ViewModel() {
                 RecipeCourse.of(r).label.lowercase().contains(term) ||
                 r.tags.any { it.contains(term) } ||
                 r.ingredients.any { it.displayName.lowercase().contains(term) }
+        }
+
+        fun sortResults(list: List<RankedRecipe>, sort: RecipeSort, usage: Map<String, RecipeUsage>): List<RankedRecipe> = when (sort) {
+            RecipeSort.BEST_MATCH -> list
+            // Rated recipes first, best first; unrated keep their match order.
+            RecipeSort.TOP_RATED -> list.sortedByDescending { usage[it.recipe.id]?.rating ?: 0 }
+            RecipeSort.QUICKEST -> list.sortedBy { it.recipe.totalMinutes }
+            RecipeSort.FEWEST_KCAL -> list.sortedBy { it.perServing.energyKcal }
+            RecipeSort.MOST_PROTEIN -> list.sortedByDescending { it.perServing.proteinG }
+        }
+
+        /** Groups ranked recipes into dishes, keeping the order of each dish's best version. */
+        fun dishes(ranked: List<RankedRecipe>, all: List<PreparedRecipe>, usage: Map<String, RecipeUsage>): List<DishResult> {
+            val byId = all.associateBy { it.recipe.id }
+            val keyOf = { r: Recipe -> RecipeFamilies.key(r, { id -> byId[id]?.recipe }) }
+            val families = all.groupBy { keyOf(it.recipe) }
+            val seen = HashSet<String>()
+            return ranked.mapNotNull { r ->
+                val key = keyOf(r.recipe)
+                if (!seen.add(key)) return@mapNotNull null
+                val versions = families[key].orEmpty().sortedByDescending { it.recipe.id == key }.map { p ->
+                    val u = usage[p.recipe.id]
+                    RecipeVersion(p.recipe, p.perServing.energyKcal, u?.rating, u?.cookedCount ?: 0)
+                }
+                DishResult(r, versions)
+            }
         }
 
         fun cuisineGroups(recipes: List<Recipe>): List<Pair<WorldRegion, List<CuisineCount>>> =

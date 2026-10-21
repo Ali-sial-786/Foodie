@@ -91,6 +91,12 @@ data class Recipe(
     val origin: RecipeOrigin,
     /** For variations: id of the traditional recipe this was derived from. */
     val variantOf: String? = null,
+    /**
+     * Groups versions of one dish (regional styles, a lighter take, the user's copy) under
+     * the id of the dish's main recipe. Variations without one join their base's group;
+     * see [RecipeFamilies].
+     */
+    val family: String? = null,
     val variantSummary: String? = null,
     /** Required for EXTERNAL_LICENSED recipes. */
     val attribution: String? = null,

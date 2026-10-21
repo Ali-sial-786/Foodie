@@ -19,12 +19,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Eco
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Kitchen
+import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.RestaurantMenu
@@ -53,6 +55,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,7 +67,7 @@ import app.nouri.core.recipes.CuisineCatalog
 import app.nouri.core.recipes.RecipeCourse
 import app.nouri.core.recipes.RecipeOrigin
 import app.nouri.core.recipes.WorldRegion
-import app.nouri.core.recommend.RankedRecipe
+import app.nouri.data.repo.RecipeUsage
 import app.nouri.ui.LocalAppContainer
 import app.nouri.ui.components.EmptyState
 import app.nouri.ui.components.Fmt
@@ -73,7 +76,9 @@ import app.nouri.ui.components.NouriCard
 import app.nouri.ui.navigation.AppNavigator
 import app.nouri.ui.navigation.Route
 import app.nouri.ui.recipes.OriginBadge
+import app.nouri.ui.recipes.RecipeIndicators
 import app.nouri.ui.recipes.RecipeText
+import app.nouri.ui.recipes.VersionsSheet
 
 @Composable
 fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
@@ -82,6 +87,16 @@ fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
     val filters by vm.filters.collectAsStateWithLifecycle()
     val state by vm.state.collectAsStateWithLifecycle()
     var showHidden by rememberSaveable { mutableStateOf(false) }
+    var versionsOf by remember { mutableStateOf<DishResult?>(null) }
+    versionsOf?.let { dish ->
+        VersionsSheet(
+            title = dish.versions.first().recipe.name, versions = dish.versions, currentId = null,
+            onDismiss = { versionsOf = null },
+        ) { id ->
+            versionsOf = null
+            nav.to(Route.RecipeDetail(id))
+        }
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -117,7 +132,8 @@ fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        if (s.results.size == s.total) "${s.total} recipes" else "${s.results.size} of ${s.total} recipes",
+                        if (s.matchingRecipes == s.total) "${s.results.size} dishes · ${s.total} recipes"
+                        else "${s.results.size} dishes · ${s.matchingRecipes} of ${s.total} recipes match",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f),
                     )
@@ -155,8 +171,11 @@ fun DiscoverScreen(nav: AppNavigator, contentPadding: PaddingValues) {
                     )
                 }
             }
-            items(s.results, key = { it.recipe.id }) { r ->
-                RecipeCard(r, favourite = r.recipe.id in s.favourites) { nav.to(Route.RecipeDetail(r.recipe.id)) }
+            items(s.results, key = { it.shown.recipe.id }) { dish ->
+                RecipeCard(
+                    dish, usage = s.usage[dish.shown.recipe.id], favourite = dish.shown.recipe.id in s.favourites,
+                    onVersions = { versionsOf = dish },
+                ) { nav.to(Route.RecipeDetail(dish.shown.recipe.id)) }
             }
             if (s.hiddenMissingIngredients > 0) {
                 item {
@@ -206,7 +225,21 @@ private fun FilterRow(f: DiscoverFilters, cuisines: List<Pair<WorldRegion, List<
     var dietMenu by remember { mutableStateOf(false) }
     var timeMenu by remember { mutableStateOf(false) }
     var kcalMenu by remember { mutableStateOf(false) }
+    var sortMenu by remember { mutableStateOf(false) }
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Box {
+            FilterChip(
+                selected = f.sort != RecipeSort.BEST_MATCH,
+                onClick = { sortMenu = true },
+                label = { Text("Sort: ${f.sort.label}") },
+                leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Sort, contentDescription = null, modifier = Modifier.size(18.dp)) },
+            )
+            DropdownMenu(expanded = sortMenu, onDismissRequest = { sortMenu = false }) {
+                RecipeSort.entries.forEach { sort ->
+                    DropdownMenuItem(text = { Text(sort.label) }, onClick = { vm.update { it.copy(sort = sort) }; sortMenu = false })
+                }
+            }
+        }
         FilterChip(
             selected = f.cuisineId != null || f.worldRegion != null,
             onClick = { cuisineSheet = true },
@@ -336,7 +369,8 @@ private fun CuisineSheet(
 }
 
 @Composable
-private fun RecipeCard(r: RankedRecipe, favourite: Boolean, onClick: () -> Unit) {
+private fun RecipeCard(dish: DishResult, usage: RecipeUsage?, favourite: Boolean, onVersions: () -> Unit, onClick: () -> Unit) {
+    val r = dish.shown
     val recipe = r.recipe
     val cuisine = CuisineCatalog[recipe.cuisineId]?.name
     NouriCard(onClick = onClick) {
@@ -364,6 +398,17 @@ private fun RecipeCard(r: RankedRecipe, favourite: Boolean, onClick: () -> Unit)
             ).joinToString(" · "),
             style = MaterialTheme.typography.bodySmall,
         )
+        Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            RecipeIndicators(recipe.difficulty, usage?.rating, usage?.cookedCount ?: 0, Modifier.weight(1f))
+            if (dish.versionCount > 1) {
+                AssistChip(
+                    onClick = onVersions,
+                    label = { Text("${dish.versionCount} versions") },
+                    leadingIcon = { Icon(Icons.Outlined.Layers, contentDescription = null, modifier = Modifier.size(16.dp)) },
+                    modifier = Modifier.semantics { contentDescription = "${dish.versionCount} versions of this dish. Choose one" },
+                )
+            }
+        }
         if (recipe.origin != RecipeOrigin.EDITORIAL_TRADITIONAL) OriginBadge(recipe.origin, Modifier.padding(top = 6.dp))
         r.pantry?.let { p ->
             if (p.required.isNotEmpty()) {

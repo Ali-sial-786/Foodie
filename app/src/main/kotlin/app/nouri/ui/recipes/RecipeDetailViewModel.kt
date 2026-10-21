@@ -22,6 +22,7 @@ import app.nouri.core.recipes.Recipe
 import app.nouri.core.recipes.RecipeAdjustment
 import app.nouri.core.recipes.RecipeAnalysis
 import app.nouri.core.recipes.RecipeAnalyzer
+import app.nouri.core.recipes.RecipeFamilies
 import app.nouri.core.recipes.RecipeOrigin
 import app.nouri.core.recipes.RecipeScaler
 import app.nouri.core.recipes.RecipeTransformer
@@ -38,7 +39,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -59,6 +62,11 @@ data class RecipeDetailState(
     val pantry: PantryMatch? = null,
     val pantryEmpty: Boolean = true,
     val favourite: Boolean = false,
+    /** The user's own 1–5 stars; null until rated. */
+    val rating: Int? = null,
+    val cookedCount: Int = 0,
+    /** Every version of this dish (this one included); one entry means it stands alone. */
+    val versions: List<RecipeVersion> = emptyList(),
     /** Saved in the user's own collection (can be edited or deleted). */
     val saved: Boolean = false,
     val originalName: String? = null,
@@ -94,7 +102,20 @@ class RecipeDetailViewModel(private val c: AppContainer, private val id: String)
             recompute()
         }
         viewModelScope.launch {
-            c.recipes.usage.collect { usage -> _state.update { it.copy(favourite = usage[id]?.favourite == true) } }
+            c.recipes.usage.collect { usage ->
+                val u = usage[id]
+                _state.update { it.copy(favourite = u?.favourite == true, rating = u?.rating, cookedCount = u?.cookedCount ?: 0) }
+            }
+        }
+        viewModelScope.launch {
+            combine(c.preparedRecipes, c.recipes.usage) { prepared, usage ->
+                val byId = prepared.associateBy { it.recipe.id }
+                val self = byId[id]?.recipe ?: return@combine emptyList()
+                val key = RecipeFamilies.key(self) { other -> byId[other]?.recipe }
+                prepared.filter { RecipeFamilies.key(it.recipe) { other -> byId[other]?.recipe } == key }
+                    .sortedByDescending { it.recipe.id == key }
+                    .map { p -> RecipeVersion(p.recipe, p.perServing.energyKcal, usage[p.recipe.id]?.rating, usage[p.recipe.id]?.cookedCount ?: 0) }
+            }.flowOn(Dispatchers.Default).collect { versions -> _state.update { it.copy(versions = versions) } }
         }
         viewModelScope.launch {
             c.pantry.pantry.collect { recompute() }
@@ -128,6 +149,8 @@ class RecipeDetailViewModel(private val c: AppContainer, private val id: String)
     }
 
     fun toggleFavourite() = viewModelScope.launch { c.recipes.setFavourite(id, !_state.value.favourite) }
+
+    fun rate(stars: Int?) = viewModelScope.launch { c.recipes.setRating(id, stars) }
 
     /** Explicit action: adds only missing, non-staple ingredients, merging with what's already on the list. */
     fun addMissingToGrocery() = viewModelScope.launch {

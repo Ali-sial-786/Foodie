@@ -66,6 +66,7 @@ Recipes are Nouri's own write-ups of widely known home-style dishes (origin "Tra
 | `steps[]` | `t` text, optional `min` (timer minutes) and `c` (temperature °C). |
 | `storage`, `reheating`, `safety` | Free text or a code: `@fridge3`, `@reheat`, `@chilled`, `@poultry`, `@mince`, `@beef`, `@lamb`, `@fish`, `@shellfish`, `@raw_fish`, `@egg`, `@rice`, `@deep_fry` (see `StandardRecipeNotes.kt`). |
 | `variantOf`, `variantSummary` | Only for a deliberate variation of another recipe (lighter, vegetarian…). Never present a variation as the traditional dish. |
+| `family` | Groups versions of the same dish under one item in Discover ("Biryani · 4 versions"): the id of the dish's main recipe, in `RecipeCatalog.kt` or any library file. Use it for genuinely different traditional versions — regional styles (Sindhi vs Hyderabadi biryani), a fish vs chicken version. The main recipe has no `family`; a family can't point at a recipe that is itself in a family; variations join their base's family automatically, so they don't set it. |
 
 ## Quality rules (enforced)
 

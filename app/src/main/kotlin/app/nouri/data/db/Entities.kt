@@ -104,6 +104,8 @@ data class RecipeEntity(
     val declaredDietsJson: String,
     val createdAtEpochMs: Long,
     val updatedAtEpochMs: Long,
+    /** Added in v2. */
+    val family: String? = null,
 )
 
 @Entity(
@@ -154,6 +156,8 @@ data class RecipeUsageEntity(
     val favourite: Boolean,
     val cookedCount: Int,
     val lastCookedAtEpochMs: Long?,
+    /** The user's own 1–5 stars; null until rated. Added in v2. */
+    val rating: Int? = null,
 )
 
 @Entity(tableName = "pantry_items", indices = [Index("ingredientId"), Index("expiresOn")])

@@ -125,7 +125,7 @@ class WeightRepository(private val dao: WeightDao) {
     suspend fun allMeasurements(): List<BodyMeasurement> = dao.allMeasurements().map { it.toDomain() }
 }
 
-data class RecipeUsage(val favourite: Boolean = false, val cookedCount: Int = 0, val lastCookedAtEpochMs: Long? = null)
+data class RecipeUsage(val favourite: Boolean = false, val cookedCount: Int = 0, val lastCookedAtEpochMs: Long? = null, val rating: Int? = null)
 
 /**
  * The bundled recipe library (`assets/recipes/library.json`, built from `data/recipes/`).
@@ -171,7 +171,7 @@ class RecipeRepository(
     suspend fun isReference(id: String): Boolean = RecipeCatalog[id] != null || library?.get(id) != null
 
     val usage: Flow<Map<String, RecipeUsage>> = dao.observeUsage().map { list ->
-        list.associate { it.recipeId to RecipeUsage(it.favourite, it.cookedCount, it.lastCookedAtEpochMs) }
+        list.associate { it.recipeId to RecipeUsage(it.favourite, it.cookedCount, it.lastCookedAtEpochMs, it.rating) }
     }
 
     suspend fun get(id: String): Recipe? = dao.get(id)?.toDomain() ?: RecipeCatalog[id] ?: library?.get(id)
@@ -185,12 +185,19 @@ class RecipeRepository(
 
     suspend fun setFavourite(id: String, favourite: Boolean) {
         val current = dao.usage(id)
-        dao.upsertUsage(RecipeUsageEntity(id, favourite, current?.cookedCount ?: 0, current?.lastCookedAtEpochMs))
+        dao.upsertUsage(RecipeUsageEntity(id, favourite, current?.cookedCount ?: 0, current?.lastCookedAtEpochMs, current?.rating))
     }
 
     suspend fun markCooked(id: String) {
         val current = dao.usage(id)
-        dao.upsertUsage(RecipeUsageEntity(id, current?.favourite ?: false, (current?.cookedCount ?: 0) + 1, clock()))
+        dao.upsertUsage(RecipeUsageEntity(id, current?.favourite ?: false, (current?.cookedCount ?: 0) + 1, clock(), current?.rating))
+    }
+
+    /** The user's own 1–5 stars, or null to clear. Kept on this device like favourites. */
+    suspend fun setRating(id: String, rating: Int?) {
+        require(rating == null || rating in 1..5) { "Ratings are 1 to 5 stars" }
+        val current = dao.usage(id)
+        dao.upsertUsage(RecipeUsageEntity(id, current?.favourite ?: false, current?.cookedCount ?: 0, current?.lastCookedAtEpochMs, rating))
     }
 
     suspend fun savedRecipes(): List<Recipe> = dao.all().map { it.toDomain() }

@@ -4,6 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+
+/** v2: dish families on saved recipes, and personal star ratings. */
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `recipes` ADD COLUMN `family` TEXT")
+        db.execSQL("ALTER TABLE `recipe_usage` ADD COLUMN `rating` INTEGER")
+    }
+}
 
 @Database(
     entities = [
@@ -20,7 +30,7 @@ import androidx.room.RoomDatabase
         ScanSessionEntity::class,
         SavedMealEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 abstract class NouriDatabase : RoomDatabase() {
@@ -38,7 +48,7 @@ abstract class NouriDatabase : RoomDatabase() {
          * Explicit migrations only — user data is never dropped. Add a Migration for
          * every schema version bump (see ARCHITECTURE.md, "Database migrations").
          */
-        val MIGRATIONS: Array<androidx.room.migration.Migration> = emptyArray()
+        val MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2)
 
         fun build(context: Context): NouriDatabase =
             Room.databaseBuilder(context.applicationContext, NouriDatabase::class.java, NAME)

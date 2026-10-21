@@ -43,7 +43,7 @@ CODES = {"@poultry", "@mince", "@egg", "@rice", "@fridge3", "@reheat", "@deep_fr
 
 RECIPE_KEYS = {"id", "name", "cuisine", "region", "course", "servings", "prep", "cook", "difficulty", "description",
                "equipment", "tags", "ingredients", "steps", "storage", "reheating", "safety", "notes", "variantOf",
-               "variantSummary"}
+               "variantSummary", "family"}
 REQUIRED = {"id", "name", "cuisine", "course", "servings", "prep", "cook", "description", "ingredients", "steps"}
 LINE_KEYS = {"id", "name", "q", "u", "prep", "opt", "group", "eaten", "cooked", "taste"}
 STEP_KEYS = {"t", "min", "c"}
@@ -209,7 +209,7 @@ VERBOSE = False
 
 KEY_ORDER = ["id", "name", "cuisine", "region", "course", "servings", "prep", "cook", "difficulty", "description",
              "equipment", "tags", "ingredients", "steps", "storage", "reheating", "safety", "notes", "variantOf",
-             "variantSummary"]
+             "variantSummary", "family"]
 
 
 def dump(data):
@@ -278,7 +278,19 @@ def main(argv):
             if validate is None or os.path.abspath(path) in validate:
                 errors.extend(f"{name} {rid}: {p}" for p in check_recipe(r, ctx, table))
             recipes.append(r)
+    families = {r.get("id"): r.get("family") or r.get("variantOf") for r in recipes}
     for r in recipes:
+        fam = r.get("family")
+        where = f"{seen_ids.get(r.get('id'), '?')} {r.get('id')}"
+        if fam is not None:
+            if fam == r.get("id"):
+                errors.append(f"{where}: family must name another recipe (the dish's main version)")
+            elif fam not in seen_ids:
+                errors.append(f"{where}: family {fam} is not a recipe id")
+            elif families.get(fam):
+                errors.append(f"{where}: family {fam} is itself a version of {families[fam]}; point at the main recipe instead")
+            if r.get("variantOf"):
+                errors.append(f"{where}: a variation joins its base's family automatically; drop family")
         v = r.get("variantOf")
         if v and v not in seen_ids:
             errors.append(f"{seen_ids.get(r.get('id'), '?')} {r.get('id')}: variation of unknown recipe {v}")

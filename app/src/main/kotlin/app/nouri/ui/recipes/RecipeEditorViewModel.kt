@@ -173,6 +173,8 @@ class RecipeEditorViewModel(private val c: AppContainer, private val recipeId: S
             // In-place edits keep their origin (an edited AI recipe is still AI-derived); new recipes and copies are the user's.
             origin = if (editInPlace) base!!.origin else RecipeOrigin.USER,
             variantOf = if (editInPlace) base?.variantOf else copyOf,
+            // A copy stays grouped with the dish it came from.
+            family = base?.family,
             variantSummary = when {
                 editInPlace -> base?.variantSummary
                 copyOf != null -> "Your edited copy of ${base?.name}"

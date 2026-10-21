@@ -28,6 +28,8 @@ data class RecommendationContext(
     val recentlyCookedRecipeIds: List<String> = emptyList(),
     val recentCuisineIds: List<String> = emptyList(),
     val favouriteRecipeIds: Set<String> = emptySet(),
+    /** The user's own 1–5 star ratings by recipe id. */
+    val ratings: Map<String, Int> = emptyMap(),
 )
 
 data class RankedRecipe(
@@ -163,6 +165,11 @@ class RecipeRanker(private val engine: NutritionEngine = NutritionEngine()) {
         if (recipe.id in ctx.favouriteRecipeIds) {
             score += 0.05
             reasons += "One of your favourites"
+        }
+        ctx.ratings[recipe.id]?.let { stars ->
+            // 5 stars lifts a recipe about as much as a favourite; 1–2 stars sinks it.
+            score += 0.04 * (stars - 3)
+            if (stars >= 4) reasons += "You rated it $stars/5"
         }
         if (recipe.id in ctx.recentlyCookedRecipeIds.take(5)) score -= 0.08
         if (recipe.cuisineId in ctx.recentCuisineIds.take(3) && !favourite) score -= 0.03
