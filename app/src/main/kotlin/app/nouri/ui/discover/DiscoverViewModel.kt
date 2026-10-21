@@ -76,7 +76,7 @@ class DiscoverViewModel(private val c: AppContainer) : ViewModel() {
         val expiring = if (f.usePantry) PantryLogic.expiringSoon(pantry, SystemTime.today()).mapNotNull { it.ingredientId }.toSet() else emptySet()
         // Cheap filters first, so only matching recipes are scored.
         val terms = f.query.trim().lowercase().split(Regex("\\s+")).filter { it.isNotEmpty() }
-        val candidates = prepared.filter { p -> matchesFilters(p, f, favourites) && terms.all { t -> matchesTerm(p.recipe, t) } }
+        val candidates = prepared.filter { p -> matchesFilters(p, f, favourites) && terms.all { t -> matchesTerm(p, t) } }
         val ranking = c.core(s.preferences.measurementSystem).ranker.rankPrepared(
             candidates,
             RecommendationContext(
@@ -129,10 +129,12 @@ class DiscoverViewModel(private val c: AppContainer) : ViewModel() {
                 (!f.favouritesOnly || r.id in favourites)
         }
 
-        /** One search word against the name, cuisine, region, course, tags and ingredients. */
-        fun matchesTerm(r: Recipe, term: String): Boolean {
+        /** One search word against the name, cuisine, region, course, calculated diets, tags and ingredients. */
+        fun matchesTerm(p: PreparedRecipe, term: String): Boolean {
+            val r = p.recipe
             val cuisine = CuisineCatalog[r.cuisineId]
             return r.name.lowercase().contains(term) ||
+                p.analysis.diets.any { it.label.lowercase().startsWith(term) } ||
                 cuisine?.name?.lowercase()?.contains(term) == true ||
                 cuisine?.country?.lowercase()?.contains(term) == true ||
                 cuisine?.worldRegion?.label?.lowercase()?.contains(term) == true ||
