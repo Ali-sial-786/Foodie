@@ -5,6 +5,7 @@ Nouri's bundled recipe library: reference recipes kept as data, one JSON file pe
 - **Source:** `data/recipes/*.json` (edit these).
 - **Bundle:** `python3 scripts/build_recipe_library.py` validates every file and writes `app/src/main/assets/recipes/library.json`. Never edit the bundle by hand; CI runs `--check`.
 - **Tests:** `RecipeLibraryTest` (shared `jvmTest`) decodes every file and checks the same rules with the real nutrition engine.
+- **While writing:** `python3 scripts/build_recipe_library.py --format data/recipes/<file>.json` tidies the layout, and `python3 scripts/build_recipe_library.py --table <ingredient-table.json> --verbose data/recipes/<file>.json` checks one file, including estimated calories per serving. Export the table with `NOURI_EXPORT_INGREDIENTS=/tmp/ingredient-table.json ./gradlew :shared:jvmTest --tests "*IngredientTableExport*" --rerun` (re-export after changing the ingredient catalogue).
 
 Recipes are Nouri's own write-ups of widely known home-style dishes (origin "Traditional (Nouri reference recipe)"). Do not copy text from cookbooks or websites, and never claim a published source. Nutrition is not stored: the engine calculates it from the ingredient lines, so amounts must be realistic.
 

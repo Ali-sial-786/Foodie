@@ -4,14 +4,16 @@
 Input:  data/recipes/*.json  (format and rules: data/recipes/README.md)
 Output: app/src/main/assets/recipes/library.json  (minified, loaded on first use)
 
-Usage: python3 scripts/build_recipe_library.py [--check] [--table PATH [--verbose]] [FILE ...]
+Usage: python3 scripts/build_recipe_library.py [--check] [--table PATH [--verbose]] [--format] [FILE ...]
   --check       exit non-zero if the bundle is out of date (used in CI); writes nothing.
   --table PATH  ingredient table from IngredientTableExport (see that class) to estimate
                 calories per serving and catch amounts that don't convert. Without it,
                 only structure is checked; RecipeLibraryTest always runs the real engine.
   --verbose     with --table, print each recipe's estimated calories per serving.
+  --format      rewrite the given FILEs in the canonical layout (one line per ingredient and step).
   FILE ...      validate only these source files (still checks ids against all files);
-                implies no bundle is written.
+                implies no bundle is written. Other files that are mid-edit (invalid JSON)
+                are skipped with a warning instead of failing.
 
 The same rules are enforced by RecipeLibraryTest with the real nutrition engine.
 """
@@ -205,6 +207,31 @@ def check_recipe(r, ctx, table):
 VERBOSE = False
 
 
+KEY_ORDER = ["id", "name", "cuisine", "region", "course", "servings", "prep", "cook", "difficulty", "description",
+             "equipment", "tags", "ingredients", "steps", "storage", "reheating", "safety", "notes", "variantOf",
+             "variantSummary"]
+
+
+def dump(data):
+    """Canonical layout: readable diffs, one line per ingredient line and per step."""
+    def one(v):
+        return json.dumps(v, ensure_ascii=False)
+    out = ['{\n  "recipes": [']
+    for i, r in enumerate(data["recipes"]):
+        keys = [k for k in KEY_ORDER if k in r] + sorted(k for k in r if k not in KEY_ORDER)
+        body = []
+        for k in keys:
+            v = r[k]
+            if k in ("ingredients", "steps") and v:
+                rows = ",\n".join(f"        {one(x)}" for x in v)
+                body.append(f'      "{k}": [\n{rows}\n      ]')
+            else:
+                body.append(f'      "{k}": {one(v)}')
+        out.append("    {\n" + ",\n".join(body) + "\n    }" + ("," if i < len(data["recipes"]) - 1 else ""))
+    out.append("  ]\n}\n")
+    return "\n".join(out)
+
+
 def main(argv):
     global VERBOSE
     VERBOSE = "--verbose" in argv
@@ -213,6 +240,11 @@ def main(argv):
     if "--table" in argv:
         table = json.loads(read(argv[argv.index("--table") + 1]))
     explicit = [a for i, a in enumerate(argv) if a.endswith(".json") and not (i > 0 and argv[i - 1] == "--table")]
+    if "--format" in argv:
+        for path in explicit:
+            formatted = dump(json.loads(read(path)))
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(formatted)
 
     ctx = load_context()
     sources = sorted(glob.glob(os.path.join(SRC_DIR, "*.json")))
@@ -225,7 +257,10 @@ def main(argv):
         try:
             data = json.loads(read(path))
         except json.JSONDecodeError as e:
-            errors.append(f"{name}: invalid JSON: {e}")
+            if validate is not None and os.path.abspath(path) not in validate:
+                print(f"warning: skipped {name} (invalid JSON, probably mid-edit)", file=sys.stderr)
+            else:
+                errors.append(f"{name}: invalid JSON: {e}")
             continue
         if set(data) != {"recipes"}:
             errors.append(f"{name}: top level must be {{\"recipes\": [...]}}")
