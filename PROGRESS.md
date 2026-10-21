@@ -4,11 +4,11 @@ _Last updated: 2026-10-21._
 
 ## Done
 
-**Shared engine (`:shared`).** 256 tests pass locally; CI runs the same suite on every push.
+**Shared engine (`:shared`).** All shared tests pass locally; CI runs the same suite on every push.
 
 - Units, regional cups, household portions.
-- USDA SR28 data pipeline: 249 compiled core foods plus the full table as a search asset.
-- Ingredient ontology (~205 ingredients, regional aliases, allergens, halal status, substitutions).
+- USDA SR28 data pipeline: 460 compiled core foods plus the full table as a search asset.
+- Ingredient ontology (~385 ingredients, regional aliases, allergens, halal status, substitutions), covering seafood, cuts, cheeses, grains, pulses, vegetables, fruit, nuts, herbs, spices, sauces and drinks used by cuisines worldwide.
 - ~85 regional dish compositions; 80 recipes across ~38 cuisines (including butter chicken, nihari, haleem, pad thai, pho, shawarma, falafel, bolognese, lasagne, tacos and jerk chicken), including variations kept separate from the traditional versions. Every built-in recipe meets the recipe-library standard (`data/recipes/README.md`): one course, diet labels calculated rather than declared, and a step-by-step method with heat levels, times and doneness cues. Nutrition was unchanged by the rewrite.
 - Nutrition engine with yields, edible and consumed fractions, rounding policy and provenance.
 - Meal estimation pipeline with ranges, confidence, corrections and correction memory.

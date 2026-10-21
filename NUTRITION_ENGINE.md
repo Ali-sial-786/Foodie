@@ -8,7 +8,7 @@ All nutrition numbers in Nouri are calculated by deterministic, unit-tested code
 |---|---|---|
 | `Nutrients` | `model/Nutrients.kt` | Energy, protein, total carbohydrate (includes fibre, matching USDA/US/Canada) and fat are always present. Fibre, sugar, sodium and saturated fat are `null` when unknown, which is not the same as zero. |
 | `FoodReference` | `fooddb/FoodReference.kt` | Nutrients per 100 g of edible portion, plus density, household portions, refuse fraction, serving size, source and data quality. |
-| `CanonicalIngredient` | `ontology/` | ~190 ingredients with raw and cooked USDA references, regional aliases, edible fraction, cooking yield, allergens, halal status, substitutions. |
+| `CanonicalIngredient` | `ontology/` | ~385 ingredients with raw and cooked USDA references, regional aliases, edible fraction, cooking yield, allergens, halal status, substitutions. |
 | `DishDefinition` | `dishes/` | ~85 typical dish compositions with a batch cooked weight. Per-100 g values are calculated from the composition. |
 
 ## Units and conversions (`units/Units.kt`)

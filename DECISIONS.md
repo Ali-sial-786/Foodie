@@ -51,10 +51,15 @@ Each entry gives the context, the decision and its consequences. Newest decision
 - **Consequences.** The app avoids implying calibrated probabilities. The benchmark reports range coverage together with mean range width, so wide ranges can't game coverage.
 
 ## ADR-012 Bundled USDA SR28 data, generated code for core foods
-- **Decision.** Commit the SR28 ASCII source. Generate Kotlin for the referenced foods (249 at present) (so it works offline on all platforms) and a TSV asset for full search on Android.
+- **Decision.** Commit the SR28 ASCII source. Generate Kotlin for the referenced foods (460 at present) (so it works offline on all platforms) and a TSV asset for full search on Android.
 - **Consequences.** No runtime download and fully reproducible data (`scripts/fixtures.sh`). SR Legacy/FDC migration is planned.
 
 ## ADR-013 Android builds verified in CI, not locally
 - **Context.** The development sandbox cannot reach Google Maven or the Android SDK (`dl.google.com`).
 - **Decision.** Build and test `:shared` locally (`NOURI_SKIP_ANDROID=1`). Compile, unit-test, lint and assemble `:app` in GitHub Actions on every push.
 - **Consequences.** Slower feedback for Android code. No on-device testing has happened yet (see BLOCKERS.md).
+
+## ADR-014 Ingredient stand-ins and as-bought weights
+- **Context.** Recipes from many cuisines use ingredients SR28 lacks (sumac, curry leaves, galangal, rice paper) or sells with shells and bones (mussels, whole birds, short ribs).
+- **Decision.** Map an ingredient to a close SR28 record only when the effect on totals is negligible or the foods are near-identical, and say so in a one-line comment beside it (for example `star_anise`, `sumac`, `rice_paper`). Otherwise leave it out. Shell-on and bone-in items keep the edible-portion record and set `edibleFraction`, so recipe weights are as bought. Dry grains and pulses use the dry record plus `cookedYield`.
+- **Consequences.** Stand-ins are visible in code review and easy to replace when a better source arrives. Halloumi, mascarpone, udon, oxtail and dried shrimp have no SR28 record and are not in the ontology yet.

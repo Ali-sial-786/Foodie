@@ -12,7 +12,7 @@
 That makes **256 shared tests**. They cover:
 
 - unit conversions and regional cups;
-- the ontology, aliases and allergen/halal flags;
+- the ontology, aliases (including ~70 regional names from cuisines worldwide, and specific names such as "white wine vinegar" beating their generic parts) and allergen/halal flags;
 - recipe and dish calculation, including the estimated pot weight when dry rice, pasta or pulses absorb water;
 - every built-in recipe calculating fully from USDA data, with sensible calories per serving and halal-incompatible items only as optional lines (`RecipeCatalogCoverageTest`);
 - every built-in and bundled-library recipe meeting the authoring rules in `data/recipes/README.md`: exactly one course, no declared diet tags, a method long and detailed enough for its course, equipment, storage advice, a food-safety note for raw meat, poultry or seafood, and calories per serving plausible for the course (`RecipeLibraryTest`);
