@@ -117,8 +117,23 @@ object AuthorizationRequestBuilder {
         return PendingAuthorization(url, redirectUri, state, nonce, pkce, registration?.clientId, requestPlanUsage)
     }
 
-    /** Random opaque host identifier, generated once per installation. Not a secret. */
-    fun newHostId(random: SecureRandomSource): String = "nouri-" + random.nextBytes(16).toHex()
+    /**
+     * Opaque host identifier, generated once per installation and reused for every sign-in.
+     * OpenAI requires a `urn:uuid:` URI with a version-4 UUID (a JWK thumbprint URI is the
+     * other accepted form); anything else is rejected with `invalid_authorize_request`.
+     * It identifies this installation, not the user, and is not a secret.
+     */
+    fun newHostId(random: SecureRandomSource): String {
+        val b = random.nextBytes(16)
+        b[6] = ((b[6].toInt() and 0x0f) or 0x40).toByte() // version 4
+        b[8] = ((b[8].toInt() and 0x3f) or 0x80).toByte() // RFC 4122 variant
+        val hex = b.toHex()
+        return "urn:uuid:${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}"
+    }
+
+    private val hostIdPattern = Regex("^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
+
+    fun isValidHostId(value: String): Boolean = hostIdPattern.matches(value)
 }
 
 sealed interface CallbackResult {

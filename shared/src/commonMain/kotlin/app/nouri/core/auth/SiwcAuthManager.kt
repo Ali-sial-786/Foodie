@@ -125,7 +125,13 @@ class SiwcAuthManager(
         return (discovered ?: SiwcEndpoints()).also { if (discovered != null) endpoints = it }
     }
 
-    suspend fun hostId(): String = store.hostId() ?: AuthorizationRequestBuilder.newHostId(random).also { store.saveHostId(it) }
+    /**
+     * This installation's host id. Values in an older, rejected format (builds before
+     * `urn:uuid:` ids) are replaced; no account could have registered with them.
+     */
+    suspend fun hostId(): String =
+        store.hostId()?.takeIf(AuthorizationRequestBuilder::isValidHostId)
+            ?: AuthorizationRequestBuilder.newHostId(random).also { store.saveHostId(it) }
 
     /** Starts an attempt. Pass [account] to re-authorise a previously registered account. */
     suspend fun begin(redirectUri: String, account: SiwcRegistration? = null, requestPlanUsage: Boolean = true): PendingAuthorization =

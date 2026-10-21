@@ -57,6 +57,6 @@ _Last updated: 2026-10-20._
 ## Known limitations
 
 - Android code has only been compiled and tested in CI. Nothing has run on a device or emulator.
-- Sign in with ChatGPT and the Responses API have only been tested against mocked HTTP.
+- Sign in with ChatGPT has had one real-device attempt: the authorize request reached OpenAI and was rejected because the host id format was wrong (now `urn:uuid:<UUIDv4>`). Token exchange and Responses API calls have still only been tested against mocked HTTP.
 - Default OpenAI model names are placeholders, resolved at runtime from `GET /v1/models`.
 - The benchmark uses synthetic fixtures and the deterministic demo provider, so it does not measure photo recognition.

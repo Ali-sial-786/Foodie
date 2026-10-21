@@ -39,7 +39,7 @@ Flow (the open-source/local app variant):
 1. **Discovery.** `/.well-known/openid-configuration` on `https://auth.openai.com` supplies the authorize, token, revocation and JWKS endpoints. The constants in `SiwcConfig` are fallbacks only.
 2. **Authorization request.**
    - `response_type=code` with a fresh `state`, `nonce` and PKCE (S256; 64-character verifier) on every attempt.
-   - A stable per-install `ext_agent_host_id`.
+   - A stable per-install `ext_agent_host_id`: `urn:uuid:` followed by a lowercase version-4 UUID, generated once and stored with the other secrets. OpenAI rejects other formats with `invalid_authorize_request` (`param: ext_agent_host_id`) — the first real-device test hit exactly this with the earlier `nouri-<hex>` format. Stored values in the old format are replaced automatically.
    - `scope = openid profile email offline_access resource.invoke chatgpt.tokens.use.direct` and `resource=https://api.openai.com/v1`.
    - **First registration** uses `client_id=dynamic_agent_client` with `agent_name_hint=Nouri`. The server issues the real `client_id` in the callback. **Re-authorisation** uses the stored client id with `id_token_hint` and `login_hint`.
 3. **Browser.**

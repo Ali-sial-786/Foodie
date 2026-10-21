@@ -232,4 +232,34 @@ class SiwcTest {
         val m = SiwcAuthManager(client(Server()), store, SecureRandomSource { Random.Default.nextBytes(it) }, FakeClock(0), sleep = {})
         assertEquals(m.hostId(), m.hostId())
     }
+
+    @Test
+    fun hostIdIsAUrnUuidVersion4() {
+        repeat(50) {
+            val id = AuthorizationRequestBuilder.newHostId(SecureRandomSource { Random.Default.nextBytes(it) })
+            assertTrue(AuthorizationRequestBuilder.isValidHostId(id), id)
+        }
+        // All-0xFF input still yields correct version and variant bits.
+        val maxed = AuthorizationRequestBuilder.newHostId(SecureRandomSource { ByteArray(it) { -1 } })
+        assertEquals("urn:uuid:ffffffff-ffff-4fff-bfff-ffffffffffff", maxed)
+        assertFalse(AuthorizationRequestBuilder.isValidHostId("nouri-0123456789abcdef0123456789abcdef"))
+    }
+
+    @Test
+    fun hostIdInTheOldRejectedFormatIsReplacedOnce() = runTest {
+        val store = InMemorySiwcStore()
+        store.saveHostId("nouri-0123456789abcdef0123456789abcdef")
+        val m = SiwcAuthManager(client(Server()), store, SecureRandomSource { Random.Default.nextBytes(it) }, FakeClock(0), sleep = {})
+        val fresh = m.hostId()
+        assertTrue(AuthorizationRequestBuilder.isValidHostId(fresh), fresh)
+        assertEquals(fresh, store.hostId())
+        assertEquals(fresh, m.hostId())
+    }
+
+    @Test
+    fun authorizeUrlCarriesTheHostIdAsAUrn() {
+        val host = AuthorizationRequestBuilder.newHostId(SecureRandomSource { Random.Default.nextBytes(it) })
+        val p = AuthorizationRequestBuilder.build(host, "http://127.0.0.1:5000/auth/callback", SecureRandomSource { Random.Default.nextBytes(it) })
+        assertEquals(host, io.ktor.http.Url(p.authorizationUrl).parameters["ext_agent_host_id"])
+    }
 }

@@ -79,7 +79,13 @@ Read coverage together with range width: wide ranges make coverage easy. The har
 | App compiles; main flows pass under Robolectric (simulated) | Verified in CI |
 | UI on a real phone or emulator | **Not done** |
 | CameraX capture, ML Kit barcode and OCR on hardware | **Not done** |
-| Sign in with ChatGPT and Responses API against live OpenAI | **Not done**; mocked HTTP only |
+| Sign in with ChatGPT and Responses API against live OpenAI | **In progress on a device**: first attempt reached OpenAI and exposed a host-id format bug (fixed, retest pending); token exchange and AI requests not reached yet |
 | Open Food Facts live lookups | **Not done**; mapper tested with sample JSON |
 
 Do not describe a feature as working on devices until it has been tried on one. Record real-device results here, with device model and Android version.
+
+## Real-device results
+
+| Date | Device / Android | What was tried | Result |
+|---|---|---|---|
+| 2026-10-21 | Not recorded | Install debug APK; Settings › AI provider › Connect ChatGPT | App installed and opened the Custom Tab to `auth.openai.com`. The authorize request was rejected: `invalid_authorize_request`, `param: ext_agent_host_id`. Cause: the host id was `nouri-<hex>` instead of the required `urn:uuid:<UUIDv4>`. Fixed; needs a retest. |
